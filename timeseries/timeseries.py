@@ -49,7 +49,7 @@ class TimeSeries:
 			raise TypeError
 		
 		else:
-			self.data = initial_data
+			self.data = list(initial_data)
 		
 
 	def __len__(self):
