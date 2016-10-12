@@ -1,12 +1,12 @@
 from pytest import raises
 from timeseries import TimeSeries
-import numpy as np
+from arraytimeseries import ArrayTimeSeries
 
-def test_threes_fives():
+def threes_fives(class_name):
     # projecteuler.net/problem=1
     # Note: this is decidely *not* the intended purpose of this class.
-    threes = TimeSeries(range(0,1000,3))
-    fives = TimeSeries(range(0,1000,5))
+    threes = class_name(range(0,1000,3))
+    fives = class_name(range(0,1000,5))
     
     s = 0
     for i in range(0,1000):
@@ -15,8 +15,15 @@ def test_threes_fives():
     
     assert(s == 233168)
 
-def test_non_iterable():
+def non_iterable(class_name):
     #Confirms we get a type error when we try to create with non-iterable
     with raises(TypeError):
-            non_iterable = TimeSeries(42)
-   
+            non_iterable = class_name(42)
+
+def test_TimeSeries():
+    threes_fives(TimeSeries)
+    non_iterable(TimeSeries)
+
+def test_ArrayTimeSeries():
+    threes_fives(ArrayTimeSeries)
+    non_iterable(ArrayTimeSeries)
