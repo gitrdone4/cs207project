@@ -35,11 +35,22 @@ class TimeSeries:
     	POST:
 
 	    INVARIANTS:
+		inital_data must be a sequence. 
 
 	    WARNINGS:
 
 		"""
-		self.data = initial_data
+		
+		# Confirm inital_data is a sequence. 
+		try: 
+			_ = (e for e in initial_data)
+		except TypeError:
+			print(initial_data, "is not iterable")
+			raise TypeError
+		
+		else:
+			self.data = initial_data
+		
 
 	def __len__(self):
 		return len(self.data)
@@ -102,3 +113,4 @@ for i in range(0,1000):
     s += i
 
 print("sum",s)
+print(threes)
