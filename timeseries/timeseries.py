@@ -6,6 +6,8 @@ class TimeSeries:
     ----------
     initial_data : list
         This can be any object that can be treated like a sequence. It is mandatory.
+    time_input : list
+        This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
     position: int
         the index position at which the requested item should be inserted
 
@@ -20,7 +22,7 @@ class TimeSeries:
         - This class does not maintain an accurate time series if it is provided an unsorted array
     """
 
-    def __init__(self, initial_data, time_data=None):
+    def __init__(self, initial_data, time_input=None):
         """
         The TimeSeries class constructor. It must be provided the initial data to fill the time series instance with.
 
@@ -28,14 +30,16 @@ class TimeSeries:
         ----------
         initial_data : list
             This can be any object that can be treated like a sequence. It is mandatory.
+        time_input : list
+            This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
 
         Notes
         -----
-        PRE: If time_data is not provided, `initial_data` must be sorted in order earliest -> most recent
+        PRE: If time_input is not provided, `initial_data` must be sorted
         POST:
 
         INVARIANTS:
-        inital_data must be a sequence. 
+        inital_data and time_input (if provided) must be sequences. 
 
         WARNINGS:
 
@@ -43,14 +47,14 @@ class TimeSeries:
 
         # Confirm inital_data is a sequence. 
         try: 
-            _ = (e for e in initial_data) # R: O(n) to check if iterable. can we stop this earlier? 
+            _ = (e for e in initial_data) # R: O(n) to check if iterable. can we stop this earlier?
         except TypeError:
             raise TypeError("%s is not iterable" % initial_data) # R: moved print into error msg R
         else:
             self.data = list(initial_data)
         
-        if time_data!=None:
-            self.time = list(time_data) # R: haven't checked if time_data is iterable. make this a precondition?
+        if time_input!=None:
+            self.time = list(time_input) # R: haven't checked if time_input is iterable. make this a precondition?
         else:
             self.time = list(range(len(self.data)))
             
@@ -64,13 +68,17 @@ class TimeSeries:
         return len(self.data)
 
     def __getitem__(self, position):
-#         return self.data[position] 
-#         R: if a time dimension is supplied we get items by time (i.e. like a dict implementation)
+    	try:
+    		self.time.index(position)
+    	except ValueError:
+    		raise ValueError("Time value error: choose t from time column") # R: unit test me
         return self.data[self.time.index(position)]
         
     def __setitem__(self, position, item):
-#         self.data[position] = item
-#         R: if a time dimension is supplied we get items by time (i.e. like a dict implementation)
+    	try:
+    		self.time.index(position)
+    	except ValueError:
+    		raise ValueError("Time value error: choose t from time column") # R: unit test me
         self.data[self.time.index(position)] = item
 
     def __iter__(self):
@@ -129,14 +137,13 @@ class TimeSeries:
 ## Note: this is decidely *not* the intended purpose of this class.
 #
 
-if __name__ == '__main__':
-	threes = TimeSeries(range(0,1000,3))
-	fives = TimeSeries(range(0,1000,5))
+# threes = TimeSeries(range(0,1000,3))
+# fives = TimeSeries(range(0,1000,5))
 
-	s = 0
-	for i in range(0,1000):
-	 if i in threes or i in fives:
-	   s += i
+# s = 0
+# for i in range(0,1000):
+#  if i in threes or i in fives:
+#    s += i
 
-	print("sum",s)
-	print(threes)
+# print("sum",s)
+# print(threes)
