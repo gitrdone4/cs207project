@@ -68,17 +68,13 @@ class TimeSeries:
         return len(self.data)
 
     def __getitem__(self, position):
-        try:
-            _ = self.time.index(position)
-        except ValueError:
-            raise ValueError("Time value error: choose t from time column") # R: unit test me
+        if position not in self.time:
+            raise ValueError("Choose t from time column") # R: unit test me
         return self.data[self.time.index(position)]
         
     def __setitem__(self, position, item):
-        try:
-            _ = self.time.index(position)
-        except ValueError:
-            raise ValueError("Time value error: choose t from time column") # R: unit test me
+        if position not in self.time:
+            raise ValueError("Choose t from time column") # R: unit test me
         self.data[self.time.index(position)] = item
 
     def __iter__(self):
