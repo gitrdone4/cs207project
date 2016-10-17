@@ -57,6 +57,7 @@ class TimeSeries:
         # Confirm inital_data is a sequence.
 
         # J: unit test this
+        # N: done
         # J: all Python sequences implement __iter__(), which we can use here.
         self.is_sequence(initial_data)
         self.data = list(initial_data)
@@ -74,11 +75,13 @@ class TimeSeries:
         if len(self.time)!=len(self.data):
 
             # R: unit test me
+            # N: Done.
             raise ValueError("Time and input data of incompatible dimensions")
 
         if len(self.time)!=len(set(self.time)):
 
             # R: unit test me. consider moving to precondition
+            # N: Done. 
             raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
@@ -169,18 +172,3 @@ class TimeSeries:
         except TypeError as te:
             # J: unified string formatting with .format()
             raise TypeError("{} is not a valid sequence".format(seq))
-
-# # projecteuler.net/problem=1
-# # Note: this is decidely *not* the intended purpose of this class.
-
-
-# threes = TimeSeries(range(0,1000,3))
-# fives = TimeSeries(range(0,1000,5))
-
-# s = 0
-# for i in range(0,1000):
-#  if i in threes or i in fives:
-#    s += i
-
-# print("sum",s)
-# print(threes)
