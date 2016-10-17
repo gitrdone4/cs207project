@@ -55,6 +55,6 @@ def test_array_time_series():
     threes_fives(ArrayTimeSeries)
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
-    #  These are not implemented in array time series yet 
+    # These are not implemented in array time series yet
     #incompatible_dimensions(ArrayTimeSeries)
     #time_input_contains_repeats(ArrayTimeSeries)
