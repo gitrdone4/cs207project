@@ -7,7 +7,7 @@ class TimeSeries:
     initial_data : list
         This can be any object that can be treated like a sequence. Mandatory.
     time_input : list
-        This can be any object that can be treated like a sequence. Optional. 
+        This can be any object that can be treated like a sequence. Optional.
         If it is not supplied, equally spaced integers are used instead.
     position: int
         The index position at which the requested item should be inserted
@@ -31,7 +31,7 @@ class TimeSeries:
 
     def __init__(self, initial_data, time_input=None):
         """
-        The TimeSeries class constructor. It must be provided the initial data 
+        The TimeSeries class constructor. It must be provided the initial data
         to fill the time series instance with.
 
         Parameters
@@ -39,7 +39,7 @@ class TimeSeries:
         initial_data : sequence-like
             This can be any object that can be treated like a sequence. Mandatory.
         time_input : sequence-like
-            This can be any object that can be treated like a sequence. Optional. 
+            This can be any object that can be treated like a sequence. Optional.
             If None, equally spaced integers are used instead.
 
         Notes
@@ -48,25 +48,25 @@ class TimeSeries:
         POST:
 
         INVARIANTS:
-        inital_data and time_input (if provided) must be sequences. 
+        inital_data and time_input (if provided) must be sequences.
 
         WARNINGS:
 
         """
 
-        # Confirm inital_data is a sequence. 
-        
+        # Confirm inital_data is a sequence.
+
         # J: unit test this
         # J: all Python sequences implement __iter__(), which we can use here.
         self.is_sequence(initial_data)
         self.data = list(initial_data)
 
         if time_input:
-            
+
             # R: haven't checked if time_input is iterable. make this a precondition?
-            # J: can't we simply test for this as well? 
+            # J: can't we simply test for this as well?
             self.is_sequence(time_input)
-            self.time = list(time_input) 
+            self.time = list(time_input)
 
         else:
             self.time = list(range(len(self.data)))
@@ -124,10 +124,10 @@ class TimeSeries:
         Returns
         -------
         pretty_printed: string
-            an end user friendly printed message that represents the time series 
-            numerical sequence. If the sequence is longer than `MAX_LENGTH` 
-            values, the printout will be the first three numbers followed by 
-            an ellipsis and ending with the last three numbers in the sequence. 
+            an end user friendly printed message that represents the time series
+            numerical sequence. If the sequence is longer than `MAX_LENGTH`
+            values, the printout will be the first three numbers followed by
+            an ellipsis and ending with the last three numbers in the sequence.
 
         Notes
         -----
@@ -143,7 +143,7 @@ class TimeSeries:
             needed = self.data[:3]+self.data[-3:]
             pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
         else:
-            pretty_printed = self.data 
+            pretty_printed = self.data
 
         return pretty_printed
 
