@@ -7,9 +7,10 @@ class TimeSeries:
     initial_data : list
         This can be any object that can be treated like a sequence. It is mandatory.
     time_input : list
-        This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
+        This can be any object that can be treated like a sequence. It is optional. 
+        If it is not supplied, equally spaced integers are used instead.
     position: int
-        the index position at which the requested item should be inserted
+        The index position at which the requested item should be inserted
 
     Notes
     -----
@@ -31,7 +32,8 @@ class TimeSeries:
         initial_data : list
             This can be any object that can be treated like a sequence. It is mandatory.
         time_input : list
-            This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
+            This can be any object that can be treated like a sequence. It is optional. 
+            If it is not supplied, equally spaced integers are used instead.
 
         Notes
         -----
@@ -46,23 +48,31 @@ class TimeSeries:
         """
 
         # Confirm inital_data is a sequence. 
-        try: 
-            _ = (e for e in initial_data) # R: O(n) to check if iterable. can we stop this earlier?
-        except TypeError:
-            raise TypeError("%s is not iterable" % initial_data) # R: moved print into error msg R
-        else:
-            self.data = list(initial_data)
         
-        if time_input!=None:
-            self.time = list(time_input) # R: haven't checked if time_input is iterable. make this a precondition?
+        # J: unit test this
+        # J: all Python sequences implement __iter__(), which we can use here.
+        self.is_sequence(initial_data)
+        self.data = list(initial_data)
+
+        if time_input:
+            
+            # R: haven't checked if time_input is iterable. make this a precondition?
+            # J: can't we simply test for this as well? 
+            self.is_sequence(time_input)
+            self.time = list(time_input) 
+
         else:
             self.time = list(range(len(self.data)))
-            
+
         if len(self.time)!=len(self.data):
-            raise ValueError("Time and input data of incompatible dimensions") # R: unit test me
-        
+
+            # R: unit test me
+            raise ValueError("Time and input data of incompatible dimensions")
+
         if len(self.time)!=len(set(self.time)):
-            raise ValueError("Time data should contain no repeats") # R: unit test me. consider moving to precondition
+
+            # R: unit test me. consider moving to precondition
+            raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
         return len(self.data)
@@ -71,7 +81,7 @@ class TimeSeries:
         if position not in self.time:
             raise ValueError("Choose t from time column") # R: unit test me
         return self.data[self.time.index(position)]
-        
+
     def __setitem__(self, position, item):
         if position not in self.time:
             raise ValueError("Choose t from time column") # R: unit test me
@@ -80,15 +90,15 @@ class TimeSeries:
     def __iter__(self):
         for val in self.data:
             yield val
-    
+
     def itertimes(self):
         for tim in self.time:
             yield tim
-        
+
     def iteritems(self):
         for i in range(len(self.data)):
             yield self.time[i], self.data[i]
-    
+
     def __repr__(self):
 
         class_name = type(self).__name__
@@ -105,6 +115,7 @@ class TimeSeries:
 
         Parameters
         ----------
+        self: TimeSeries instance
 
         Returns
         -------
@@ -124,14 +135,38 @@ class TimeSeries:
 
         """
         if len(self.data) > 10:
-            print_data = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
+            print_data  = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
             return print_data
         else:
             return '{}'.format(self.data)
 
-## projecteuler.net/problem=1
-## Note: this is decidely *not* the intended purpose of this class.
-#
+
+    def is_sequence(self, seq):
+        """
+        Description
+        -----------
+        Checks if `seq` is a sequence by verifying if it implements __iter__
+
+        Parameters
+        ----------
+        self: TimeSeries instance
+        seq: sequence
+
+        Notes
+        -----
+        A better implementation might be to use
+        and isinstance(seq, collections.Sequence)
+        """
+        try:
+            _ = iter(seq)
+        except TypeError as te:
+            # J: unified string formatting with .format()
+            raise TypeError("{} is not a valid sequence".format(seq))
+
+
+# # projecteuler.net/problem=1
+# # Note: this is decidely *not* the intended purpose of this class.
+
 
 # threes = TimeSeries(range(0,1000,3))
 # fives = TimeSeries(range(0,1000,5))
