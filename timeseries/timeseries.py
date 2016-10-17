@@ -5,9 +5,9 @@ class TimeSeries:
     Parameters
     ----------
     initial_data : list
-        This can be any object that can be treated like a sequence. It is mandatory.
+        This can be any object that can be treated like a sequence. Mandatory.
     time_input : list
-        This can be any object that can be treated like a sequence. It is optional. 
+        This can be any object that can be treated like a sequence. Optional. 
         If it is not supplied, equally spaced integers are used instead.
     position: int
         The index position at which the requested item should be inserted
@@ -23,17 +23,24 @@ class TimeSeries:
         - This class does not maintain an accurate time series if it is provided an unsorted array
     """
 
+
+    # J: maximum length of `initial_data` after which
+    # abbreviation will occur in __str__() and __repr__()
+    MAX_LENGTH = 10
+
+
     def __init__(self, initial_data, time_input=None):
         """
-        The TimeSeries class constructor. It must be provided the initial data to fill the time series instance with.
+        The TimeSeries class constructor. It must be provided the initial data 
+        to fill the time series instance with.
 
         Parameters
         ----------
-        initial_data : list
-            This can be any object that can be treated like a sequence. It is mandatory.
-        time_input : list
-            This can be any object that can be treated like a sequence. It is optional. 
-            If it is not supplied, equally spaced integers are used instead.
+        initial_data : sequence-like
+            This can be any object that can be treated like a sequence. Mandatory.
+        time_input : sequence-like
+            This can be any object that can be treated like a sequence. Optional. 
+            If None, equally spaced integers are used instead.
 
         Notes
         -----
@@ -102,16 +109,13 @@ class TimeSeries:
     def __repr__(self):
 
         class_name = type(self).__name__
-
-        if len(self.data) > 10:
-            print_data = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
-            return '{}(Length: {}, {})'.format(class_name, len(self.data), print_data)
-        else:
-            return '{}(Length: {}, {})'.format(class_name, len(self.data), self.data)
+        return '{}(Length: {}, {})'.format(class_name, len(self.data), str(self))
 
     def __str__(self):
         """
-        The TimeSeries class constructor. It must be provided the initial data to fill the time series instance with.
+        Description
+        -----------
+        Instance method for pretty-printing the TimeSeries instance
 
         Parameters
         ----------
@@ -119,9 +123,10 @@ class TimeSeries:
 
         Returns
         -------
-        print_data: string
-            an end user friendly printed message that represents the time series numerical sequence. If the 
-            sequence is longer than 10 values, the printout will be the first three numbers followed by 
+        pretty_printed: string
+            an end user friendly printed message that represents the time series 
+            numerical sequence. If the sequence is longer than `MAX_LENGTH` 
+            values, the printout will be the first three numbers followed by 
             an ellipsis and ending with the last three numbers in the sequence. 
 
         Notes
@@ -134,18 +139,20 @@ class TimeSeries:
         WARNINGS:
 
         """
-        if len(self.data) > 10:
-            print_data  = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
-            return print_data
+        if len(self.data) > self.MAX_LENGTH:
+            needed = self.data[:3]+self.data[-3:]
+            pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
         else:
-            return '{}'.format(self.data)
+            pretty_printed = self.data 
+
+        return pretty_printed
 
 
     def is_sequence(self, seq):
         """
         Description
         -----------
-        Checks if `seq` is a sequence by verifying if it implements __iter__
+        Checks if `seq` is a sequence by verifying if it implements __iter__.
 
         Parameters
         ----------
@@ -162,7 +169,6 @@ class TimeSeries:
         except TypeError as te:
             # J: unified string formatting with .format()
             raise TypeError("{} is not a valid sequence".format(seq))
-
 
 # # projecteuler.net/problem=1
 # # Note: this is decidely *not* the intended purpose of this class.
