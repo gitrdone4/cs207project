@@ -86,12 +86,14 @@ class TimeSeries:
 
     def __getitem__(self, position):
         if position not in self.time:
-            raise ValueError("Choose t from time column") # R: unit test me
+            # R: unit test me
+            raise ValueError("Choose t from time column")
         return self.data[self.time.index(position)]
 
     def __setitem__(self, position, item):
         if position not in self.time:
-            raise ValueError("Choose t from time column") # R: unit test me
+            # R: unit test me
+            raise ValueError("Choose t from time column")
         self.data[self.time.index(position)] = item
 
     def __iter__(self):
@@ -143,7 +145,7 @@ class TimeSeries:
             needed = self.data[:3]+self.data[-3:]
             pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
         else:
-            pretty_printed = self.data 
+            pretty_printed = "{}".format(list(self.data))
 
         return pretty_printed
 
