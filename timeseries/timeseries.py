@@ -5,11 +5,12 @@ class TimeSeries:
     Parameters
     ----------
     initial_data : list
-        This can be any object that can be treated like a sequence. It is mandatory.
+        This can be any object that can be treated like a sequence. Mandatory.
     time_input : list
-        This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
+        This can be any object that can be treated like a sequence. Optional. 
+        If it is not supplied, equally spaced integers are used instead.
     position: int
-        the index position at which the requested item should be inserted
+        The index position at which the requested item should be inserted
 
     Notes
     -----
@@ -22,16 +23,24 @@ class TimeSeries:
         - This class does not maintain an accurate time series if it is provided an unsorted array
     """
 
+
+    # J: maximum length of `initial_data` after which
+    # abbreviation will occur in __str__() and __repr__()
+    MAX_LENGTH = 10
+
+
     def __init__(self, initial_data, time_input=None):
         """
-        The TimeSeries class constructor. It must be provided the initial data to fill the time series instance with.
+        The TimeSeries class constructor. It must be provided the initial data 
+        to fill the time series instance with.
 
         Parameters
         ----------
-        initial_data : list
-            This can be any object that can be treated like a sequence. It is mandatory.
-        time_input : list
-            This can be any object that can be treated like a sequence. It is optional. If it is not supplied, equally spaced integers are used instead.
+        initial_data : sequence-like
+            This can be any object that can be treated like a sequence. Mandatory.
+        time_input : sequence-like
+            This can be any object that can be treated like a sequence. Optional. 
+            If None, equally spaced integers are used instead.
 
         Notes
         -----
@@ -46,23 +55,31 @@ class TimeSeries:
         """
 
         # Confirm inital_data is a sequence. 
-        try: 
-            _ = (e for e in initial_data) # R: O(n) to check if iterable. can we stop this earlier?
-        except TypeError:
-            raise TypeError("%s is not iterable" % initial_data) # R: moved print into error msg R
-        else:
-            self.data = list(initial_data)
         
-        if time_input!=None:
-            self.time = list(time_input) # R: haven't checked if time_input is iterable. make this a precondition?
+        # J: unit test this
+        # J: all Python sequences implement __iter__(), which we can use here.
+        self.is_sequence(initial_data)
+        self.data = list(initial_data)
+
+        if time_input:
+            
+            # R: haven't checked if time_input is iterable. make this a precondition?
+            # J: can't we simply test for this as well? 
+            self.is_sequence(time_input)
+            self.time = list(time_input) 
+
         else:
             self.time = list(range(len(self.data)))
-            
+
         if len(self.time)!=len(self.data):
-            raise ValueError("Time and input data of incompatible dimensions") # R: unit test me
-        
+
+            # R: unit test me
+            raise ValueError("Time and input data of incompatible dimensions")
+
         if len(self.time)!=len(set(self.time)):
-            raise ValueError("Time data should contain no repeats") # R: unit test me. consider moving to precondition
+
+            # R: unit test me. consider moving to precondition
+            raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
         return len(self.data)
@@ -71,7 +88,7 @@ class TimeSeries:
         if position not in self.time:
             raise ValueError("Choose t from time column") # R: unit test me
         return self.data[self.time.index(position)]
-        
+
     def __setitem__(self, position, item):
         if position not in self.time:
             raise ValueError("Choose t from time column") # R: unit test me
@@ -80,37 +97,36 @@ class TimeSeries:
     def __iter__(self):
         for val in self.data:
             yield val
-    
+
     def itertimes(self):
         for tim in self.time:
             yield tim
-        
+
     def iteritems(self):
         for i in range(len(self.data)):
             yield self.time[i], self.data[i]
-    
+
     def __repr__(self):
 
         class_name = type(self).__name__
-
-        if len(self.data) > 10:
-            print_data = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
-            return '{}(Length: {}, {})'.format(class_name, len(self.data), print_data)
-        else:
-            return '{}(Length: {}, {})'.format(class_name, len(self.data), self.data)
+        return '{}(Length: {}, {})'.format(class_name, len(self.data), str(self))
 
     def __str__(self):
         """
-        The TimeSeries class constructor. It must be provided the initial data to fill the time series instance with.
+        Description
+        -----------
+        Instance method for pretty-printing the TimeSeries instance
 
         Parameters
         ----------
+        self: TimeSeries instance
 
         Returns
         -------
-        print_data: string
-            an end user friendly printed message that represents the time series numerical sequence. If the 
-            sequence is longer than 10 values, the printout will be the first three numbers followed by 
+        pretty_printed: string
+            an end user friendly printed message that represents the time series 
+            numerical sequence. If the sequence is longer than `MAX_LENGTH` 
+            values, the printout will be the first three numbers followed by 
             an ellipsis and ending with the last three numbers in the sequence. 
 
         Notes
@@ -123,15 +139,40 @@ class TimeSeries:
         WARNINGS:
 
         """
-        if len(self.data) > 10:
-            print_data = "["+str(self.data[0])+","+str(self.data[1])+","+str(self.data[2])+",...,"+str(self.data[-3])+","+ str(self.data[-2])+","+ str(self.data[-1])+"]"
-            return print_data
+        if len(self.data) > self.MAX_LENGTH:
+            needed = self.data[:3]+self.data[-3:]
+            pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
         else:
-            return '{}'.format(self.data)
+            pretty_printed = self.data 
 
-## projecteuler.net/problem=1
-## Note: this is decidely *not* the intended purpose of this class.
-#
+        return pretty_printed
+
+
+    def is_sequence(self, seq):
+        """
+        Description
+        -----------
+        Checks if `seq` is a sequence by verifying if it implements __iter__.
+
+        Parameters
+        ----------
+        self: TimeSeries instance
+        seq: sequence
+
+        Notes
+        -----
+        A better implementation might be to use
+        and isinstance(seq, collections.Sequence)
+        """
+        try:
+            _ = iter(seq)
+        except TypeError as te:
+            # J: unified string formatting with .format()
+            raise TypeError("{} is not a valid sequence".format(seq))
+
+# # projecteuler.net/problem=1
+# # Note: this is decidely *not* the intended purpose of this class.
+
 
 # threes = TimeSeries(range(0,1000,3))
 # fives = TimeSeries(range(0,1000,5))
