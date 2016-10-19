@@ -91,12 +91,14 @@ class TimeSeries:
     def __getitem__(self, position):
         if position not in self.time:
             # R: unit test me
+            # N: Done.
             raise ValueError("Choose t from time column")
         return self.data[self.time.index(position)]
 
     def __setitem__(self, position, item):
         if position not in self.time:
             # R: unit test me
+            # N: Done.
             raise ValueError("Choose t from time column")
         self.data[self.time.index(position)] = item
 

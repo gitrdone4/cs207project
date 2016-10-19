@@ -6,5 +6,11 @@ before_install:
     - pip install coveralls
 script:
     - py.test
+
+notifications:
+  slack: giterdone4:tjH4PGpsNZLksCUcnlBXPjhh
+  #on_success: change
+  #on_failure: change
+
 after_success:
     - coveralls
