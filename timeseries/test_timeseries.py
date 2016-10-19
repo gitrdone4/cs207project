@@ -59,6 +59,32 @@ def time_input_contains_repeats(class_name):
     with raises(ValueError):
         class_name([1]*100, list(range(100))+[99])
 
+def index_in_time_series(class_name):
+    """
+    Confirm that we get a value error when we
+    attempt to access or set an non-existing value
+    """
+    ts = class_name([1,2,3],[1,2,3])
+    assert ts[2] == 2 
+    ts[2] = 10
+    assert ts[2] == 10
+
+
+def index_not_in_time_series(class_name):
+    """
+    Confirm that we get a value error when we
+    attempt to access or set an non-existing value
+    """
+    ts = class_name([1,2,3],[1,2,3])
+    with raises(ValueError):
+        _ = ts[4]
+
+    with raises(ValueError):
+        ts[5] = 5
+
+def correct_length(class_name):
+    ts = class_name([1] * 100, range(100))
+    assert len(ts) == 100
 
 def test_time_series():
     """Calles tests defined above on time series class"""
@@ -67,6 +93,9 @@ def test_time_series():
     iterable(TimeSeries)
     incompatible_dimensions(TimeSeries)
     time_input_contains_repeats(TimeSeries)
+    index_in_time_series(TimeSeries)
+    index_not_in_time_series(TimeSeries)
+    correct_length(TimeSeries)
 
 
 def test_array_time_series():
@@ -75,5 +104,7 @@ def test_array_time_series():
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
     # These are not implemented in array time series yet
+    # index_not_in_time_series(ArrayTimeSeries)
+    # correct_length(ArrayTimeSeries)
     # incompatible_dimensions(ArrayTimeSeries)
     # time_input_contains_repeats(ArrayTimeSeries)
