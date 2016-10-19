@@ -1,9 +1,11 @@
 from timeseries import TimeSeries
 import numpy as np
 
+
 class ArrayTimeSeries(TimeSeries):
     """
-    A subclass that stores a single, ordered set of numerical data as a np.array
+    A subclass that stores a single, ordered set
+    of numerical data contiguously as a `np.array`.
 
     Parameters
     ----------

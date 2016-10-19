@@ -20,14 +20,12 @@ class TimeSeries:
     INVARIANTS:
 
     WARNINGS:
-        - This class does not maintain an accurate time series if it is provided an unsorted array
+    - Does not maintain an accurate time series if `input_data` is unsorted.
     """
-
 
     # J: maximum length of `initial_data` after which
     # abbreviation will occur in __str__() and __repr__()
     MAX_LENGTH = 10
-
 
     def __init__(self, initial_data, time_input=None):
         """
@@ -37,9 +35,10 @@ class TimeSeries:
         Parameters
         ----------
         initial_data : sequence-like
-            This can be any object that can be treated like a sequence. Mandatory.
+            Actual data points for TimeSeries.
+            Any user-provided sequence-like object. Mandatory.
         time_input : sequence-like
-            This can be any object that can be treated like a sequence. Optional.
+            Time values for TimeSeries. Optional.
             If None, equally spaced integers are used instead.
 
         Notes
@@ -54,17 +53,19 @@ class TimeSeries:
 
         """
 
-        # Confirm inital_data is a sequence.
+        # First confirm `inital_data` is a sequence.
 
         # J: unit test this
         # N: done
         # J: all Python sequences implement __iter__(), which we can use here.
+
         self.is_sequence(initial_data)
         self.data = list(initial_data)
 
         if time_input:
 
-            # R: haven't checked if time_input is iterable. make this a precondition?
+            # R: haven't checked if time_input is iterable.
+            #    make this a precondition?
             # J: can't we simply test for this as well?
             self.is_sequence(time_input)
             self.time = list(time_input)
@@ -72,16 +73,16 @@ class TimeSeries:
         else:
             self.time = list(range(len(self.data)))
 
-        if len(self.time)!=len(self.data):
+        if len(self.time) != len(self.data):
 
             # R: unit test me
             # N: Done.
             raise ValueError("Time and input data of incompatible dimensions")
 
-        if len(self.time)!=len(set(self.time)):
+        if len(self.time) != len(set(self.time)):
 
             # R: unit test me. consider moving to precondition
-            # N: Done. 
+            # N: Done.
             raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
@@ -114,13 +115,15 @@ class TimeSeries:
     def __repr__(self):
 
         class_name = type(self).__name__
-        return '{}(Length: {}, {})'.format(class_name, len(self.data), str(self))
+        return '{}(Length: {}, {})'.format(class_name,
+                                           len(self.data),
+                                           str(self))
 
     def __str__(self):
         """
         Description
         -----------
-        Instance method for pretty-printing the TimeSeries instance
+        Instance method for pretty-printing the TimeSeries contents.
 
         Parameters
         ----------
@@ -129,10 +132,9 @@ class TimeSeries:
         Returns
         -------
         pretty_printed: string
-            an end user friendly printed message that represents the time series
-            numerical sequence. If the sequence is longer than `MAX_LENGTH`
-            values, the printout will be the first three numbers followed by
-            an ellipsis and ending with the last three numbers in the sequence.
+            an end-user-friendly printout of the time series.
+            If `len(self.data) > MAX_LENGTH`, printout abbreviated
+            using an ellipsis: `['a','b','c', ..., 'x','y','z']`.
 
         Notes
         -----
@@ -151,7 +153,6 @@ class TimeSeries:
             pretty_printed = "{}".format(list(self.data))
 
         return pretty_printed
-
 
     def is_sequence(self, seq):
         """
