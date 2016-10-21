@@ -151,8 +151,9 @@ class TimeSeries:
         if len(self.data) > self.MAX_LENGTH:
             needed = self.data[:3]+self.data[-3:]
             pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
+ 
         else:
-            pretty_printed = "{}".format(list(self.data))
+            pretty_printed = "{} {}".format(list(self.data), list(self.time))
 
         return pretty_printed
 
