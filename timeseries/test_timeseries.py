@@ -84,6 +84,7 @@ def index_not_in_time_series(class_name):
 
 def correct_length(class_name):
     ts = class_name([1] * 100, range(100))
+    assert len(ts) == 100
 
 def update_get_array_time_series_by_index(class_name):
     """
