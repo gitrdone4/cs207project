@@ -6,7 +6,7 @@ class TimeSeries:
     ----------
     values : list
         This can be any object that can be treated like a sequence. Mandatory.
-    time_input : list
+    times : list
         This can be any object that can be treated like a sequence. Optional.
         If it is not supplied, equally spaced integers are used instead.
     position: int
@@ -27,7 +27,7 @@ class TimeSeries:
     # abbreviation will occur in __str__() and __repr__()
     MAX_LENGTH = 10
 
-    def __init__(self, values, time_input=None):
+    def __init__(self, values, times=None):
         """
         The TimeSeries class constructor. It must be provided the initial data
         to fill the time series instance with.
@@ -37,17 +37,17 @@ class TimeSeries:
         values : sequence-like
             Actual data points for TimeSeries.
             Any user-provided sequence-like object. Mandatory.
-        time_input : sequence-like
+        times : sequence-like
             Time values for TimeSeries. Optional.
             If None, equally spaced integers are used instead.
 
         Notes
         -----
-        PRE: If time_input is not provided, `values` must be sorted
+        PRE: If times is not provided, `values` must be sorted
         POST:
 
         INVARIANTS:
-        inital_data and time_input (if provided) must be sequences.
+        inital_data and times (if provided) must be sequences.
 
         WARNINGS:
 
@@ -62,13 +62,13 @@ class TimeSeries:
         self.is_sequence(values)
         self.data = list(values)
 
-        if time_input:
+        if times:
 
-            # R: haven't checked if time_input is iterable.
+            # R: haven't checked if times is iterable.
             #    make this a precondition?
             # J: can't we simply test for this as well?
-            self.is_sequence(time_input)
-            self.time = list(time_input)
+            self.is_sequence(times)
+            self.time = list(times)
 
         else:
             self.time = list(range(len(self.data)))

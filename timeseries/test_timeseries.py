@@ -41,16 +41,16 @@ def iterable(class_name):
 
 def incompatible_dimensions(class_name):
     """
-    Confirm that we get a value error when time_input
+    Confirm that we get a value error when times
     is not the same length as initial data.
     """
     with raises(ValueError):
         class_name([1] * 100, range(200))
 
 
-def time_input_contains_repeats(class_name):
+def times_contains_repeats(class_name):
     """
-    Confirm that we get a value error when time_input
+    Confirm that we get a value error when times
     contains repeated values.
     """
     with raises(ValueError):
@@ -92,7 +92,7 @@ def test_time_series():
     non_iterable(TimeSeries)
     iterable(TimeSeries)
     incompatible_dimensions(TimeSeries)
-    time_input_contains_repeats(TimeSeries)
+    times_contains_repeats(TimeSeries)
     index_in_time_series(TimeSeries)
     index_not_in_time_series(TimeSeries)
     correct_length(TimeSeries)
@@ -107,4 +107,4 @@ def test_array_time_series():
     # index_not_in_time_series(ArrayTimeSeries)
     # correct_length(ArrayTimeSeries)
     # incompatible_dimensions(ArrayTimeSeries)
-    # time_input_contains_repeats(ArrayTimeSeries)
+    # times_contains_repeats(ArrayTimeSeries)
