@@ -4,7 +4,7 @@ class TimeSeries:
 
     Parameters
     ----------
-    initial_data : list
+    values : list
         This can be any object that can be treated like a sequence. Mandatory.
     time_input : list
         This can be any object that can be treated like a sequence. Optional.
@@ -14,7 +14,7 @@ class TimeSeries:
 
     Notes
     -----
-    PRE: `initial_data` is sorted in non-decreasing order
+    PRE: `values` is sorted in non-decreasing order
     POST:
 
     INVARIANTS:
@@ -23,18 +23,18 @@ class TimeSeries:
     - Does not maintain an accurate time series if `input_data` is unsorted.
     """
 
-    # J: maximum length of `initial_data` after which
+    # J: maximum length of `values` after which
     # abbreviation will occur in __str__() and __repr__()
     MAX_LENGTH = 10
 
-    def __init__(self, initial_data, time_input=None):
+    def __init__(self, values, time_input=None):
         """
         The TimeSeries class constructor. It must be provided the initial data
         to fill the time series instance with.
 
         Parameters
         ----------
-        initial_data : sequence-like
+        values : sequence-like
             Actual data points for TimeSeries.
             Any user-provided sequence-like object. Mandatory.
         time_input : sequence-like
@@ -43,7 +43,7 @@ class TimeSeries:
 
         Notes
         -----
-        PRE: If time_input is not provided, `initial_data` must be sorted
+        PRE: If time_input is not provided, `values` must be sorted
         POST:
 
         INVARIANTS:
@@ -59,8 +59,8 @@ class TimeSeries:
         # N: done
         # J: all Python sequences implement __iter__(), which we can use here.
 
-        self.is_sequence(initial_data)
-        self.data = list(initial_data)
+        self.is_sequence(values)
+        self.data = list(values)
 
         if time_input:
 

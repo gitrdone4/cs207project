@@ -19,6 +19,6 @@ class ArrayTimeSeries(TimeSeries):
 
     """
 
-    def __init__(self, initial_data):
-        self.is_sequence(initial_data)
-        self.data = np.array(initial_data)
+    def __init__(self, values):
+        self.is_sequence(values)
+        self.data = np.array(values)
