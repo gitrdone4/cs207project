@@ -87,13 +87,35 @@ def correct_length(class_name):
     assert len(ts) == 100
 
 def update_get_array_time_series_by_index(class_name):
-    """
-        Confirm that we can set a new time and value for a given index in ArrayTimeSeries
-    """
+    """ Confirm that we can set a new time and value for a given index in ArrayTimeSeries"""
     ts = class_name([1,2,3,4,5],[1,2,3,4,5])
     assert ts[1] == (2,2)
     ts[1] = (42,42)
     assert ts[1] == (42,42)
+
+def interpolate_ts(class_name):
+    a = class_name([1,2,3],[0,5,10])
+    b = class_name([100, -100],[2.5,7.5])
+    c_times = [5,10,15,20]
+    c_values = [i*2 for i in c_times]
+    c = class_name(c_values,c_times)
+
+    # Simple cases
+    ts = a.interpolate([1])
+    assert ts[0] == 1.2
+
+    ts = c.interpolate([2,6,11,17,25])
+    assert ts[1] == 12
+    assert ts[2] == 22
+    assert ts[3] == 34
+
+    # Boundary conditions
+    assert ts[0] == 10
+    assert ts[4] == 40
+    ts = b.interpolate([-100,100])
+    assert ts[0] == 100
+    assert ts[1] == -100
+
 
 def test_time_series():
     """Calles tests defined above on time series class"""
@@ -105,6 +127,7 @@ def test_time_series():
     # index_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
     # index_not_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
     correct_length(TimeSeries)
+    interpolate_ts(TimeSeries)
 
 def test_array_time_series():
     """Calles tests defined above on array time series class"""
@@ -119,6 +142,7 @@ def test_array_time_series():
     update_get_array_time_series_by_index(ArrayTimeSeries)
 
 # The following tests are interface checks - easy examples that don't handle edge cases
+
 def test_interface():
     method_getitem(TimeSeries)
     method_setitem(TimeSeries)
@@ -140,7 +164,7 @@ def test_interface():
     method_mul_two_timeseries(TimeSeries)
     method_eq(TimeSeries)
     method_ne(TimeSeries)
-    
+
 # should have made a fixture sorry!
 def method_getitem(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
