@@ -138,6 +138,8 @@ def test_interface():
     method_sub_two_timeseries(TimeSeries)
     method_mul_int(TimeSeries)
     method_mul_two_timeseries(TimeSeries)
+    method_eq(TimeSeries)
+    method_ne(TimeSeries)
     
 # should have made a fixture sorry!
 def method_getitem(class_name):
@@ -242,3 +244,13 @@ def method_mul_two_timeseries(class_name):
     mul_v1 = threes*fives
     mul_v2 = fives*threes
     assert mul_v1.data==[0,15,60,135] and mul_v2.data==[0,15,60,135]
+
+def method_eq(class_name):
+    eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
+    eq_v2 = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert eq_v1==eq_v2
+
+def method_ne(class_name):
+    eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
+    eq_v2 = -eq_v1
+    assert eq_v1!=eq_v2

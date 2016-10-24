@@ -260,6 +260,18 @@ class TimeSeries:
     def __rmul__(self, other):
         return self * other
 
+    def __eq__(self, rhs):
+        TimeSeries._check_length_helper(self, rhs)
+        TimeSeries._check_time_domains_helper(self, rhs)
+        # R: leverages self.data is a list. Will have to change when we relax this.
+        try:
+            return self.data==rhs.data
+        except TypeError:
+            raise NotImplemented
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def is_sequence(self, seq):
         """
         Description
