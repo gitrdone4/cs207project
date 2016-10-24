@@ -1,3 +1,5 @@
+import numpy as np
+
 class TimeSeries:
     """
     A class that stores a single, ordered set of numerical data.
@@ -88,19 +90,27 @@ class TimeSeries:
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, position):
-        if position not in self.time:
-            # R: unit test me
-            # N: Done.
-            raise ValueError("Choose t from time column")
-        return self.data[self.time.index(position)]
+    def __getitem__(self, index):
+        # OLD IMPLEMENTATION - get value based on time
+        # if index not in self.time:
+        #     raise ValueError("Choose t from time column")
+        # return self.data[self.time.index(index)]
+        # NEW IMPLEMENTATION - get value based on index
+        try:
+            return self.data[index]
+        except IndexError:
+            raise("Index out of bounds!")
 
-    def __setitem__(self, position, item):
-        if position not in self.time:
-            # R: unit test me
-            # N: Done.
-            raise ValueError("Choose t from time column")
-        self.data[self.time.index(position)] = item
+    def __setitem__(self, index, value):
+        # OLD IMPLEMENTATION - set value based on time
+        # if index not in self.time:
+        #     raise ValueError("Choose t from time column")
+        # self.data[self.time.index(index)] = value
+        # NEW IMPLEMENTATION - set value based on index
+        try:
+            self.data[index] = value
+        except IndexError:
+            raise("Index out of bounds!")
 
     def __iter__(self):
         for val in self.data:
@@ -110,12 +120,36 @@ class TimeSeries:
         for tim in self.time:
             yield tim
 
+    def itervalues(self):
+        # R: Identical to __iter__
+        for val in self.data:
+            yield val
+
     def iteritems(self):
         for i in range(len(self.data)):
             yield self.time[i], self.data[i]
 
-    def __repr__(self):
+    def __contains__(self, needle):
+        # R: leverages self.data is a list. Will have to change when we relax this.
+        return needle in self.data
 
+    def values(self):
+        # "values: returns a numpy array of values (should have done this)"
+        # R: I just created this one but according to current instructions it should have already been implemented
+        # Old instructions say it was implemented for ArrayTimeSeries not the more general TimeSeries class, so I'm confused 
+        # I think this should be readonly but already taken care of by making it a numpy array
+        # motivates making self.data -> self._data
+        return np.array(self.data)
+
+    def times(self):
+        # R: another read only seeming thing
+        # motivates making self.time -> self._time
+        return np.array(self.time)
+
+    def items(self):
+        return list(zip(self.time, self.data))
+
+    def __repr__(self):
         class_name = type(self).__name__
         return '{}(Length: {}, {})'.format(class_name,
                                            len(self.data),

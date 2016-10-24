@@ -1,7 +1,7 @@
 from pytest import raises
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
-
+import numpy as np
 
 def threes_fives(class_name):
     """
@@ -102,10 +102,9 @@ def test_time_series():
     iterable(TimeSeries)
     incompatible_dimensions(TimeSeries)
     times_contains_repeats(TimeSeries)
-    index_in_time_series(TimeSeries)
-    index_not_in_time_series(TimeSeries)
+    # index_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
+    # index_not_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
     correct_length(TimeSeries)
-
 
 def test_array_time_series():
     """Calles tests defined above on array time series class"""
@@ -118,3 +117,76 @@ def test_array_time_series():
     # incompatible_dimensions(ArrayTimeSeries)
     # times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
+
+# The following tests are 
+def test_interface():
+    method_getitem(TimeSeries)
+    method_setitem(TimeSeries)
+    method_contains(TimeSeries)
+    method_iter(TimeSeries)
+    method_values(TimeSeries)
+    method_itervalues(TimeSeries)
+    method_times(TimeSeries)
+    method_itertimes(TimeSeries)
+    method_items(TimeSeries)
+    method_iteritems(TimeSeries)
+    method_len(TimeSeries)
+
+def method_getitem(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert threes[1] == 3
+
+def method_setitem(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    threes[0] = 3
+    assert threes[0] == 3
+
+def method_contains(class_name):
+    x = class_name([5,6])
+    assert 5 in x
+
+def method_iter(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    cum_sum = 0
+    for val in threes:
+        cum_sum += val
+    assert cum_sum==18
+
+def method_values(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert isinstance(threes.values(), np.ndarray)
+
+def method_itervalues(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    cum_sum = 0
+    for val in threes.itervalues():
+        cum_sum += val
+    assert cum_sum==18
+
+def method_times(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert isinstance(threes.times(), np.ndarray)
+
+def method_itertimes(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    cum_sum = 0
+    for time in threes.itertimes():
+        cum_sum += time
+    assert cum_sum==406
+
+def method_items(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert threes.items()==[(100,0),(101,3),(102,6),(103,9)]
+
+def method_iteritems(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    cum_sum_time = 0
+    cum_sum_value = 0
+    for time, value in threes.iteritems():
+        cum_sum_time += time
+        cum_sum_value += value
+    assert cum_sum_time==406 and cum_sum_value==18
+
+def method_len(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert len(threes)==4
