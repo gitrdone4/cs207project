@@ -118,7 +118,7 @@ def test_array_time_series():
     # times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
 
-# The following tests are 
+# The following tests are
 def test_interface():
     method_getitem(TimeSeries)
     method_setitem(TimeSeries)

@@ -76,15 +76,9 @@ class TimeSeries:
             self.time = list(range(len(self.data)))
 
         if len(self.time) != len(self.data):
-
-            # R: unit test me
-            # N: Done.
             raise ValueError("Time and input data of incompatible dimensions")
 
         if len(self.time) != len(set(self.time)):
-
-            # R: unit test me. consider moving to precondition
-            # N: Done.
             raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
@@ -185,7 +179,7 @@ class TimeSeries:
         if len(self.data) > self.MAX_LENGTH:
             needed = self.data[:3]+self.data[-3:]
             pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
- 
+
         else:
             pretty_printed = "{} {}".format(list(self.data), list(self.time))
 
@@ -212,3 +206,35 @@ class TimeSeries:
         except TypeError as te:
             # J: unified string formatting with .format()
             raise TypeError("{} is not a valid sequence".format(seq))
+
+    def interpolate(self,ts_to_interpolate):
+        def binary_search(times, t):
+            min = 0
+            max = len(times) - 1
+            while True:
+                if max < min:
+                    return (max,min)
+                m = (min + max) // 2
+                if times[m] < t:
+                    min = m + 1
+                elif times[m] > t:
+                    max = m - 1
+                else: #Should never hit this case in current implementation
+                    return (min,max)
+
+        def interpolate_val(times,values,t):
+            if t in times:          #case 1
+                return values[times.index(t)]
+            elif t >= times[-1]:    #case 2
+                return values[-1]
+            elif t <= times[0]:     #case 3
+                return values[0]
+            else:                   #case 4 -- acutually interpolate
+                low,high = binary_search(times, t)
+                slope = (float(values[high]) - values[low])/(times[high] - times[low])
+                c = values[low]
+                interpolated_val = (t-times[low])*slope + c
+                return interpolated_val
+
+        interpolated_ts = [interpolate_val(self.time,self.data,t) for t in ts_to_interpolate]
+        return TimeSeries(interpolated_ts,ts_to_interpolate)
