@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 
 class TimeSeries:
     """
@@ -190,6 +191,74 @@ class TimeSeries:
             pretty_printed = "{} {}".format(list(self.data), list(self.time))
 
         return pretty_printed
+
+    @staticmethod
+    def _check_length_helper(lhs , rhs):
+        if not len(lhs)==len(rhs):
+            raise ValueError(str(lhs)+' and '+str(rhs)+' must have the same length')
+
+    @staticmethod
+    # makes check lengths redundant. However I keep them separate in case we want to add functionality to add objects without a defined time dimension later.
+    def _check_time_domains_helper(lhs , rhs):
+        if not lhs.time==rhs.time:
+            raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
+
+    def __abs__(self):
+        return math.sqrt(sum(x * x for x in self.data))
+    
+    def __bool__(self): 
+        return bool(abs(self.data))
+
+    def __neg__(self):
+        return TimeSeries((-x for x in self.data), self.time) 
+    
+    def __pos__(self):
+        return TimeSeries((-x for x in self.data), self.time)
+
+    def __add__(self, rhs):
+        try:
+            if isinstance(rhs, numbers.Real):
+                return TimeSeries((a + rhs for a in self), self.time) # R: may be worth testing time domains are preserved correctly
+            else: 
+                TimeSeries._check_length_helper(self, rhs) 
+                TimeSeries._check_time_domains_helper(self, rhs) # R: test me. should fail when the time domains are non congruent
+                pairs = zip(self.data, rhs)
+                return TimeSeries((a + b for a, b in pairs), self.time)
+        except TypeError:
+            raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
+    
+    def __radd__(self, other): # other + self delegates to self.__add__
+        return self + other
+
+    def __sub__(self, rhs):
+        try:
+            if isinstance(rhs, numbers.Real):
+                return TimeSeries((a - rhs for a in self), self.time) 
+            else: 
+                TimeSeries._check_length_helper(self, rhs) 
+                TimeSeries._check_time_domains_helper(self, rhs) 
+                pairs = zip(self.data, rhs)
+                return TimeSeries((a - b for a, b in pairs), self.time)
+        except TypeError:
+            raise NotImplemented 
+    
+    def __rsub__(self, other): 
+        return -(self - other)
+
+    def __mul__(self, rhs): # does this define exponentiation as well?
+        try:
+            if isinstance(rhs, numbers.Real):
+                return TimeSeries((a * rhs for a in self), self.time)
+            else: 
+                TimeSeries._check_length_helper(self, rhs) 
+                TimeSeries._check_time_domains_helper(self, rhs)
+                pairs = zip(self.data, rhs)
+                return TimeSeries((a * b for a, b in pairs), self.time)
+        except TypeError:
+            raise NotImplemented
+    
+    def __rmul__(self, other):
+        return self * other
 
     def is_sequence(self, seq):
         """
