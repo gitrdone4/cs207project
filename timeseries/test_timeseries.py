@@ -61,11 +61,10 @@ def times_contains_repeats(class_name):
 
 def index_in_time_series(class_name):
     """
-    Confirm that we get a value error when we
-    attempt to access or set an non-existing value
+    Confirm that get_item and set_item work as expected
     """
     ts = class_name(values=[1,2,3],times=[1,2,3])
-    assert ts[2] == 2
+    assert ts[2] == 3
     ts[2] = 10
     assert ts[2] == 10
 
@@ -76,10 +75,11 @@ def index_not_in_time_series(class_name):
     attempt to access or set an non-existing value
     """
     ts = class_name(values=[1,2,3],times=[1,2,3])
-    with raises(ValueError):
+
+    with raises(IndexError):
         _ = ts[4]
 
-    with raises(ValueError):
+    with raises(IndexError):
         ts[5] = 5
 
 def correct_length(class_name):
@@ -96,25 +96,18 @@ def update_get_array_time_series_by_index(class_name):
 def interpolate_ts(class_name):
     a = class_name(values=[1,2,3],times=[0,5,10])
     b = class_name(values=[100, -100],times=[2.5,7.5])
-    c_times = [5,10,15,20]
-    c_values = [i*2 for i in c_times]
-    c = class_name(values=c_values,times=c_times)
+
+    c_times=[5,10,15,20]
+    c = class_name(values=[i*2 for i in c_times],times=c_times)
 
     # Simple cases
-    ts = a.interpolate([1])
-    assert ts[0] == 1.2
+    assert a.interpolate([1]) == class_name(times=[1],values=[1.2])
 
-    ts = c.interpolate([2,6,11,17,25])
-    assert ts[1] == 12
-    assert ts[2] == 22
-    assert ts[3] == 34
+    assert c.interpolate([2,6,11,17,25]) == \
+        class_name(times=[2,6,11,17,25],values=[10,12,22,34,40])
 
-    # Boundary conditions
-    assert ts[0] == 10
-    assert ts[4] == 40
-    ts = b.interpolate([-100,100])
-    assert ts[0] == 100
-    assert ts[1] == -100
+    assert b.interpolate([-100,100]) == \
+        class_name(times=[-100,100],values=[100,-100])
 
 
 def test_time_series():
@@ -124,8 +117,8 @@ def test_time_series():
     iterable(TimeSeries)
     incompatible_dimensions(TimeSeries)
     times_contains_repeats(TimeSeries)
-    # index_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
-    # index_not_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
+    index_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
+    index_not_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
     correct_length(TimeSeries)
     interpolate_ts(TimeSeries)
 
@@ -140,6 +133,7 @@ def test_array_time_series():
     # incompatible_dimensions(ArrayTimeSeries)
     # times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
+    #interpolate_ts(ArrayTimeSeries)
 
 # The following tests are interface checks - easy examples that don't handle edge cases
 
