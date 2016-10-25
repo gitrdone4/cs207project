@@ -94,7 +94,7 @@ class TimeSeries:
         try:
             return self.data[index]
         except IndexError:
-            raise("Index out of bounds!")
+            raise IndexError("Index out of bounds!")
 
     def __setitem__(self, index, value):
         # OLD IMPLEMENTATION - set value based on time
@@ -105,7 +105,7 @@ class TimeSeries:
         try:
             self.data[index] = value
         except IndexError:
-            raise("Index out of bounds!")
+            raise IndexError("Index out of bounds!")
 
     def __iter__(self):
         for val in self.data:
@@ -199,13 +199,13 @@ class TimeSeries:
 
     def __abs__(self):
         return math.sqrt(sum(x * x for x in self.data))
-    
-    def __bool__(self): 
+
+    def __bool__(self):
         return bool(abs(self.data))
 
     def __neg__(self):
-        return TimeSeries((-x for x in self.data), self.time) 
-    
+        return TimeSeries((-x for x in self.data), self.time)
+
     def __pos__(self):
         return TimeSeries((-x for x in self.data), self.time)
 
@@ -213,44 +213,44 @@ class TimeSeries:
         try:
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a + rhs for a in self), self.time) # R: may be worth testing time domains are preserved correctly
-            else: 
-                TimeSeries._check_length_helper(self, rhs) 
+            else:
+                TimeSeries._check_length_helper(self, rhs)
                 TimeSeries._check_time_domains_helper(self, rhs) # R: test me. should fail when the time domains are non congruent
                 pairs = zip(self.data, rhs)
                 return TimeSeries((a + b for a, b in pairs), self.time)
         except TypeError:
             raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
-    
+
     def __radd__(self, other): # other + self delegates to self.__add__
         return self + other
 
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a - rhs for a in self), self.time) 
-            else: 
-                TimeSeries._check_length_helper(self, rhs) 
-                TimeSeries._check_time_domains_helper(self, rhs) 
+                return TimeSeries((a - rhs for a in self), self.time)
+            else:
+                TimeSeries._check_length_helper(self, rhs)
+                TimeSeries._check_time_domains_helper(self, rhs)
                 pairs = zip(self.data, rhs)
                 return TimeSeries((a - b for a, b in pairs), self.time)
         except TypeError:
-            raise NotImplemented 
-    
-    def __rsub__(self, other): 
+            raise NotImplemented
+
+    def __rsub__(self, other):
         return -(self - other)
 
     def __mul__(self, rhs): # does this define exponentiation as well?
         try:
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a * rhs for a in self), self.time)
-            else: 
-                TimeSeries._check_length_helper(self, rhs) 
+            else:
+                TimeSeries._check_length_helper(self, rhs)
                 TimeSeries._check_time_domains_helper(self, rhs)
                 pairs = zip(self.data, rhs)
                 return TimeSeries((a * b for a, b in pairs), self.time)
         except TypeError:
             raise NotImplemented
-    
+
     def __rmul__(self, other):
         return self * other
 
@@ -288,6 +288,7 @@ class TimeSeries:
             # J: unified string formatting with .format()
             raise TypeError("{} is not a valid sequence".format(seq))
 
+
     def interpolate(self,ts_to_interpolate):
         """
         Returns new TimeSeries instance with piecewise-linear-interpolated values
@@ -321,8 +322,10 @@ class TimeSeries:
             if t in times:          #time already exits in ts -- return it
                 return values[times.index(t)]
             elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
+                # low,high = len(times) - 2,len(times) - 1
                 return values[-1]
             elif t <= times[0]:     #time is below the domain of the existing values -- return min time value
+                # low, high = 0, 1
                 return values[0]
             else:                   #time is between two existing points -- interpolate it
                 low,high = binary_search(times, t)
@@ -332,4 +335,4 @@ class TimeSeries:
                 return interpolated_val
 
         interpolated_ts = [interpolate_val(self.time,self.data,t) for t in ts_to_interpolate]
-        return TimeSeries(interpolated_ts,ts_to_interpolate)
+        return self.__class__(values=interpolated_ts,times=ts_to_interpolate)

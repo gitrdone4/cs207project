@@ -9,8 +9,8 @@ def threes_fives(class_name):
     projecteuler.net/problem=1
     Note: this is decidely *not* the intended purpose of this class.
     """
-    threes = class_name(range(0, 1000, 3))
-    fives = class_name(range(0, 1000, 5))
+    threes = class_name(values=range(0, 1000, 3))
+    fives = class_name(values=range(0, 1000, 5))
 
     s = 0
     for i in range(0, 1000):
@@ -26,7 +26,7 @@ def non_iterable(class_name):
     to create time series with non-iterable.
     """
     with raises(TypeError):
-        _ = class_name(42)
+        _ = class_name(values=42,times=42)
 
 
 def iterable(class_name):
@@ -34,9 +34,9 @@ def iterable(class_name):
     Confirms we *don't get a type error when we try
     to create time series with various iterables.
     """
-    class_name([1, 2, 3])
-    class_name({'a': 1, 'b': 2, 'c': 3})
-    class_name(set([1, 2, 3]))
+    class_name(values=[1, 2, 3],times=[1,2,3])
+    class_name(values={'a': 1, 'b': 2, 'c': 3},times=[1,2,3])
+    class_name(values=set([1, 2, 3]),times=[1,2,3])
 
 
 def incompatible_dimensions(class_name):
@@ -45,7 +45,7 @@ def incompatible_dimensions(class_name):
     is not the same length as initial data.
     """
     with raises(ValueError):
-        class_name([1] * 100, range(200))
+        class_name(values=[1] * 100, times=range(200))
 
 
 def times_contains_repeats(class_name):
@@ -54,18 +54,17 @@ def times_contains_repeats(class_name):
     contains repeated values.
     """
     with raises(ValueError):
-        class_name([1, 2, 3, 4], [1, 2, 2, 3])
+        class_name(values=[1, 2, 3, 4], times=[1, 2, 2, 3])
 
     with raises(ValueError):
-        class_name([1]*100, list(range(100))+[99])
+        class_name(values=[1]*100, times=list(range(100))+[99])
 
 def index_in_time_series(class_name):
     """
-    Confirm that we get a value error when we
-    attempt to access or set an non-existing value
+    Confirm that get_item and set_item work as expected
     """
-    ts = class_name([1,2,3],[1,2,3])
-    assert ts[2] == 2 
+    ts = class_name(values=[1,2,3],times=[1,2,3])
+    assert ts[2] == 3
     ts[2] = 10
     assert ts[2] == 10
 
@@ -75,15 +74,16 @@ def index_not_in_time_series(class_name):
     Confirm that we get a value error when we
     attempt to access or set an non-existing value
     """
-    ts = class_name([1,2,3],[1,2,3])
-    with raises(ValueError):
+    ts = class_name(values=[1,2,3],times=[1,2,3])
+
+    with raises(IndexError):
         _ = ts[4]
 
-    with raises(ValueError):
+    with raises(IndexError):
         ts[5] = 5
 
 def correct_length(class_name):
-    ts = class_name([1] * 100, range(100))
+    ts = class_name(values=[1] * 100, times=range(100))
     assert len(ts) == 100
 
 def update_get_array_time_series_by_index(class_name):
@@ -94,27 +94,20 @@ def update_get_array_time_series_by_index(class_name):
     assert ts[1] == (42,42)
 
 def interpolate_ts(class_name):
-    a = class_name([1,2,3],[0,5,10])
-    b = class_name([100, -100],[2.5,7.5])
-    c_times = [5,10,15,20]
-    c_values = [i*2 for i in c_times]
-    c = class_name(c_values,c_times)
+    a = class_name(values=[1,2,3],times=[0,5,10])
+    b = class_name(values=[100, -100],times=[2.5,7.5])
+
+    c_times=[5,10,15,20]
+    c = class_name(values=[i*2 for i in c_times],times=c_times)
 
     # Simple cases
-    ts = a.interpolate([1])
-    assert ts[0] == 1.2
+    assert a.interpolate([1]) == class_name(times=[1],values=[1.2])
 
-    ts = c.interpolate([2,6,11,17,25])
-    assert ts[1] == 12
-    assert ts[2] == 22
-    assert ts[3] == 34
+    assert c.interpolate([2,6,11,17,25]) == \
+        class_name(times=[2,6,11,17,25],values=[10,12,22,34,40])
 
-    # Boundary conditions
-    assert ts[0] == 10
-    assert ts[4] == 40
-    ts = b.interpolate([-100,100])
-    assert ts[0] == 100
-    assert ts[1] == -100
+    assert b.interpolate([-100,100]) == \
+        class_name(times=[-100,100],values=[100,-100])
 
 
 def test_time_series():
@@ -124,8 +117,8 @@ def test_time_series():
     iterable(TimeSeries)
     incompatible_dimensions(TimeSeries)
     times_contains_repeats(TimeSeries)
-    # index_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
-    # index_not_in_time_series(TimeSeries) # get item changed! gets value based on index rather than time now
+    index_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
+    index_not_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
     correct_length(TimeSeries)
     interpolate_ts(TimeSeries)
 
@@ -133,13 +126,14 @@ def test_array_time_series():
     """Calles tests defined above on array time series class"""
     # threes_fives(ArrayTimeSeries)
     non_iterable(ArrayTimeSeries)
-    # iterable(ArrayTimeSeries)
+    iterable(ArrayTimeSeries)
     # These are not implemented in array time series yet
     # index_not_in_time_series(ArrayTimeSeries)
     # correct_length(ArrayTimeSeries)
     # incompatible_dimensions(ArrayTimeSeries)
     # times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
+    #interpolate_ts(ArrayTimeSeries)
 
 # The following tests are interface checks - easy examples that don't handle edge cases
 
