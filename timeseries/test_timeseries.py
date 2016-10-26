@@ -90,7 +90,7 @@ def correct_length(class_name):
 
 def update_get_array_time_series_by_index(class_name):
     """ Confirm that we can set a new time and value for a given index in ArrayTimeSeries"""
-    ts = class_name([1,2,3,4,5],[1,2,3,4,5])
+    ts = class_name(values=[1,2,3,4,5],times=[1,2,3,4,5])
     assert ts[1] == (2,2)
     ts[1] = (42,42)
     assert ts[1] == (42,42)
@@ -148,12 +148,12 @@ def test_array_time_series():
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
     # These are not implemented in array time series yet
-    # index_not_in_time_series(ArrayTimeSeries)
+    #index_not_in_time_series(ArrayTimeSeries)
     # correct_length(ArrayTimeSeries)
-    # incompatible_dimensions(ArrayTimeSeries)
-    # times_contains_repeats(ArrayTimeSeries)
+    incompatible_dimensions(ArrayTimeSeries)
+    #times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
-    #interpolate_ts(ArrayTimeSeries)
+    interpolate_ts(ArrayTimeSeries)
 
 # The following tests are interface checks - easy examples that don't handle edge cases
 

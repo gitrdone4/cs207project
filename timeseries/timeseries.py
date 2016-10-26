@@ -257,8 +257,8 @@ class TimeSeries:
         return self * other
 
     def __eq__(self, rhs):
-        TimeSeries._check_length_helper(self, rhs)
-        TimeSeries._check_time_domains_helper(self, rhs)
+        self.__class__._check_length_helper(self, rhs)
+        self.__class__._check_time_domains_helper(self, rhs)
         # R: leverages self._values is a list. Will have to change when we relax this.
         try:
             return self._values==rhs._values
@@ -323,12 +323,13 @@ class TimeSeries:
 
             if t in times:          #time already exits in ts -- return it
                 return values[times.index(t)]
+
             elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
-                # low,high = len(times) - 2,len(times) - 1
                 return values[-1]
+
             elif t <= times[0]:     #time is below the domain of the existing values -- return min time value
-                # low, high = 0, 1
                 return values[0]
+
             else:                   #time is between two existing points -- interpolate it
                 low,high = binary_search(times, t)
                 slope = (float(values[high]) - values[low])/(times[high] - times[low])
