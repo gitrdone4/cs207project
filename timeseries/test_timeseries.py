@@ -147,13 +147,14 @@ def test_array_time_series():
     # threes_fives(ArrayTimeSeries)
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
-    # These are not implemented in array time series yet
-    #index_not_in_time_series(ArrayTimeSeries)
-    # correct_length(ArrayTimeSeries)
-    incompatible_dimensions(ArrayTimeSeries)
-    #times_contains_repeats(ArrayTimeSeries)
     update_get_array_time_series_by_index(ArrayTimeSeries)
     interpolate_ts(ArrayTimeSeries)
+    incompatible_dimensions(ArrayTimeSeries)
+    # These should work but don't -- need to look into further
+    #index_not_in_time_series(ArrayTimeSeries)
+    #correct_length(ArrayTimeSeries)
+    #times_contains_repeats(ArrayTimeSeries)
+
 
 # The following tests are interface checks - easy examples that don't handle edge cases
 

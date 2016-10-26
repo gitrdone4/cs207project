@@ -40,7 +40,6 @@ class ArrayTimeSeries(TimeSeries):
 
     def __len__(self):
         #super().__len__() Note: len of np.appry returns and error for arrays of size 1.
-        print("len!",self)
         return len(np.atleast_1d(self._values))
 
     def __getitem__(self, index):
