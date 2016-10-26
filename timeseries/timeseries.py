@@ -68,10 +68,6 @@ class TimeSeries:
         self._values = list(values)
 
         if times:
-
-            # R: haven't checked if times is iterable.
-            #    make this a precondition?
-            # J: can't we simply test for this as well?
             self.is_sequence(times)
             self._times = list(times)
 
@@ -88,22 +84,12 @@ class TimeSeries:
         return len(self._values)
 
     def __getitem__(self, index):
-        # OLD IMPLEMENTATION - get value based on time
-        # if index not in self._times:
-        #     raise ValueError("Choose t from time column")
-        # return self._values[self._times.index(index)]
-        # NEW IMPLEMENTATION - get value based on index
         try:
             return self._values[index]
         except IndexError:
             raise IndexError("Index out of bounds!")
 
     def __setitem__(self, index, value):
-        # OLD IMPLEMENTATION - set value based on time
-        # if index not in self._times:
-        #     raise ValueError("Choose t from time column")
-        # self._values[self._times.index(index)] = value
-        # NEW IMPLEMENTATION - set value based on index
         try:
             self._values[index] = value
         except IndexError:
@@ -131,16 +117,9 @@ class TimeSeries:
         return needle in self._values
 
     def values(self):
-        # "values: returns a numpy array of values (should have done this)"
-        # R: I just created this one but according to current instructions it should have already been implemented
-        # Old instructions say it was implemented for ArrayTimeSeries not the more general TimeSeries class, so I'm confused 
-        # I think this should be readonly but already taken care of by making it a numpy array
-        # motivates making self._values -> self._data
         return np.array(self._values)
 
     def times(self):
-        # R: another read only seeming thing
-        # motivates making self._times -> self._time
         return np.array(self._times)
 
     def items(self):
@@ -209,7 +188,7 @@ class TimeSeries:
         return TimeSeries((-x for x in self._values), self._times)
 
     def __pos__(self):
-        return TimeSeries((-x for x in self._values), self._times)
+        return TimeSeries((x for x in self._values), self._times)
 
     def __add__(self, rhs):
         try:
@@ -241,7 +220,7 @@ class TimeSeries:
     def __rsub__(self, other):
         return -(self - other)
 
-    def __mul__(self, rhs): # does this define exponentiation as well?
+    def __mul__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a * rhs for a in self), self._times)

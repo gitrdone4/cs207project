@@ -169,6 +169,7 @@ def test_interface():
     method_items(TimeSeries)
     method_iteritems(TimeSeries)
     method_len(TimeSeries)
+    method_pos(TimeSeries)
     method_neg(TimeSeries)
     method_add_int(TimeSeries)
     method_add_two_timeseries(TimeSeries)
@@ -238,6 +239,11 @@ def method_iteritems(class_name):
 def method_len(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     assert len(threes)==4
+
+def method_pos(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    posthrees = +threes
+    assert posthrees._values==[0,3,6,9]
 
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
