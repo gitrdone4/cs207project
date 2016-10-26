@@ -39,17 +39,32 @@ class ArrayTimeSeries(TimeSeries):
         super().__iteritems__()
 
     def __len__(self):
-        super().__len__()
+        #super().__len__() Note: len of np.appry returns and error for arrays of size 1.
+        print("len!",self)
+        return len(np.atleast_1d(self._values))
 
     def __getitem__(self, index):
         try:
             return self._times[index], self._values[index]
         except IndexError:
-            raise("Index out of bounds!")
+            raise IndexError("Index out of bounds!")
 
     def __setitem__(self, index, item):
         try:
             self._times[index] = item[0]
             self._values[index] = item[1]
         except IndexError:
-            raise("Index out of bounds!")
+            raise IndexError("Index out of bounds!")
+
+    def _check_time_domains_helper(lhs , rhs):
+        if not np.array_equal(lhs._times,rhs._times):
+            raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
+
+    def __eq__(self, rhs):
+        # Note: np.array_equal compares both elements and dimensions.
+        self.__class__._check_time_domains_helper(self, rhs)
+        try:
+            return (np.array_equal(self._values,rhs._values) and np.array_equal(self._times,rhs._times))
+
+        except TypeError:
+            raise NotImplemented

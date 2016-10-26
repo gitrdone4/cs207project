@@ -65,7 +65,7 @@ class TimeSeries:
         # J: all Python sequences implement __iter__(), which we can use here.
 
         self.is_sequence(values)
-        self.data = list(values)
+        self._values = list(values)
 
         if times:
 
@@ -73,83 +73,83 @@ class TimeSeries:
             #    make this a precondition?
             # J: can't we simply test for this as well?
             self.is_sequence(times)
-            self.time = list(times)
+            self._times = list(times)
 
         else:
-            self.time = list(range(len(self.data)))
+            self._times = list(range(len(self._values)))
 
-        if len(self.time) != len(self.data):
+        if len(self._times) != len(self._values):
             raise ValueError("Time and input data of incompatible dimensions")
 
-        if len(self.time) != len(set(self.time)):
+        if len(self._times) != len(set(self._times)):
             raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
-        return len(self.data)
+        return len(self._values)
 
     def __getitem__(self, index):
         # OLD IMPLEMENTATION - get value based on time
-        # if index not in self.time:
+        # if index not in self._times:
         #     raise ValueError("Choose t from time column")
-        # return self.data[self.time.index(index)]
+        # return self._values[self._times.index(index)]
         # NEW IMPLEMENTATION - get value based on index
         try:
-            return self.data[index]
+            return self._values[index]
         except IndexError:
             raise IndexError("Index out of bounds!")
 
     def __setitem__(self, index, value):
         # OLD IMPLEMENTATION - set value based on time
-        # if index not in self.time:
+        # if index not in self._times:
         #     raise ValueError("Choose t from time column")
-        # self.data[self.time.index(index)] = value
+        # self._values[self._times.index(index)] = value
         # NEW IMPLEMENTATION - set value based on index
         try:
-            self.data[index] = value
+            self._values[index] = value
         except IndexError:
             raise IndexError("Index out of bounds!")
 
     def __iter__(self):
-        for val in self.data:
+        for val in self._values:
             yield val
 
     def itertimes(self):
-        for tim in self.time:
+        for tim in self._times:
             yield tim
 
     def itervalues(self):
         # R: Identical to __iter__
-        for val in self.data:
+        for val in self._values:
             yield val
 
     def iteritems(self):
-        for i in range(len(self.data)):
-            yield self.time[i], self.data[i]
+        for i in range(len(self._values)):
+            yield self._times[i], self._values[i]
 
     def __contains__(self, needle):
-        # R: leverages self.data is a list. Will have to change when we relax this.
-        return needle in self.data
+        # R: leverages self._values is a list. Will have to change when we relax this.
+        return needle in self._values
 
     def values(self):
         # "values: returns a numpy array of values (should have done this)"
         # R: I just created this one but according to current instructions it should have already been implemented
         # Old instructions say it was implemented for ArrayTimeSeries not the more general TimeSeries class, so I'm confused 
         # I think this should be readonly but already taken care of by making it a numpy array
-        # motivates making self.data -> self._data
-        return np.array(self.data)
+        # motivates making self._values -> self._data
+        return np.array(self._values)
 
     def times(self):
         # R: another read only seeming thing
-        # motivates making self.time -> self._time
-        return np.array(self.time)
+        # motivates making self._times -> self._time
+        return np.array(self._times)
 
     def items(self):
-        return list(zip(self.time, self.data))
+        return list(zip(self._times, self._values))
 
     def __repr__(self):
         class_name = type(self).__name__
         return '{}(Length: {}, {})'.format(class_name,
-                                           len(self.data),
+                                           len(self._values),
                                            str(self))
 
     def __str__(self):
@@ -166,7 +166,7 @@ class TimeSeries:
         -------
         pretty_printed: string
             an end-user-friendly printout of the time series.
-            If `len(self.data) > MAX_LENGTH`, printout abbreviated
+            If `len(self._values) > MAX_LENGTH`, printout abbreviated
             using an ellipsis: `['a','b','c', ..., 'x','y','z']`.
 
         Notes
@@ -179,12 +179,12 @@ class TimeSeries:
         WARNINGS:
 
         """
-        if len(self.data) > self.MAX_LENGTH:
-            needed = self.data[:3]+self.data[-3:]
+        if len(self._values) > self.MAX_LENGTH:
+            needed = self._values[:3]+self._values[-3:]
             pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
 
         else:
-            pretty_printed = "{} {}".format(list(self.data), list(self.time))
+            pretty_printed = "{} {}".format(list(self._values), list(self._times))
 
         return pretty_printed
 
@@ -196,30 +196,30 @@ class TimeSeries:
     @staticmethod
     # makes check lengths redundant. However I keep them separate in case we want to add functionality to add objects without a defined time dimension later.
     def _check_time_domains_helper(lhs , rhs):
-        if not lhs.time==rhs.time:
+        if not lhs._times==rhs._times:
             raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
 
     def __abs__(self):
-        return math.sqrt(sum(x * x for x in self.data))
+        return math.sqrt(sum(x * x for x in self._values))
 
     def __bool__(self):
-        return bool(abs(self.data))
+        return bool(abs(self._values))
 
     def __neg__(self):
-        return TimeSeries((-x for x in self.data), self.time)
+        return TimeSeries((-x for x in self._values), self._times)
 
     def __pos__(self):
-        return TimeSeries((-x for x in self.data), self.time)
+        return TimeSeries((-x for x in self._values), self._times)
 
     def __add__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a + rhs for a in self), self.time) # R: may be worth testing time domains are preserved correctly
+                return TimeSeries((a + rhs for a in self), self._times) # R: may be worth testing time domains are preserved correctly
             else:
                 TimeSeries._check_length_helper(self, rhs)
                 TimeSeries._check_time_domains_helper(self, rhs) # R: test me. should fail when the time domains are non congruent
-                pairs = zip(self.data, rhs)
-                return TimeSeries((a + b for a, b in pairs), self.time)
+                pairs = zip(self._values, rhs)
+                return TimeSeries((a + b for a, b in pairs), self._times)
         except TypeError:
             raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
 
@@ -229,12 +229,12 @@ class TimeSeries:
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a - rhs for a in self), self.time)
+                return TimeSeries((a - rhs for a in self), self._times)
             else:
                 TimeSeries._check_length_helper(self, rhs)
                 TimeSeries._check_time_domains_helper(self, rhs)
-                pairs = zip(self.data, rhs)
-                return TimeSeries((a - b for a, b in pairs), self.time)
+                pairs = zip(self._values, rhs)
+                return TimeSeries((a - b for a, b in pairs), self._times)
         except TypeError:
             raise NotImplemented
 
@@ -244,12 +244,12 @@ class TimeSeries:
     def __mul__(self, rhs): # does this define exponentiation as well?
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a * rhs for a in self), self.time)
+                return TimeSeries((a * rhs for a in self), self._times)
             else:
                 TimeSeries._check_length_helper(self, rhs)
                 TimeSeries._check_time_domains_helper(self, rhs)
-                pairs = zip(self.data, rhs)
-                return TimeSeries((a * b for a, b in pairs), self.time)
+                pairs = zip(self._values, rhs)
+                return TimeSeries((a * b for a, b in pairs), self._times)
         except TypeError:
             raise NotImplemented
 
@@ -257,11 +257,11 @@ class TimeSeries:
         return self * other
 
     def __eq__(self, rhs):
-        TimeSeries._check_length_helper(self, rhs)
-        TimeSeries._check_time_domains_helper(self, rhs)
-        # R: leverages self.data is a list. Will have to change when we relax this.
+        self.__class__._check_length_helper(self, rhs)
+        self.__class__._check_time_domains_helper(self, rhs)
+        # R: leverages self._values is a list. Will have to change when we relax this.
         try:
-            return self.data==rhs.data
+            return self._values==rhs._values
         except TypeError:
             raise NotImplemented
 
@@ -323,12 +323,13 @@ class TimeSeries:
 
             if t in times:          #time already exits in ts -- return it
                 return values[times.index(t)]
+
             elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
-                # low,high = len(times) - 2,len(times) - 1
                 return values[-1]
+
             elif t <= times[0]:     #time is below the domain of the existing values -- return min time value
-                # low, high = 0, 1
                 return values[0]
+
             else:                   #time is between two existing points -- interpolate it
                 low,high = binary_search(times, t)
                 slope = (float(values[high]) - values[low])/(times[high] - times[low])
@@ -336,7 +337,7 @@ class TimeSeries:
                 interpolated_val = (t-times[low])*slope + c
                 return interpolated_val
 
-        interpolated_ts = [interpolate_val(self.time,self.data,t) for t in ts_to_interpolate]
+        interpolated_ts = [interpolate_val(self._times,self._values,t) for t in ts_to_interpolate]
         return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
 
     @lazy
