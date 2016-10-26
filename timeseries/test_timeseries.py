@@ -2,6 +2,8 @@ from pytest import raises
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
 import numpy as np
+from lazy import lazy
+from lazy import LazyOperation
 
 def threes_fives(class_name):
     """
@@ -109,6 +111,22 @@ def interpolate_ts(class_name):
     assert b.interpolate([-100,100]) == \
         class_name(times=[-100,100],values=[100,-100])
 
+def verify_lazy_property_time_series(class_name):
+    ts = class_name([1,2,3,4,5],[1,2,3,4,5])
+
+    # verify that TimeSeries.lazy is a LazyOperation
+    assert isinstance(ts.lazy, LazyOperation) == True
+
+    # verify that ts and ts.lazy.eval() give identical results
+    assert ts == ts.lazy.eval()
+
+def verify_lazyfied_time_series_check_length(class_name):
+    """A check length method to verify the lazy property method in the TimeSeries class."""
+    @lazy
+    def check_length(a,b):
+        return len(a)==len(b)
+    thunk = check_length(TimeSeries(range(0,4),range(1,5)), TimeSeries(range(1,5),range(2,6)))
+    assert thunk.eval()==True
 
 def test_time_series():
     """Calles tests defined above on time series class"""
@@ -121,6 +139,8 @@ def test_time_series():
     index_not_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
     correct_length(TimeSeries)
     interpolate_ts(TimeSeries)
+    verify_lazy_property_time_series(TimeSeries)
+    verify_lazyfied_time_series_check_length(TimeSeries)
 
 def test_array_time_series():
     """Calles tests defined above on array time series class"""
