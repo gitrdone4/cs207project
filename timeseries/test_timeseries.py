@@ -242,46 +242,46 @@ def method_len(class_name):
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     negthrees = -threes
-    assert negthrees.data==[0,-3,-6,-9]
+    assert negthrees._values==[0,-3,-6,-9]
 
 def method_add_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     add_v1 = threes + 5
     add_v2 = 5 + threes
-    assert add_v1.data==[5,8,11,14] and add_v2.data==[5,8,11,14]
+    assert add_v1._values==[5,8,11,14] and add_v2._values==[5,8,11,14]
 
 def method_add_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     add_v1 = threes+fives
     add_v2 = fives+threes
-    assert add_v1.data==[0,8,16,24] and add_v2.data==[0,8,16,24]
+    assert add_v1._values==[0,8,16,24] and add_v2._values==[0,8,16,24]
 
 def method_sub_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     sub_v1 = threes - 5
     sub_v2 = -(5 - threes)
-    assert sub_v1.data==[-5,-2,1,4] and sub_v2.data==[-5,-2,1,4]
+    assert sub_v1._values==[-5,-2,1,4] and sub_v2._values==[-5,-2,1,4]
 
 def method_sub_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     sub_v1 = threes-fives
     sub_v2 = -(fives-threes)
-    assert sub_v1.data==[0,-2,-4,-6] and sub_v2.data==[0,-2,-4,-6]
+    assert sub_v1._values==[0,-2,-4,-6] and sub_v2._values==[0,-2,-4,-6]
 
 def method_mul_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     mul_v1 = threes * 5
     mul_v2 = 5 * threes
-    assert mul_v1.data==[0,15,30,45] and mul_v2.data==[0,15,30,45]
+    assert mul_v1._values==[0,15,30,45] and mul_v2._values==[0,15,30,45]
 
 def method_mul_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     mul_v1 = threes*fives
     mul_v2 = fives*threes
-    assert mul_v1.data==[0,15,60,135] and mul_v2.data==[0,15,60,135]
+    assert mul_v1._values==[0,15,60,135] and mul_v2._values==[0,15,60,135]
 
 def method_eq(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
