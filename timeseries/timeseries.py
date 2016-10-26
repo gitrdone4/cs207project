@@ -1,5 +1,7 @@
 import numpy as np
 import numbers
+from lazy import lazy
+from lazy import LazyOperation
 
 class TimeSeries:
     """
@@ -336,3 +338,25 @@ class TimeSeries:
 
         interpolated_ts = [interpolate_val(self.time,self.data,t) for t in ts_to_interpolate]
         return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
+
+    @lazy
+    def identity(self):
+        """
+            An identity function with one argument that just returns the argument - self is the only argument
+
+            Returns
+            -------
+            self : the instance to identify
+        """
+        return self
+
+    @property
+    def lazy(self):
+        """
+            A lazy property method that returns a new LazyOperation instance using the TimeSeries.identity() method
+
+            Returns
+            -------
+            self.identity() : an instance of LazyOperation
+        """
+        return self.identity()
