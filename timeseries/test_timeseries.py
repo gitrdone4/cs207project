@@ -180,7 +180,7 @@ def test_interface():
     method_mul_two_timeseries(TimeSeries)
     method_eq(TimeSeries)
     method_ne(TimeSeries)
-    method_produce(SimulatedTimeSeries)
+    method_produce()
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
@@ -301,8 +301,8 @@ def method_ne(class_name):
     eq_v2 = -eq_v1
     assert eq_v1!=eq_v2
 
-def method_produce(class_name):
+def method_produce():
     t = iter(range(1,11))
     v = iter([2*x + 1 for x in range(1,11)])
-    sts = class_name(t, v)
+    sts = SimulatedTimeSeries(t, v)
     assert sts.produce(3) == [(1,3), (2,5), (3,7)]

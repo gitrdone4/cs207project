@@ -42,3 +42,5 @@ class SimulatedTimeSeries(StreamTimeSeriesInterface):
 		except StopIteration:
 			# not sure what the optimal error type is here
 			raise IndexError("Make sure you don't produce more values than the generator has!")
+
+		return produced

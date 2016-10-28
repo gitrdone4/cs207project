@@ -119,12 +119,30 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 	# makes check lengths redundant. However I keep them separate in case we want 
     # to add functionality to add objects without a defined time dimension later.
 	@staticmethod
-	def _check_time_domains_helper(lhs , rhs):
+	def _check_time_domains_helper(lhs, rhs):
 		if not lhs._times==rhs._times:
 			raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
 
-
-
+	@staticmethod
+	def is_sequence(seq):
+		"""
+		Description
+		-----------
+		Checks if `seq` is a sequence by verifying if it implements __iter__.
+		Parameters
+		----------
+		seq: sequence
+		
+		Notes
+		-----
+		A better implementation might be to use
+		and isinstance(seq, collections.Sequence)
+		"""
+		try:
+			_ = iter(seq)
+		except TypeError as te:
+			# J: unified string formatting with .format()
+			raise TypeError("{} is not a valid sequence".format(seq))
 
 
 
