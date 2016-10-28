@@ -1,8 +1,7 @@
-from timeseries import TimeSeries
+from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
 import numpy as np
 
-
-class ArrayTimeSeries(TimeSeries):
+class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
     """
     A subclass that stores two arrays internally, an ordered set
     of numerical data and its time points contiguously as two of `np.array`.
@@ -32,14 +31,34 @@ class ArrayTimeSeries(TimeSeries):
         for val in zip(self._times, self._values):
             yield val
 
-    def __itertimes__(self):
-        super().__itertimes__()
 
-    def __iteritems__(self):
-        super().__iteritems__()
+    # J: since our ABC is an interface, need to
+    # reimplement these here... IMO we should
+    # consider changing these so that our ABC
+    # implements the most essential functionality
+    # instead of just being an interface. this is not java :)
+
+    # J: should this not iterate over tuples?
+    def __iter__(self):
+        for val in self._values:
+            yield val
+
+    def itertimes(self):
+        for tim in self._times:
+            yield tim
+
+    def itervalues(self):
+        # R: Identical to __iter__
+        for val in self._values:
+            yield val
+
+    def iteritems(self):
+        for i in range(len(self._values)):
+            yield self._times[i], self._values[i]
 
     def __len__(self):
-        #super().__len__() Note: len of np.appry returns and error for arrays of size 1.
+        # Note: len of np.appry returns and error for arrays of size 1.
+        #super().__len__()
         return len(np.atleast_1d(self._values))
 
     def __getitem__(self, index):

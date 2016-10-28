@@ -1,9 +1,10 @@
+from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+from lazy import LazyOperation
+from lazy import lazy
 import numpy as np
 import numbers
-from lazy import lazy
-from lazy import LazyOperation
 
-class TimeSeries:
+class TimeSeries(SizedContainerTimeSeriesInterface):
     """
     A class that stores a single, ordered set of numerical data.
 
@@ -95,6 +96,7 @@ class TimeSeries:
         except IndexError:
             raise IndexError("Index out of bounds!")
 
+    # J: should this not iterate over tuples?
     def __iter__(self):
         for val in self._values:
             yield val
@@ -167,17 +169,6 @@ class TimeSeries:
 
         return pretty_printed
 
-    @staticmethod
-    def _check_length_helper(lhs , rhs):
-        if not len(lhs)==len(rhs):
-            raise ValueError(str(lhs)+' and '+str(rhs)+' must have the same length')
-
-    @staticmethod
-    # makes check lengths redundant. However I keep them separate in case we want to add functionality to add objects without a defined time dimension later.
-    def _check_time_domains_helper(lhs , rhs):
-        if not lhs._times==rhs._times:
-            raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
-
     def __abs__(self):
         return math.sqrt(sum(x * x for x in self._values))
 
@@ -217,6 +208,7 @@ class TimeSeries:
         except TypeError:
             raise NotImplemented
 
+    # J: should this not be (self - other)?
     def __rsub__(self, other):
         return -(self - other)
 
@@ -246,29 +238,6 @@ class TimeSeries:
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def is_sequence(self, seq):
-        """
-        Description
-        -----------
-        Checks if `seq` is a sequence by verifying if it implements __iter__.
-
-        Parameters
-        ----------
-        self: TimeSeries instance
-        seq: sequence
-
-        Notes
-        -----
-        A better implementation might be to use
-        and isinstance(seq, collections.Sequence)
-        """
-        try:
-            _ = iter(seq)
-        except TypeError as te:
-            # J: unified string formatting with .format()
-            raise TypeError("{} is not a valid sequence".format(seq))
-
 
     def interpolate(self,ts_to_interpolate):
         """
