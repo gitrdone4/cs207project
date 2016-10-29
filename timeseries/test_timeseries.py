@@ -1,6 +1,7 @@
 from pytest import raises
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
+from simulatedtimeseries import SimulatedTimeSeries
 import numpy as np
 from lazy import lazy
 from lazy import LazyOperation
@@ -88,12 +89,15 @@ def correct_length(class_name):
     ts = class_name(values=[1] * 100, times=range(100))
     assert len(ts) == 100
 
-def update_get_array_time_series_by_index(class_name):
-    """ Confirm that we can set a new time and value for a given index in ArrayTimeSeries"""
-    ts = class_name(values=[1,2,3,4,5],times=[1,2,3,4,5])
-    assert ts[1] == (2,2)
-    ts[1] = (42,42)
-    assert ts[1] == (42,42)
+
+# J: why are we using `class_name` as an arg
+# if this is only to be used for ArrayTimeSeries
+# def update_get_array_time_series_by_index(class_name):
+#     """ Confirm that we can set a new time and value for a given index in ArrayTimeSeries"""
+#     ts = class_name(values=[1,2,3,4,5],times=[1,2,3,4,5])
+#     assert ts[1] == (2,2)
+#     ts[1] = (42,42)
+#     assert ts[1] == (42,42)
 
 def interpolate_ts(class_name):
     a = class_name(values=[1,2,3],times=[0,5,10])
@@ -147,14 +151,17 @@ def test_array_time_series():
     # threes_fives(ArrayTimeSeries)
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
-    update_get_array_time_series_by_index(ArrayTimeSeries)
+    
+    # J: disabled this since __getitem__ and __setitem__
+    # now inherited from base class
+    #update_get_array_time_series_by_index(ArrayTimeSeries)
+
     interpolate_ts(ArrayTimeSeries)
     incompatible_dimensions(ArrayTimeSeries)
     # These should work but don't -- need to look into further
     #index_not_in_time_series(ArrayTimeSeries)
     #correct_length(ArrayTimeSeries)
     #times_contains_repeats(ArrayTimeSeries)
-
 
 # The following tests are interface checks - easy examples that don't handle edge cases
 
@@ -180,6 +187,7 @@ def test_interface():
     method_mul_two_timeseries(TimeSeries)
     method_eq(TimeSeries)
     method_ne(TimeSeries)
+    method_produce()
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
@@ -299,3 +307,9 @@ def method_ne(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
     eq_v2 = -eq_v1
     assert eq_v1!=eq_v2
+
+def method_produce():
+    t = iter(range(1,11))
+    v = iter([2*x + 1 for x in range(1,11)])
+    sts = SimulatedTimeSeries(t, v)
+    assert sts.produce(3) == [(1,3), (2,5), (3,7)]

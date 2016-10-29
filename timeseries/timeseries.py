@@ -1,9 +1,10 @@
+from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+from lazy import LazyOperation
+from lazy import lazy
 import numpy as np
 import numbers
-from lazy import lazy
-from lazy import LazyOperation
 
-class TimeSeries:
+class TimeSeries(SizedContainerTimeSeriesInterface):
     """
     A class that stores a single, ordered set of numerical data.
 
@@ -27,10 +28,6 @@ class TimeSeries:
     WARNINGS:
     - Does not maintain an accurate time series if `input_data` is unsorted.
     """
-
-    # J: maximum length of `values` after which
-    # abbreviation will occur in __str__() and __repr__()
-    MAX_LENGTH = 10
 
     def __init__(self, values, times=None):
         """
@@ -59,16 +56,13 @@ class TimeSeries:
         """
 
         # First confirm `inital_data` is a sequence.
-
-        # J: unit test this
-        # N: done
         # J: all Python sequences implement __iter__(), which we can use here.
 
-        self.is_sequence(values)
+        self.__class__.is_sequence(values)
         self._values = list(values)
 
         if times:
-            self.is_sequence(times)
+            self.__class__.is_sequence(times)
             self._times = list(times)
 
         else:
@@ -83,106 +77,26 @@ class TimeSeries:
     def __len__(self):
         return len(self._values)
 
-    def __getitem__(self, index):
-        try:
-            return self._values[index]
-        except IndexError:
-            raise IndexError("Index out of bounds!")
 
-    def __setitem__(self, index, value):
-        try:
-            self._values[index] = value
-        except IndexError:
-            raise IndexError("Index out of bounds!")
+    #### ABSTRACT THE METHODS BELOW TO BASE CLASS; REMOVE THIS LATER ######
 
-    def __iter__(self):
-        for val in self._values:
-            yield val
+    # J: new implementation inherited from parent class.
+    # leaving this here in case need to debug tests....
 
-    def itertimes(self):
-        for tim in self._times:
-            yield tim
+    # def __setitem__(self, index, value):
+    #     try:
+    #         self._values[index] = value
+    #     except IndexError:
+    #         raise IndexError("Index out of bounds!")
 
-    def itervalues(self):
-        # R: Identical to __iter__
-        for val in self._values:
-            yield val
+    # J: Also abstracted this to parent class...
+    # def __contains__(self, needle):
+        
+    #     # J this also works for  
+    #     # R: leverages self._values is a list. 
+    #     # Will have to change when we relax this.
+    #     return needle in self._values
 
-    def iteritems(self):
-        for i in range(len(self._values)):
-            yield self._times[i], self._values[i]
-
-    def __contains__(self, needle):
-        # R: leverages self._values is a list. Will have to change when we relax this.
-        return needle in self._values
-
-    def values(self):
-        return np.array(self._values)
-
-    def times(self):
-        return np.array(self._times)
-
-    def items(self):
-        return list(zip(self._times, self._values))
-
-    def __repr__(self):
-        class_name = type(self).__name__
-        return '{}(Length: {}, {})'.format(class_name,
-                                           len(self._values),
-                                           str(self))
-
-    def __str__(self):
-        """
-        Description
-        -----------
-        Instance method for pretty-printing the TimeSeries contents.
-
-        Parameters
-        ----------
-        self: TimeSeries instance
-
-        Returns
-        -------
-        pretty_printed: string
-            an end-user-friendly printout of the time series.
-            If `len(self._values) > MAX_LENGTH`, printout abbreviated
-            using an ellipsis: `['a','b','c', ..., 'x','y','z']`.
-
-        Notes
-        -----
-        PRE:
-        POST:
-
-        INVARIANTS:
-
-        WARNINGS:
-
-        """
-        if len(self._values) > self.MAX_LENGTH:
-            needed = self._values[:3]+self._values[-3:]
-            pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
-
-        else:
-            pretty_printed = "{} {}".format(list(self._values), list(self._times))
-
-        return pretty_printed
-
-    @staticmethod
-    def _check_length_helper(lhs , rhs):
-        if not len(lhs)==len(rhs):
-            raise ValueError(str(lhs)+' and '+str(rhs)+' must have the same length')
-
-    @staticmethod
-    # makes check lengths redundant. However I keep them separate in case we want to add functionality to add objects without a defined time dimension later.
-    def _check_time_domains_helper(lhs , rhs):
-        if not lhs._times==rhs._times:
-            raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
-
-    def __abs__(self):
-        return math.sqrt(sum(x * x for x in self._values))
-
-    def __bool__(self):
-        return bool(abs(self._values))
 
     def __neg__(self):
         return TimeSeries((-x for x in self._values), self._times)
@@ -193,10 +107,12 @@ class TimeSeries:
     def __add__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a + rhs for a in self), self._times) # R: may be worth testing time domains are preserved correctly
+                # R: may be worth testing time domains are preserved correctly
+                return TimeSeries((a + rhs for a in self), self._times)
             else:
-                TimeSeries._check_length_helper(self, rhs)
-                TimeSeries._check_time_domains_helper(self, rhs) # R: test me. should fail when the time domains are non congruent
+                self._check_length_helper(self, rhs)
+                # R: test me. should fail when the time domains are non congruent
+                self._check_time_domains_helper(self, rhs)
                 pairs = zip(self._values, rhs)
                 return TimeSeries((a + b for a, b in pairs), self._times)
         except TypeError:
@@ -210,13 +126,14 @@ class TimeSeries:
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a - rhs for a in self), self._times)
             else:
-                TimeSeries._check_length_helper(self, rhs)
-                TimeSeries._check_time_domains_helper(self, rhs)
+                self._check_length_helper(self, rhs)
+                self._check_time_domains_helper(self, rhs)
                 pairs = zip(self._values, rhs)
                 return TimeSeries((a - b for a, b in pairs), self._times)
         except TypeError:
             raise NotImplemented
 
+    # J: should this not be (self - other)?
     def __rsub__(self, other):
         return -(self - other)
 
@@ -225,8 +142,8 @@ class TimeSeries:
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a * rhs for a in self), self._times)
             else:
-                TimeSeries._check_length_helper(self, rhs)
-                TimeSeries._check_time_domains_helper(self, rhs)
+                self._check_length_helper(self, rhs)
+                self._check_time_domains_helper(self, rhs)
                 pairs = zip(self._values, rhs)
                 return TimeSeries((a * b for a, b in pairs), self._times)
         except TypeError:
@@ -236,8 +153,8 @@ class TimeSeries:
         return self * other
 
     def __eq__(self, rhs):
-        self.__class__._check_length_helper(self, rhs)
-        self.__class__._check_time_domains_helper(self, rhs)
+        self._check_length_helper(self, rhs)
+        self._check_time_domains_helper(self, rhs)
         # R: leverages self._values is a list. Will have to change when we relax this.
         try:
             return self._values==rhs._values
@@ -246,29 +163,6 @@ class TimeSeries:
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def is_sequence(self, seq):
-        """
-        Description
-        -----------
-        Checks if `seq` is a sequence by verifying if it implements __iter__.
-
-        Parameters
-        ----------
-        self: TimeSeries instance
-        seq: sequence
-
-        Notes
-        -----
-        A better implementation might be to use
-        and isinstance(seq, collections.Sequence)
-        """
-        try:
-            _ = iter(seq)
-        except TypeError as te:
-            # J: unified string formatting with .format()
-            raise TypeError("{} is not a valid sequence".format(seq))
-
 
     def interpolate(self,ts_to_interpolate):
         """
