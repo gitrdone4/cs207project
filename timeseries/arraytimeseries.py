@@ -27,8 +27,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         # we don't inherit from TimeSeries anymore and
         # since the upper levels of the inheritance hierarchy
         # are (mostly) abstract things...
-        self.is_sequence(times)
-        self.is_sequence(values)
+        self.__class__.is_sequence(times)
+        self.__class__.is_sequence(values)
         self._times = np.array(list(times))
         self._values = np.array(list(values))
 
@@ -37,57 +37,14 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
         if len(self._times) != len(set(self._times)):
             raise ValueError("Time data should contain no repeats")
-
-    def __iter__(self):
-        for val in zip(self._times, self._values):
-            yield val
-
-
-    # J: since our ABC is an interface, need to
-    # reimplement these here... IMO we should
-    # consider changing these so that our ABC
-    # implements the most essential functionality
-    # instead of just being an interface. this is not java :)
-
-    # J: should this not iterate over tuples?
-    def __iter__(self):
-        for val in self._values:
-            yield val
-
-    def itertimes(self):
-        for tim in self._times:
-            yield tim
-
-    def itervalues(self):
-        # R: Identical to __iter__
-        for val in self._values:
-            yield val
-
-    def iteritems(self):
-        for i in range(len(self._values)):
-            yield self._times[i], self._values[i]
-
+    
     def __len__(self):
         # Note: len of np.appry returns and error for arrays of size 1.
         #super().__len__()
         return len(np.atleast_1d(self._values))
 
-    def __getitem__(self, index):
-        try:
-            return self._times[index], self._values[index]
-        except IndexError:
-            raise IndexError("Index out of bounds!")
 
-    def __setitem__(self, index, item):
-        try:
-            self._times[index] = item[0]
-            self._values[index] = item[1]
-        except IndexError:
-            raise IndexError("Index out of bounds!")
-
-    def _check_time_domains_helper(lhs , rhs):
-        if not np.array_equal(lhs._times,rhs._times):
-            raise ValueError(str(lhs)+' and '+str(rhs)+' must have identical time domains')
+    #### ABSTRACT FNS BELOW; REMOVE THIS LATER ######
 
     def __eq__(self, rhs):
         # Note: np.array_equal compares both elements and dimensions.
@@ -98,8 +55,6 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         except TypeError:
             raise NotImplemented
 
-
-    # J: adding this here to make test pass
     # imo we should consider implementing this in
     # SizedContainerTimeSeriesInterface...
     def interpolate(self,ts_to_interpolate):
@@ -152,13 +107,7 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
 
     # J: these methods need to be implemented
-    def __abs__(self):
-        pass
     def __add__ (self):
-        pass
-    def __bool__(self):
-        pass
-    def __contains__(self):
         pass
     def __mul__(self):
         pass
@@ -170,13 +119,9 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         pass
     def __radd__(self):
         pass
-    def __repr__(self):
-        pass
     def __rmul__(self):
         pass
     def __rsub__(self):
-        pass
-    def __str__(self):
         pass
     def __sub__(self):
         pass

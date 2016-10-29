@@ -62,7 +62,7 @@ class TimeSeriesInterface(abc.ABC):
 		All TimeSeries should support adding a constant to each element
 		"""
 		pass
-	
+
 	@abc.abstractmethod
 	def __sub__(self, rhs):
 		"""
