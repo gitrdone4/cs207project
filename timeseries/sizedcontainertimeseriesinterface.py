@@ -15,6 +15,10 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 	# of SizedContainerTimeSeriesInterface implement
 	# self._values and self._times ??
 
+	# J: maximum length of `values` after which
+	# abbreviation will occur in __str__() and __repr__()
+	MAX_LENGTH = 10
+
 	###############################################################
 	## Abstract methods that are defined differently for different
 	## subclasses of SizedContainerTimeSeriesInterface

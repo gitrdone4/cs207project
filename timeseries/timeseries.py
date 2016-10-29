@@ -29,10 +29,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     - Does not maintain an accurate time series if `input_data` is unsorted.
     """
 
-    # J: maximum length of `values` after which
-    # abbreviation will occur in __str__() and __repr__()
-    MAX_LENGTH = 10
-
     def __init__(self, values, times=None):
         """
         The TimeSeries class constructor. It must be provided the initial data
