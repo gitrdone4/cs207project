@@ -231,7 +231,7 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 			pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
 
 		else:
-			pretty_printed = "{} {}".format(list(self._values), list(self._times))
+			pretty_printed = "{}".format(list(self._values))
 
 		return pretty_printed
 
