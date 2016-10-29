@@ -1,5 +1,6 @@
 
 from timeseriesinterface import TimeSeriesInterface
+import numpy as np
 import abc
 
 class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
@@ -13,8 +14,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 	# J: how to cleanly enforce that all subclasses
 	# of SizedContainerTimeSeriesInterface implement
 	# self._values and self._times ??
-
-
 
 	###############################################################
 	## Abstract methods that are defined differently for different
@@ -269,6 +268,17 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 		True/False
 		"""
 		return bool(abs(self._values))
+
+
+	# J: why do these return np.arrays? 
+	def values(self):
+		return np.array(self._values)
+
+	def times(self):
+		return np.array(self._times)
+
+	def items(self):
+		return list(zip(self._times, self._values))
 
 
 	##############################################################################

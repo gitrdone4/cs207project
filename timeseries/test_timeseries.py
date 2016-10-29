@@ -155,7 +155,7 @@ def test_array_time_series():
     # J: disabled this since __getitem__ and __setitem__
     # now inherited from base class
     #update_get_array_time_series_by_index(ArrayTimeSeries)
-    
+
     interpolate_ts(ArrayTimeSeries)
     incompatible_dimensions(ArrayTimeSeries)
     # These should work but don't -- need to look into further

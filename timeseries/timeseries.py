@@ -82,7 +82,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         return len(self._values)
 
 
-    #### ABSTRACT FNS BELOW; REMOVE THIS LATER ######
+    #### ABSTRACT THE METHODS BELOW TO BASE CLASS; REMOVE THIS LATER ######
 
     # J: new implementation inherited from parent class.
     # leaving this here in case need to debug tests....
@@ -100,15 +100,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     #     # R: leverages self._values is a list. 
     #     # Will have to change when we relax this.
     #     return needle in self._values
-
-    def values(self):
-        return np.array(self._values)
-
-    def times(self):
-        return np.array(self._times)
-
-    def items(self):
-        return list(zip(self._times, self._values))
 
 
     def __neg__(self):
