@@ -89,7 +89,6 @@ def correct_length(class_name):
     ts = class_name(values=[1] * 100, times=range(100))
     assert len(ts) == 100
 
-
 # J: why are we using `class_name` as an arg
 # if this is only to be used for ArrayTimeSeries
 # def update_get_array_time_series_by_index(class_name):
@@ -149,8 +148,15 @@ def test_time_series():
 def test_array_time_series():
     """Calles tests defined above on array time series class"""
     # threes_fives(ArrayTimeSeries)
+    method_eq(ArrayTimeSeries)
     non_iterable(ArrayTimeSeries)
     iterable(ArrayTimeSeries)
+    times_contains_repeats(ArrayTimeSeries)
+    correct_length(ArrayTimeSeries)
+    incompatible_dimensions(ArrayTimeSeries)
+    index_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
+    index_not_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
+
     
     # J: disabled this since __getitem__ and __setitem__
     # now inherited from base class
