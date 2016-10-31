@@ -25,6 +25,9 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 		pass
 	def __sub__(self):
 		pass
+	def produce(self, chunk=1):
+		pass
+
 
 	# need a way to represent these objects
 	# def __repr__(self):

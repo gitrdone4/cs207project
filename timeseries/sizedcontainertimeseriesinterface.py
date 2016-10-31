@@ -273,8 +273,38 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 		"""
 		return bool(abs(self._values))
 
+	def mean(self):
+		"""
+		Description
+		-----------
+		Calculates the mean of the timeseries values
 
-	# J: why do these return np.arrays? 
+		Parameters
+		----------
+		self: instance of subclass of SizedContainerTimeSeriesInterface
+
+		Returns
+		-------
+		float
+		"""
+		return np.mean(self._values)
+
+	def std(self):
+		"""
+		Description
+		-----------
+		Calculates the standard deviation of the timeseries values
+
+		Parameters
+		----------
+		self: instance of subclass of SizedContainerTimeSeriesInterface
+
+		Returns
+		-------
+		float
+		"""
+		return np.std(self._values)
+
 	def values(self):
 		return np.array(self._values)
 
