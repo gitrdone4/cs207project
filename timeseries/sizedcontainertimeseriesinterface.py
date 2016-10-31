@@ -276,8 +276,9 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
 
 
     # J: why do these return np.arrays?
+    # N: Switching it to cast to lists for easier testing
     def values(self):
-        return np.array(self._values)
+        return list(self._values)
 
     def times(self):
         return np.array(self._times)
@@ -339,6 +340,18 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     ## GLOBAL HELPER METHODS FOR ALL CONTAINER TIME SERIES.
     ## NO NEED TO IMPLEMENT IN SUBCLASS.
     ##############################################################################
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __radd__(self, other): # other + self delegates to self.__add__
+        return self + other
+
+    def __rsub__(self, other):
+        return -(self - other)
+
+    def __rmul__(self, other):
+        return self * other
 
     @staticmethod
     def _check_length_helper(lhs, rhs):

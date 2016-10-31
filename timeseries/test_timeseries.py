@@ -32,6 +32,14 @@ def test_sized_container_timeseries():
         method_len(class_name)
         method_eq(class_name)
         method_pos(class_name)
+        method_neg(class_name)
+        method_add_int(class_name)
+        method_add_two_timeseries(class_name)
+        method_sub_int(class_name)
+        method_sub_two_timeseries(class_name)
+        method_mul_int(class_name)
+        method_mul_two_timeseries(class_name)
+        method_ne(class_name)
 
 def test_time_series():
     """Calles tests on time series class exclusively"""
@@ -39,15 +47,6 @@ def test_time_series():
     verify_lazy_property_time_series(TimeSeries)
     verify_lazyfied_time_series_check_length(TimeSeries)
     # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
-    method_pos(TimeSeries)
-    method_neg(TimeSeries)
-    method_add_int(TimeSeries)
-    method_add_two_timeseries(TimeSeries)
-    method_sub_int(TimeSeries)
-    method_sub_two_timeseries(TimeSeries)
-    method_mul_int(TimeSeries)
-    method_mul_two_timeseries(TimeSeries)
-    method_ne(TimeSeries)
     method_produce()
 
 ##############################################################################
@@ -203,7 +202,7 @@ def method_iter(class_name):
 
 def method_values(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    assert isinstance(threes.values(), np.ndarray)
+    assert isinstance(threes.values(), list)
 
 def method_itervalues(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -243,53 +242,53 @@ def method_len(class_name):
 def method_pos(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     threespos = class_name(values=range(0, 10, 3),times=range(100,104))
-    #print("from test",type(threespos),threespos)
     posthrees = +threes
     assert posthrees == threespos
 
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     negthrees = -threes
-    assert negthrees._values==[0,-3,-6,-9]
+    assert negthrees.values()==[0,-3,-6,-9]
 
 def method_add_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    add_answer = class_name(values=[5,8,11,14],times=range(100,104))
     add_v1 = threes + 5
     add_v2 = 5 + threes
-    assert add_v1._values==[5,8,11,14] and add_v2._values==[5,8,11,14]
+    assert add_v1 == add_answer and add_v2 == add_answer
 
 def method_add_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     add_v1 = threes+fives
     add_v2 = fives+threes
-    assert add_v1._values==[0,8,16,24] and add_v2._values==[0,8,16,24]
+    assert add_v1.values()==[0,8,16,24] and add_v2.values()==[0,8,16,24]
 
 def method_sub_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     sub_v1 = threes - 5
     sub_v2 = -(5 - threes)
-    assert sub_v1._values==[-5,-2,1,4] and sub_v2._values==[-5,-2,1,4]
+    assert sub_v1.values()==[-5,-2,1,4] and sub_v2.values()==[-5,-2,1,4]
 
 def method_sub_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     sub_v1 = threes-fives
     sub_v2 = -(fives-threes)
-    assert sub_v1._values==[0,-2,-4,-6] and sub_v2._values==[0,-2,-4,-6]
+    assert sub_v1.values()==[0,-2,-4,-6] and sub_v2.values()==[0,-2,-4,-6]
 
 def method_mul_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     mul_v1 = threes * 5
     mul_v2 = 5 * threes
-    assert mul_v1._values==[0,15,30,45] and mul_v2._values==[0,15,30,45]
+    assert mul_v1.values()==[0,15,30,45] and mul_v2.values()==[0,15,30,45]
 
 def method_mul_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     mul_v1 = threes*fives
     mul_v2 = fives*threes
-    assert mul_v1._values==[0,15,60,135] and mul_v2._values==[0,15,60,135]
+    assert mul_v1.values()==[0,15,60,135] and mul_v2.values()==[0,15,60,135]
 
 def method_eq(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))

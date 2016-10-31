@@ -1,5 +1,6 @@
 from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
 import numpy as np
+import numbers
 
 class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
     """
@@ -58,24 +59,43 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
             raise NotImplemented
 
 
-    # J: these methods need to be implemented
-    def __add__ (self):
-        pass
-    def __mul__(self):
-        pass
-    def __ne__(self):
-        pass
+
+    def __add__ (self,rhs):
+        try:
+            if isinstance(rhs, numbers.Real):
+                return self.__class__(values=(self._values + rhs), times=self._times)
+            else:
+                self._check_length_helper(self, rhs)
+                self._check_time_domains_helper(self, rhs)
+                return self.__class__(values=self._values + rhs._values, times=self._times)
+        except TypeError:
+            raise NotImplemented
+
+    def __sub__(self, rhs):
+        try:
+            if isinstance(rhs, numbers.Real):
+                return self.__class__(values=(self._values - rhs), times=self._times)
+            else:
+                self._check_length_helper(self, rhs)
+                self._check_time_domains_helper(self, rhs)
+                return self.__class__(values=self._values - rhs._values, times=self._times)
+        except TypeError:
+            raise NotImplemented
+
+    def __mul__(self, rhs):
+        try:
+            if isinstance(rhs, numbers.Real):
+                return self.__class__(values=(self._values * rhs), times=self._times)
+            else:
+                self._check_length_helper(self, rhs)
+                self._check_time_domains_helper(self, rhs)
+                pairs = zip(self._values, rhs)
+                return self.__class__(values=self._values * rhs._values, times=self._times)
+        except TypeError:
+            raise NotImplemented
+
     def __neg__(self):
         return self.__class__(values=((-1)*self._values), times=self._times)
 
     def __pos__(self):
         return self.__class__(values=self._values, times=self._times)
-
-    def __radd__(self):
-        pass
-    def __rmul__(self):
-        pass
-    def __rsub__(self):
-        pass
-    def __sub__(self):
-        pass
