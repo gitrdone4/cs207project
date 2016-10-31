@@ -284,6 +284,12 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     def items(self):
         return list(zip(self._times, self._values))
 
+    def __neg__(self):
+        return self.__class__((-x for x in self._values), self._times)
+
+    def __pos__(self):
+        return self.__class__((x for x in self._values), self._times)
+
 
     def interpolate(self,ts_to_interpolate):
         """
