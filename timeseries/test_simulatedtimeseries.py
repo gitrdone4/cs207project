@@ -4,11 +4,11 @@ import numpy as np
 
 def test_chunk_out_of_range():
 
-    with raises(StopIteration):
+	with raises(StopIteration):
 
-        chunk = 200
+		chunk = 200
 
-        test_range = range(chunk)
+		test_range = range(chunk)
 
 		times_gen = (t for t in [1,2,3])
 		values_gen = (v for v in [1,2,3])

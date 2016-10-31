@@ -394,4 +394,3 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         except TypeError as te:
             # J: unified string formatting with .format()
             raise TypeError("{} is not a valid sequence".format(seq))
->>>>>>> master
