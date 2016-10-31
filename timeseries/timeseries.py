@@ -91,51 +91,48 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     # J: Also abstracted this to parent class...
     # def __contains__(self, needle):
-        
-    #     # J this also works for  
-    #     # R: leverages self._values is a list. 
+
+    #     # J this also works for
+    #     # R: leverages self._values is a list.
     #     # Will have to change when we relax this.
     #     return needle in self._values
 
 
+
+    # J: should this not be (self - other)?
+
     def __neg__(self):
-        return TimeSeries((-x for x in self._values), self._times)
+        return self.__class__((-x for x in self._values), self._times)
 
     def __pos__(self):
-        return TimeSeries((x for x in self._values), self._times)
+        return self.__class__((x for x in self._values), self._times)
 
     def __add__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
                 # R: may be worth testing time domains are preserved correctly
-                return TimeSeries((a + rhs for a in self), self._times)
+                return self.__class__(values=(a + rhs for a in self), times=self._times)
             else:
                 self._check_length_helper(self, rhs)
                 # R: test me. should fail when the time domains are non congruent
                 self._check_time_domains_helper(self, rhs)
                 pairs = zip(self._values, rhs)
-                return TimeSeries((a + b for a, b in pairs), self._times)
+                return self.__class__(values=(a + b for a, b in pairs), times=self._times)
         except TypeError:
             raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
-
-    def __radd__(self, other): # other + self delegates to self.__add__
-        return self + other
 
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries((a - rhs for a in self), self._times)
+                return self.__class__((a - rhs for a in self), self._times)
             else:
                 self._check_length_helper(self, rhs)
                 self._check_time_domains_helper(self, rhs)
                 pairs = zip(self._values, rhs)
-                return TimeSeries((a - b for a, b in pairs), self._times)
+                return self.__class__((a - b for a, b in pairs), self._times)
         except TypeError:
             raise NotImplemented
 
-    # J: should this not be (self - other)?
-    def __rsub__(self, other):
-        return -(self - other)
 
     def __mul__(self, rhs):
         try:
@@ -149,8 +146,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         except TypeError:
             raise NotImplemented
 
-    def __rmul__(self, other):
-        return self * other
 
     def __eq__(self, rhs):
         self._check_length_helper(self, rhs)
@@ -160,58 +155,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             return self._values==rhs._values
         except TypeError:
             raise NotImplemented
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def interpolate(self,ts_to_interpolate):
-        """
-        Returns new TimeSeries instance with piecewise-linear-interpolated values
-        for submitted time-times.If called times are outside of the domain of the existing
-        Time Series, the minimum or maximum values are returned.
-
-        Parameters
-        ----------
-        self: TimeSeries instance
-        ts_to_interpolate: list or other sequence of times to be interpolated
-
-        """
-        def binary_search(times, t):
-            """ Returns surrounding time indexes for value that is to be interpolated"""
-            min = 0
-            max = len(times) - 1
-            while True:
-                if max < min:
-                    return (max,min)
-                m = (min + max) // 2
-                if times[m] < t:
-                    min = m + 1
-                elif times[m] > t:
-                    max = m - 1
-                else: #Should never hit this case in current implementation
-                    return (min,max)
-
-        def interpolate_val(times,values,t):
-            """Returns interpolated value for given time"""
-
-            if t in times:          #time already exits in ts -- return it
-                return values[times.index(t)]
-
-            elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
-                return values[-1]
-
-            elif t <= times[0]:     #time is below the domain of the existing values -- return min time value
-                return values[0]
-
-            else:                   #time is between two existing points -- interpolate it
-                low,high = binary_search(times, t)
-                slope = (float(values[high]) - values[low])/(times[high] - times[low])
-                c = values[low]
-                interpolated_val = (t-times[low])*slope + c
-                return interpolated_val
-
-        interpolated_ts = [interpolate_val(self._times,self._values,t) for t in ts_to_interpolate]
-        return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
 
     @lazy
     def identity(self):

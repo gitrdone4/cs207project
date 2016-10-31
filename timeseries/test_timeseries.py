@@ -1,10 +1,56 @@
 from pytest import raises
+import pytest
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
 from simulatedtimeseries import SimulatedTimeSeries
 import numpy as np
 from lazy import lazy
 from lazy import LazyOperation
+
+def test_sized_container_timeseries():
+    """calls tests on *both* TimeSeries and ArrayTimeSeries"""
+    for class_name in [TimeSeries,ArrayTimeSeries]:
+        non_iterable(class_name)
+        iterable(class_name)
+        incompatible_dimensions(class_name)
+        times_contains_repeats(class_name)
+        index_in_time_series(class_name)
+        index_not_in_time_series(class_name)
+        correct_length(class_name)
+        interpolate_ts(class_name)
+        method_getitem(class_name)
+        method_setitem(class_name)
+        method_iter(class_name)
+        method_contains(class_name)
+        method_values(class_name)
+        method_itervalues(class_name)
+        method_times(class_name)
+        method_itertimes(class_name)
+        method_items(class_name)
+        method_iteritems(class_name)
+        method_len(class_name)
+        method_eq(class_name)
+        method_pos(class_name)
+        method_neg(class_name)
+        method_add_int(class_name)
+        method_add_two_timeseries(class_name)
+        method_sub_int(class_name)
+        method_sub_two_timeseries(class_name)
+        method_mul_int(class_name)
+        method_mul_two_timeseries(class_name)
+        method_ne(class_name)
+        method_produce()
+
+def test_time_series():
+    """Calles tests on list-based timeseries class exclusively"""
+    threes_fives(TimeSeries)
+    verify_lazy_property_time_series(TimeSeries)
+    verify_lazyfied_time_series_check_length(TimeSeries)
+    # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
+
+##############################################################################
+## Unit Tests
+##############################################################################
 
 def threes_fives(class_name):
     """
@@ -128,72 +174,8 @@ def verify_lazyfied_time_series_check_length(class_name):
     @lazy
     def check_length(a,b):
         return len(a)==len(b)
-    thunk = check_length(TimeSeries(range(0,4),range(1,5)), TimeSeries(range(1,5),range(2,6)))
+    thunk = check_length(class_name(range(0,4),range(1,5)), class_name(range(1,5),range(2,6)))
     assert thunk.eval()==True
-
-def test_time_series():
-    """Calles tests defined above on time series class"""
-    threes_fives(TimeSeries)
-    non_iterable(TimeSeries)
-    iterable(TimeSeries)
-    incompatible_dimensions(TimeSeries)
-    times_contains_repeats(TimeSeries)
-    index_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    index_not_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    correct_length(TimeSeries)
-    interpolate_ts(TimeSeries)
-    verify_lazy_property_time_series(TimeSeries)
-    verify_lazyfied_time_series_check_length(TimeSeries)
-
-def test_array_time_series():
-    """Calles tests defined above on array time series class"""
-    # threes_fives(ArrayTimeSeries)
-    method_eq(ArrayTimeSeries)
-    non_iterable(ArrayTimeSeries)
-    iterable(ArrayTimeSeries)
-    times_contains_repeats(ArrayTimeSeries)
-    correct_length(ArrayTimeSeries)
-    incompatible_dimensions(ArrayTimeSeries)
-    index_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    index_not_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-
-    
-    # J: disabled this since __getitem__ and __setitem__
-    # now inherited from base class
-    #update_get_array_time_series_by_index(ArrayTimeSeries)
-
-    interpolate_ts(ArrayTimeSeries)
-    incompatible_dimensions(ArrayTimeSeries)
-    # These should work but don't -- need to look into further
-    #index_not_in_time_series(ArrayTimeSeries)
-    #correct_length(ArrayTimeSeries)
-    #times_contains_repeats(ArrayTimeSeries)
-
-# The following tests are interface checks - easy examples that don't handle edge cases
-
-def test_interface():
-    method_getitem(TimeSeries)
-    method_setitem(TimeSeries)
-    method_contains(TimeSeries)
-    method_iter(TimeSeries)
-    method_values(TimeSeries)
-    method_itervalues(TimeSeries)
-    method_times(TimeSeries)
-    method_itertimes(TimeSeries)
-    method_items(TimeSeries)
-    method_iteritems(TimeSeries)
-    method_len(TimeSeries)
-    method_pos(TimeSeries)
-    method_neg(TimeSeries)
-    method_add_int(TimeSeries)
-    method_add_two_timeseries(TimeSeries)
-    method_sub_int(TimeSeries)
-    method_sub_two_timeseries(TimeSeries)
-    method_mul_int(TimeSeries)
-    method_mul_two_timeseries(TimeSeries)
-    method_eq(TimeSeries)
-    method_ne(TimeSeries)
-    method_produce()
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
@@ -206,7 +188,7 @@ def method_setitem(class_name):
     assert threes[0] == 3
 
 def method_contains(class_name):
-    x = class_name([5,6])
+    x = class_name(values=[5,6],times=[1,2])
     assert 5 in x
 
 def method_iter(class_name):
@@ -217,8 +199,9 @@ def method_iter(class_name):
     assert cum_sum==18
 
 def method_values(class_name):
+    #N: Changed from np array to list
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    assert isinstance(threes.values(), np.ndarray)
+    assert isinstance(threes.values(), list)
 
 def method_itervalues(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -228,8 +211,9 @@ def method_itervalues(class_name):
     assert cum_sum==18
 
 def method_times(class_name):
+    #N: Changed from np array to list
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    assert isinstance(threes.times(), np.ndarray)
+    assert isinstance(threes.times(), list)
 
 def method_itertimes(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -258,51 +242,51 @@ def method_len(class_name):
 def method_pos(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     posthrees = +threes
-    assert posthrees._values==[0,3,6,9]
+    assert posthrees.values() == [0,3,6,9]
 
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     negthrees = -threes
-    assert negthrees._values==[0,-3,-6,-9]
+    assert negthrees.values()==[0,-3,-6,-9]
 
 def method_add_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     add_v1 = threes + 5
     add_v2 = 5 + threes
-    assert add_v1._values==[5,8,11,14] and add_v2._values==[5,8,11,14]
+    assert add_v1.values() == [5,8,11,14] and add_v2.values() == [5,8,11,14]
 
 def method_add_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     add_v1 = threes+fives
     add_v2 = fives+threes
-    assert add_v1._values==[0,8,16,24] and add_v2._values==[0,8,16,24]
+    assert add_v1.values()==[0,8,16,24] and add_v2.values()==[0,8,16,24]
 
 def method_sub_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     sub_v1 = threes - 5
     sub_v2 = -(5 - threes)
-    assert sub_v1._values==[-5,-2,1,4] and sub_v2._values==[-5,-2,1,4]
+    assert sub_v1.values()==[-5,-2,1,4] and sub_v2.values()==[-5,-2,1,4]
 
 def method_sub_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     sub_v1 = threes-fives
     sub_v2 = -(fives-threes)
-    assert sub_v1._values==[0,-2,-4,-6] and sub_v2._values==[0,-2,-4,-6]
+    assert sub_v1.values()==[0,-2,-4,-6] and sub_v2.values()==[0,-2,-4,-6]
 
 def method_mul_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     mul_v1 = threes * 5
     mul_v2 = 5 * threes
-    assert mul_v1._values==[0,15,30,45] and mul_v2._values==[0,15,30,45]
+    assert mul_v1.values()==[0,15,30,45] and mul_v2.values()==[0,15,30,45]
 
 def method_mul_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     fives = class_name(values=range(0, 16, 5),times=range(100,104))
     mul_v1 = threes*fives
     mul_v2 = fives*threes
-    assert mul_v1._values==[0,15,60,135] and mul_v2._values==[0,15,60,135]
+    assert mul_v1.values()==[0,15,60,135] and mul_v2.values()==[0,15,60,135]
 
 def method_eq(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
