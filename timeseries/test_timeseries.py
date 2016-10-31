@@ -157,7 +157,7 @@ def test_array_time_series():
     index_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
     index_not_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
 
-    
+
     # J: disabled this since __getitem__ and __setitem__
     # now inherited from base class
     #update_get_array_time_series_by_index(ArrayTimeSeries)

@@ -91,9 +91,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     # J: Also abstracted this to parent class...
     # def __contains__(self, needle):
-        
-    #     # J this also works for  
-    #     # R: leverages self._values is a list. 
+
+    #     # J this also works for
+    #     # R: leverages self._values is a list.
     #     # Will have to change when we relax this.
     #     return needle in self._values
 
