@@ -1,4 +1,5 @@
 from pytest import raises
+import pytest
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
 from simulatedtimeseries import SimulatedTimeSeries
@@ -30,7 +31,7 @@ def test_sized_container_timeseries():
         method_iteritems(class_name)
         method_len(class_name)
         method_eq(class_name)
-
+        method_pos(class_name)
 
 def test_time_series():
     """Calles tests on time series class exclusively"""
@@ -241,8 +242,10 @@ def method_len(class_name):
 
 def method_pos(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    threespos = class_name(values=range(0, 10, 3),times=range(100,104))
+    #print("from test",type(threespos),threespos)
     posthrees = +threes
-    assert posthrees._values==[0,3,6,9]
+    assert posthrees == threespos
 
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
