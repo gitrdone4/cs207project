@@ -7,7 +7,6 @@ import numpy as np
 from lazy import lazy
 from lazy import LazyOperation
 
-
 def test_sized_container_timeseries():
     """calls tests on *both* TimeSeries and ArrayTimeSeries"""
     for class_name in [TimeSeries,ArrayTimeSeries]:
@@ -40,14 +39,14 @@ def test_sized_container_timeseries():
         method_mul_int(class_name)
         method_mul_two_timeseries(class_name)
         method_ne(class_name)
+        method_produce()
 
 def test_time_series():
-    """Calles tests on time series class exclusively"""
+    """Calles tests on list-based timeseries class exclusively"""
     threes_fives(TimeSeries)
     verify_lazy_property_time_series(TimeSeries)
     verify_lazyfied_time_series_check_length(TimeSeries)
     # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
-    method_produce()
 
 ##############################################################################
 ## Unit Tests
@@ -178,7 +177,6 @@ def verify_lazyfied_time_series_check_length(class_name):
     thunk = check_length(class_name(range(0,4),range(1,5)), class_name(range(1,5),range(2,6)))
     assert thunk.eval()==True
 
-
 # should have made a fixture sorry!
 def method_getitem(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -201,6 +199,7 @@ def method_iter(class_name):
     assert cum_sum==18
 
 def method_values(class_name):
+    #N: Changed from np array to list
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     assert isinstance(threes.values(), list)
 
@@ -212,8 +211,9 @@ def method_itervalues(class_name):
     assert cum_sum==18
 
 def method_times(class_name):
+    #N: Changed from np array to list
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    assert isinstance(threes.times(), np.ndarray)
+    assert isinstance(threes.times(), list)
 
 def method_itertimes(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -241,9 +241,8 @@ def method_len(class_name):
 
 def method_pos(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    threespos = class_name(values=range(0, 10, 3),times=range(100,104))
     posthrees = +threes
-    assert posthrees == threespos
+    assert posthrees.values() == [0,3,6,9]
 
 def method_neg(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
@@ -252,10 +251,9 @@ def method_neg(class_name):
 
 def method_add_int(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    add_answer = class_name(values=[5,8,11,14],times=range(100,104))
     add_v1 = threes + 5
     add_v2 = 5 + threes
-    assert add_v1 == add_answer and add_v2 == add_answer
+    assert add_v1.values() == [5,8,11,14] and add_v2.values() == [5,8,11,14]
 
 def method_add_two_timeseries(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))

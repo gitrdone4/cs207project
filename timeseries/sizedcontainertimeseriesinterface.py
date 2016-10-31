@@ -281,11 +281,10 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         return list(self._values)
 
     def times(self):
-        return np.array(self._times)
+        return list(self._times)
 
     def items(self):
         return list(zip(self._times, self._values))
-
 
     def interpolate(self,ts_to_interpolate):
         """
@@ -309,10 +308,8 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
                 m = (min + max) // 2
                 if times[m] < t:
                     min = m + 1
-                elif times[m] > t:
+                else:
                     max = m - 1
-                else: #Should never hit this case in current implementation
-                    return (min,max)
 
         def interpolate_val(times,values,t):
             """Returns interpolated value for given time"""

@@ -49,8 +49,6 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     def __eq__(self, rhs):
         # Note: np.array_equal compares both elements and dimensions.
-        #print("array check",self,rhs)
-        #print("type check",type(self),type(rhs))
         self.__class__._check_time_domains_helper(self, rhs)
         try:
             return (np.array_equal(self._values,rhs._values) and np.array_equal(self._times,rhs._times))
@@ -61,6 +59,10 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
 
     def __add__ (self,rhs):
+        # N: Note – currently, we’re adding the value arrays if everything is the same length.
+        # N: But it would be possible to have to time series that were the same length but which
+        # N: covered different times. Should we address this as well?
+
         try:
             if isinstance(rhs, numbers.Real):
                 return self.__class__(values=(self._values + rhs), times=self._times)
