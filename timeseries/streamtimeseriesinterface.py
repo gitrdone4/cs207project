@@ -47,10 +47,9 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 		"""
 		pass
 
+    # need a way to represent these objects
+    # def __repr__(self):
+    #   pass
 
-	# need a way to represent these objects
-	# def __repr__(self):
-	# 	pass
-
-	# def __str__(self):
-	# 	pass
+    # def __str__(self):
+    #   pass
