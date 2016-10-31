@@ -278,13 +278,20 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     # J: why do these return np.arrays?
     # N: Switching it to cast to lists for easier testing
     def values(self):
-        return list(self._values)
+        return np.array(self._values)
 
     def times(self):
-        return list(self._times)
+        return np.array(self._times)
 
     def items(self):
         return list(zip(self._times, self._values))
+
+    # Return internal storage as lists for eaiser testing
+    def values_lst(self):
+        return list(self._values)
+
+    def times_lst(self):
+        return list(self._times)
 
     def interpolate(self,ts_to_interpolate):
         """
