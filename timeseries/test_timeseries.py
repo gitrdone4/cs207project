@@ -193,6 +193,8 @@ def test_interface():
     method_mul_two_timeseries(TimeSeries)
     method_eq(TimeSeries)
     method_ne(TimeSeries)
+    method_mean(TimeSeries)
+    method_std(TimeSeries)
     method_produce()
 
 # should have made a fixture sorry!
@@ -313,6 +315,14 @@ def method_ne(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
     eq_v2 = -eq_v1
     assert eq_v1!=eq_v2
+
+def method_mean(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert threes.mean()==4.5
+
+def method_std(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert threes.std()==3.3541019662496847
 
 def method_produce():
     t = iter(range(1,11))

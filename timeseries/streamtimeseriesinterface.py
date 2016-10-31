@@ -26,6 +26,25 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 	def __sub__(self):
 		pass
 	def produce(self, chunk=1):
+		"""
+		Description
+		-----------
+		Produces `chunk` new values of the time series
+		"""
+		pass
+	def online_mean():
+		"""
+		Description
+		-----------
+		Generates a stream of online means.
+		"""
+		pass
+	def online_std():
+		"""
+		Description
+		-----------
+		Generates a stream of online standard deviations.
+		"""
 		pass
 
 
