@@ -164,54 +164,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def interpolate(self,ts_to_interpolate):
-        """
-        Returns new TimeSeries instance with piecewise-linear-interpolated values
-        for submitted time-times.If called times are outside of the domain of the existing
-        Time Series, the minimum or maximum values are returned.
-
-        Parameters
-        ----------
-        self: TimeSeries instance
-        ts_to_interpolate: list or other sequence of times to be interpolated
-
-        """
-        def binary_search(times, t):
-            """ Returns surrounding time indexes for value that is to be interpolated"""
-            min = 0
-            max = len(times) - 1
-            while True:
-                if max < min:
-                    return (max,min)
-                m = (min + max) // 2
-                if times[m] < t:
-                    min = m + 1
-                elif times[m] > t:
-                    max = m - 1
-                else: #Should never hit this case in current implementation
-                    return (min,max)
-
-        def interpolate_val(times,values,t):
-            """Returns interpolated value for given time"""
-
-            if t in times:          #time already exits in ts -- return it
-                return values[times.index(t)]
-
-            elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
-                return values[-1]
-
-            elif t <= times[0]:     #time is below the domain of the existing values -- return min time value
-                return values[0]
-
-            else:                   #time is between two existing points -- interpolate it
-                low,high = binary_search(times, t)
-                slope = (float(values[high]) - values[low])/(times[high] - times[low])
-                c = values[low]
-                interpolated_val = (t-times[low])*slope + c
-                return interpolated_val
-
-        interpolated_ts = [interpolate_val(self._times,self._values,t) for t in ts_to_interpolate]
-        return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
 
     @lazy
     def identity(self):
