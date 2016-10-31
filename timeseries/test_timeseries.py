@@ -6,6 +6,53 @@ import numpy as np
 from lazy import lazy
 from lazy import LazyOperation
 
+
+def test_sized_container_timeseries():
+    """calls tests on *both* TimeSeries and ArrayTimeSeries"""
+    for class_name in [TimeSeries,ArrayTimeSeries]:
+        non_iterable(class_name)
+        iterable(class_name)
+        incompatible_dimensions(class_name)
+        times_contains_repeats(class_name)
+        index_in_time_series(class_name)
+        index_not_in_time_series(class_name)
+        correct_length(class_name)
+        interpolate_ts(class_name)
+        method_getitem(class_name)
+        method_setitem(class_name)
+        method_iter(class_name)
+        method_contains(class_name)
+        method_values(class_name)
+        method_itervalues(class_name)
+        method_times(class_name)
+        method_itertimes(class_name)
+        method_items(class_name)
+        method_iteritems(class_name)
+        method_len(class_name)
+        method_eq(class_name)
+
+
+def test_time_series():
+    """Calles tests on time series class exclusively"""
+    threes_fives(TimeSeries)
+    verify_lazy_property_time_series(TimeSeries)
+    verify_lazyfied_time_series_check_length(TimeSeries)
+    # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
+    method_pos(TimeSeries)
+    method_neg(TimeSeries)
+    method_add_int(TimeSeries)
+    method_add_two_timeseries(TimeSeries)
+    method_sub_int(TimeSeries)
+    method_sub_two_timeseries(TimeSeries)
+    method_mul_int(TimeSeries)
+    method_mul_two_timeseries(TimeSeries)
+    method_ne(TimeSeries)
+    method_produce()
+
+##############################################################################
+## Unit Tests
+##############################################################################
+
 def threes_fives(class_name):
     """
     Check with fizbuzz data
@@ -128,72 +175,9 @@ def verify_lazyfied_time_series_check_length(class_name):
     @lazy
     def check_length(a,b):
         return len(a)==len(b)
-    thunk = check_length(TimeSeries(range(0,4),range(1,5)), TimeSeries(range(1,5),range(2,6)))
+    thunk = check_length(class_name(range(0,4),range(1,5)), class_name(range(1,5),range(2,6)))
     assert thunk.eval()==True
 
-def test_time_series():
-    """Calles tests defined above on time series class"""
-    threes_fives(TimeSeries)
-    non_iterable(TimeSeries)
-    iterable(TimeSeries)
-    incompatible_dimensions(TimeSeries)
-    times_contains_repeats(TimeSeries)
-    index_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    index_not_in_time_series(TimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    correct_length(TimeSeries)
-    interpolate_ts(TimeSeries)
-    verify_lazy_property_time_series(TimeSeries)
-    verify_lazyfied_time_series_check_length(TimeSeries)
-
-def test_array_time_series():
-    """Calles tests defined above on array time series class"""
-    # threes_fives(ArrayTimeSeries)
-    method_eq(ArrayTimeSeries)
-    non_iterable(ArrayTimeSeries)
-    iterable(ArrayTimeSeries)
-    times_contains_repeats(ArrayTimeSeries)
-    correct_length(ArrayTimeSeries)
-    incompatible_dimensions(ArrayTimeSeries)
-    index_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-    index_not_in_time_series(ArrayTimeSeries) # (Fixed) get item changed! gets value based on index rather than time now
-
-
-    # J: disabled this since __getitem__ and __setitem__
-    # now inherited from base class
-    #update_get_array_time_series_by_index(ArrayTimeSeries)
-
-    interpolate_ts(ArrayTimeSeries)
-    incompatible_dimensions(ArrayTimeSeries)
-    # These should work but don't -- need to look into further
-    #index_not_in_time_series(ArrayTimeSeries)
-    #correct_length(ArrayTimeSeries)
-    #times_contains_repeats(ArrayTimeSeries)
-
-# The following tests are interface checks - easy examples that don't handle edge cases
-
-def test_interface():
-    method_getitem(TimeSeries)
-    method_setitem(TimeSeries)
-    method_contains(TimeSeries)
-    method_iter(TimeSeries)
-    method_values(TimeSeries)
-    method_itervalues(TimeSeries)
-    method_times(TimeSeries)
-    method_itertimes(TimeSeries)
-    method_items(TimeSeries)
-    method_iteritems(TimeSeries)
-    method_len(TimeSeries)
-    method_pos(TimeSeries)
-    method_neg(TimeSeries)
-    method_add_int(TimeSeries)
-    method_add_two_timeseries(TimeSeries)
-    method_sub_int(TimeSeries)
-    method_sub_two_timeseries(TimeSeries)
-    method_mul_int(TimeSeries)
-    method_mul_two_timeseries(TimeSeries)
-    method_eq(TimeSeries)
-    method_ne(TimeSeries)
-    method_produce()
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
@@ -206,7 +190,7 @@ def method_setitem(class_name):
     assert threes[0] == 3
 
 def method_contains(class_name):
-    x = class_name([5,6])
+    x = class_name(values=[5,6],times=[1,2])
     assert 5 in x
 
 def method_iter(class_name):

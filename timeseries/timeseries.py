@@ -98,40 +98,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     #     return needle in self._values
 
 
-    def __neg__(self):
-        return TimeSeries((-x for x in self._values), self._times)
-
-    def __pos__(self):
-        return TimeSeries((x for x in self._values), self._times)
-
-    def __add__(self, rhs):
-        try:
-            if isinstance(rhs, numbers.Real):
-                # R: may be worth testing time domains are preserved correctly
-                return TimeSeries((a + rhs for a in self), self._times)
-            else:
-                self._check_length_helper(self, rhs)
-                # R: test me. should fail when the time domains are non congruent
-                self._check_time_domains_helper(self, rhs)
-                pairs = zip(self._values, rhs)
-                return TimeSeries((a + b for a, b in pairs), self._times)
-        except TypeError:
-            raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
-
-    def __radd__(self, other): # other + self delegates to self.__add__
-        return self + other
-
-    def __sub__(self, rhs):
-        try:
-            if isinstance(rhs, numbers.Real):
-                return TimeSeries((a - rhs for a in self), self._times)
-            else:
-                self._check_length_helper(self, rhs)
-                self._check_time_domains_helper(self, rhs)
-                pairs = zip(self._values, rhs)
-                return TimeSeries((a - b for a, b in pairs), self._times)
-        except TypeError:
-            raise NotImplemented
 
     # J: should this not be (self - other)?
     def __rsub__(self, other):
@@ -163,7 +129,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
 
     @lazy
     def identity(self):
