@@ -317,9 +317,23 @@ def method_mul_two_timeseries(class_name):
     assert mul_v1.values_lst()==[0,15,60,135] and mul_v2.values_lst()==[0,15,60,135]
 
 def method_eq(class_name):
+
+    # verify that two instances of the same class are equal
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))
     eq_v2 = class_name(values=range(0, 10, 3),times=range(100,104))
     assert eq_v1==eq_v2
+
+    # verify that attempted comparison between list and ArrayTimeSeries raises TypeError
+    with raises(TypeError):
+        eq_v1 = list([1,2,3,4])
+        eq_v2 = ArrayTimeSeries(values=range(0, 10, 3),times=range(100,104))
+        eq_v1==eq_v2
+
+    # verify that attempted comparison between numpy array and TimeSeries raises TypeError
+    with raises(TypeError):
+        eq_v1 = np.array([1,2,3,4])
+        eq_v2 = TimeSeries(values=range(0, 10, 3),times=range(100,104))
+        eq_v2==eq_v1
 
 def method_ne(class_name):
     eq_v1 = class_name(values=range(0, 10, 3),times=range(100,104))

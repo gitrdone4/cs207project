@@ -160,10 +160,12 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
 
     def __eq__(self, rhs):
-        self._check_length_helper(self, rhs)
-        self._check_time_domains_helper(self, rhs)
         # R: leverages self._values is a list. Will have to change when we relax this.
         try:
+            if isinstance(rhs, np.ndarray):
+                raise "Cannot compare numpy array to TimeSeries!"
+            self._check_length_helper(self, rhs)
+            self._check_time_domains_helper(self, rhs)
             return self._values==rhs._values
         except TypeError:
             raise NotImplemented
