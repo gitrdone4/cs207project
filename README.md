@@ -19,7 +19,7 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 3. Supports piecewise linear interpolation of non-existing values within the domain of existing fixed-length data-sets.
 4. Supports ongoing standard deviation and mean calculations for  stream-based datasets.
 
-### Required Python Modules To Run
+### Required Python Modules
 
 - [NumPy](http://www.numpy.org)
 
