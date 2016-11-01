@@ -64,6 +64,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         # N: covered different times. Should we address this as well?
 
         try:
+            if isinstance(rhs, list):
+                raise "Cannot add a list to a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return self.__class__(values=(self._values + rhs), times=self._times)
             else:
@@ -75,6 +77,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     def __sub__(self, rhs):
         try:
+            if isinstance(rhs, list):
+                raise "Cannot sub a list from a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return self.__class__(values=(self._values - rhs), times=self._times)
             else:
@@ -86,6 +90,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     def __mul__(self, rhs):
         try:
+            if isinstance(rhs, list):
+                raise "Cannot mul a list with a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return self.__class__(values=(self._values * rhs), times=self._times)
             else:
