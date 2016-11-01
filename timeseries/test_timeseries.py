@@ -19,6 +19,7 @@ def test_sized_container_timeseries():
         index_not_in_time_series(class_name)
         correct_length(class_name)
         interpolate_ts(class_name)
+        operator_list_nparray_not_allowed(class_name)
         method_getitem(class_name)
         method_setitem(class_name)
         method_iter(class_name)
@@ -47,9 +48,6 @@ def test_time_series():
     threes_fives(TimeSeries)
     verify_lazy_property_time_series(TimeSeries)
     verify_lazyfied_time_series_check_length(TimeSeries)
-    operator_timeseries_list_nparray_not_allowed(TimeSeries, operator.add)
-    operator_timeseries_list_nparray_not_allowed(TimeSeries, operator.sub)
-    operator_timeseries_list_nparray_not_allowed(TimeSeries, operator.mul)
     # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
 
 ##############################################################################
@@ -181,19 +179,31 @@ def verify_lazyfied_time_series_check_length(class_name):
     thunk = check_length(class_name(range(0,4),range(1,5)), class_name(range(1,5),range(2,6)))
     assert thunk.eval()==True
 
-def operator_timeseries_list_nparray_not_allowed(class_name, operator):
+def operator_list_nparray_not_allowed(class_name):
     """
         It should fail when we try to add a numpy array or list to a TimeSeries instance
-    """
-    ts = class_name(values=[1,2,3] , times=[1,2,3])
-    with raises(TypeError):
-        rhs = np.array([1,2,3])
-        operator(ts, rhs)
 
-    ts = class_name(values=[1,2,3] , times=[1,2,3])
-    with raises(TypeError):
-        rhs = list([1,2,3])
-        operator(ts, rhs)
+        Parameters
+        ----------
+        class_name : time series class
+            The class to run the tests on.
+        operator : operator
+            The operator to use for the mathematical expression
+    """
+    operators = [operator.add, operator.mul, operator.sub]
+    # N: we are checking if an operation is attemped on TimeSeries with a list or np array type
+    for op in operators:
+        if (class_name is TimeSeries):
+            ts = class_name(values=[1,2,3] , times=[1,2,3])
+            with raises(TypeError):
+                rhs = np.array([1,2,3])
+                op(ts, rhs)
+
+        # N: we are only checking if an operation is attemped on ArrayTimeSeries with a list type
+        ts = class_name(values=[1,2,3] , times=[1,2,3])
+        with raises(TypeError):
+            rhs = list([1,2,3])
+            op(ts, rhs)
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
