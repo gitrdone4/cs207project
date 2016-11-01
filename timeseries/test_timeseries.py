@@ -19,7 +19,6 @@ def test_sized_container_timeseries():
         index_not_in_time_series(class_name)
         correct_length(class_name)
         interpolate_ts(class_name)
-        interpolate_time_already_present_ts(class_name)
         operator_list_nparray_not_allowed(class_name)
         method_getitem(class_name)
         method_setitem(class_name)
@@ -157,22 +156,6 @@ def correct_length(class_name):
 #     assert ts[1] == (42,42)
 
 def interpolate_ts(class_name):
-    a = class_name(values=[1,2,3],times=[0,5,10])
-    b = class_name(values=[100, -100],times=[2.5,7.5])
-
-    c_times=[5,10,15,20]
-    c = class_name(values=[i*2 for i in c_times],times=c_times)
-
-    # Simple cases
-    assert a.interpolate([1]) == class_name(times=[1],values=[1.2])
-
-    assert c.interpolate([2,6,11,17,25]) == \
-        class_name(times=[2,6,11,17,25],values=[10,12,22,34,40])
-
-    assert b.interpolate([-100,100]) == \
-        class_name(times=[-100,100],values=[100,-100])
-
-def interpolate_time_already_present_ts(class_name):
     a = class_name(values=[1,2,3],times=[0,5,10])
     b = class_name(values=[100, -100],times=[2.5,7.5])
 
