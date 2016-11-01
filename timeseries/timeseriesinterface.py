@@ -21,7 +21,6 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         Fixed size or not, each TimeSeries needs to support iteration.
         """
-        pass
 
     @abc.abstractmethod
     def __neg__(self):
@@ -30,7 +29,6 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         All TimeSeries, fixed or not, should support unary `-` operator
         """
-        pass
 
     @abc.abstractmethod
     def __pos__(self):
@@ -39,7 +37,6 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         Obviously all TimeSeries need to suppport opposite of __neg__ as well.
         """
-        pass
 
 
     # J: I'm assuming these methods can be implemented lazily,
@@ -52,7 +49,6 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         All TimeSeries should support adding a constant to each element
         """
-        pass
 
     @abc.abstractmethod
     def __radd__(self, other):
@@ -61,7 +57,6 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         All TimeSeries should support adding a constant to each element
         """
-        pass
 
     @abc.abstractmethod
     def __sub__(self, rhs):
@@ -70,11 +65,11 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         All TimeSeries should support subtracting a constant from each element
         """
-        pass
 
     @abc.abstractmethod
     def __rsub__(self, other):
-        pass
+        """
+        """
 
     @abc.abstractmethod
     def __mul__(self, rhs):
@@ -83,11 +78,12 @@ class TimeSeriesInterface(abc.ABC):
         -----------
         All TimeSeries must support multiplication by a constant
         """
-        pass
+
 
     @abc.abstractmethod
     def __rmul__(self):
-        pass
+        """
+        """
 
     @abc.abstractmethod
     def mean(self, chunk = None):
@@ -101,7 +97,7 @@ class TimeSeriesInterface(abc.ABC):
         chunk : int
             Can be used for subclass instances with no storage. Represents the size of the values within a TimeSeries instance.
         """
-        pass
+
 
     @abc.abstractmethod
     def std(self, chunk = None):
@@ -115,4 +111,3 @@ class TimeSeriesInterface(abc.ABC):
         chunk : int
             Can be used for subclass instances with no storage. Represents the size of the values within a TimeSeries instance.
         """
-        pass

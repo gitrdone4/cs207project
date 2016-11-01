@@ -19,6 +19,7 @@ def test_sized_container_timeseries():
         index_not_in_time_series(class_name)
         correct_length(class_name)
         interpolate_ts(class_name)
+        interpolate_time_already_present_ts(class_name)
         operator_list_nparray_not_allowed(class_name)
         method_getitem(class_name)
         method_setitem(class_name)
@@ -44,6 +45,13 @@ def test_sized_container_timeseries():
         method_mean(class_name)
         method_std(class_name)
         method_produce()
+        method_repr(class_name)
+        method_str(class_name)
+        method_abs(class_name)
+        method_bool(class_name)
+        method_times_lst(class_name)
+        method_check_length_helper(class_name)
+        method_check_time_domains_helper(class_name)
 
 def test_time_series():
     """Calles tests on list-based timeseries class exclusively"""
@@ -149,6 +157,22 @@ def correct_length(class_name):
 #     assert ts[1] == (42,42)
 
 def interpolate_ts(class_name):
+    a = class_name(values=[1,2,3],times=[0,5,10])
+    b = class_name(values=[100, -100],times=[2.5,7.5])
+
+    c_times=[5,10,15,20]
+    c = class_name(values=[i*2 for i in c_times],times=c_times)
+
+    # Simple cases
+    assert a.interpolate([1]) == class_name(times=[1],values=[1.2])
+
+    assert c.interpolate([2,6,11,17,25]) == \
+        class_name(times=[2,6,11,17,25],values=[10,12,22,34,40])
+
+    assert b.interpolate([-100,100]) == \
+        class_name(times=[-100,100],values=[100,-100])
+
+def interpolate_time_already_present_ts(class_name):
     a = class_name(values=[1,2,3],times=[0,5,10])
     b = class_name(values=[100, -100],times=[2.5,7.5])
 
@@ -355,3 +379,39 @@ def method_produce():
     v = iter([2*x + 1 for x in range(1,11)])
     sts = SimulatedTimeSeries(t, v)
     assert sts.produce(3) == [(1,3), (2,5), (3,7)]
+
+def method_repr(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    repr(threes)
+
+def method_str(class_name):
+    ts = class_name(values=range(0, 20),times=range(0,20))
+    assert str(ts) == '[0 1 2, ...]'
+
+def method_abs(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    assert abs(threes) == 126
+
+def method_bool(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    zero = class_name(values=[], times=[])
+    assert bool(threes) == True
+    assert bool(zero) == False
+
+def method_times_lst(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    add_v1 = threes + 5
+    add_v2 = 5 + threes
+    assert add_v1.times_lst() == [100, 101, 102, 103] and add_v2.times_lst() == [100, 101, 102, 103]
+
+def method_check_length_helper(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    zero = class_name(values=[], times=[])
+    with raises(ValueError):
+        threes._check_length_helper(threes, zero)
+
+def method_check_time_domains_helper(class_name):
+    threes = class_name(values=range(0, 10, 3),times=range(100,104))
+    zero = class_name(values=[], times=[])
+    with raises(ValueError):
+        threes._check_time_domains_helper(threes, zero)

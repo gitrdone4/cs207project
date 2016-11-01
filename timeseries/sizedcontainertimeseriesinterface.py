@@ -32,7 +32,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         -----------
         All TimeSeries of fixed length must implement __len__.
         """
-        pass
 
     @abc.abstractmethod
     def __eq__(self):
@@ -41,7 +40,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         -----------
         All TimeSeries of fixed size must support equality checking with '=='
         """
-        pass
 
     @abc.abstractmethod
     def __ne__(self):
@@ -50,7 +48,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         -----------
         All TimeSeries of fixed size must support the '!='' operator
         """
-        pass
 
     ###############################################################
     ## Methods with the same implementation for all subclasses
@@ -228,8 +225,8 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         WARNINGS:
         """
         if len(self._values) > self.MAX_LENGTH:
-            needed = self._values[:3]+self._values[-3:]
-            pretty_printed = "[{} {} {}, ..., {} {} {}]".format(*needed)
+            needed = self._values[:3]
+            pretty_printed = "[{} {} {}, ...]".format(*needed)
 
         else:
             pretty_printed = "{}".format(list(self._values))
@@ -272,7 +269,7 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         -------
         True/False
         """
-        return bool(abs(self._values))
+        return bool(abs(self))
 
 
     # J: why do these return np.arrays?
@@ -361,7 +358,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     def _check_length_helper(lhs, rhs):
         if not len(lhs)==len(rhs):
             raise ValueError(str(lhs)+' and '+str(rhs)+' must have the same length')
-
 
     # makes check lengths redundant. However I keep them separate in case we want
     # to add functionality to add objects without a defined time dimension later.
