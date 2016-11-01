@@ -110,7 +110,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     def __add__(self, rhs):
         try:
             if isinstance(rhs, np.ndarray):
-                raise "Cannot add a numpy array!"
+                raise "Cannot add a numpy array to a TimeSeries!"
+            if isinstance(rhs, list):
+                raise "Cannot add a list to a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 # R: may be worth testing time domains are preserved correctly
                 return self.__class__(values=(a + rhs for a in self), times=self._times)
@@ -125,6 +127,10 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     def __sub__(self, rhs):
         try:
+            if isinstance(rhs, np.ndarray):
+                raise "Cannot sub a numpy array to a TimeSeries!"
+            if isinstance(rhs, list):
+                raise "Cannot sub a list to a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return self.__class__((a - rhs for a in self), self._times)
             else:

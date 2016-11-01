@@ -47,6 +47,9 @@ def test_time_series():
     verify_lazy_property_time_series(TimeSeries)
     verify_lazyfied_time_series_check_length(TimeSeries)
     add_timeseries_nparray_not_allowed(TimeSeries)
+    add_timeseries_list_not_allowed(TimeSeries)
+    sub_timeseries_nparray_not_allowed(TimeSeries)
+    sub_timeseries_list_not_allowed(TimeSeries)
     # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
 
 ##############################################################################
@@ -186,6 +189,33 @@ def add_timeseries_nparray_not_allowed(class_name):
     with raises(TypeError):
         rhs = np.array([1,2,3])
         ts + rhs
+
+def add_timeseries_list_not_allowed(class_name):
+    """
+        It should fail when we try to add a numpy array or list to a TimeSeries instance
+    """
+    ts = class_name(values=[1,2,3] , times=[1,2,3])
+    with raises(TypeError):
+        rhs = list([1,2,3])
+        ts + rhs
+
+def sub_timeseries_nparray_not_allowed(class_name):
+    """
+        It should fail when we try to add a numpy array or list to a TimeSeries instance
+    """
+    ts = class_name(values=[1,2,3] , times=[1,2,3])
+    with raises(TypeError):
+        rhs = np.array([1,2,3])
+        ts - rhs
+
+def sub_timeseries_list_not_allowed(class_name):
+    """
+        It should fail when we try to add a numpy array or list to a TimeSeries instance
+    """
+    ts = class_name(values=[1,2,3] , times=[1,2,3])
+    with raises(TypeError):
+        rhs = list([1,2,3])
+        ts - rhs
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
