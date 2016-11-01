@@ -3,6 +3,7 @@ from lazy import LazyOperation
 from lazy import lazy
 import numpy as np
 import numbers
+import statistics
 
 class TimeSeries(SizedContainerTimeSeriesInterface):
     """
@@ -191,3 +192,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             self.identity() : an instance of LazyOperation
         """
         return self.identity()
+
+    def mean(self, chunk = None):
+        return statistics.mean(self._values)
+
+    def std(self, chunk = None):
+        return statistics.stdev(self._values)

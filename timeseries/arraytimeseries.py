@@ -108,3 +108,9 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     def __pos__(self):
         return self.__class__(values=self._values, times=self._times)
+
+    def mean(self, chunk = None):
+        return np.mean(self._values)
+
+    def std(self, chunk = None):
+        return np.std(self._values, ddof=1)

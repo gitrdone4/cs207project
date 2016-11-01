@@ -25,6 +25,13 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 		pass
 	def __sub__(self):
 		pass
+
+	def std(self, chunk = None):
+		pass
+
+	def mean(self, chunk = None):
+		pass
+
 	def produce(self, chunk=1):
 		"""
 		Description
@@ -45,6 +52,11 @@ class StreamTimeSeriesInterface(TimeSeriesInterface):
 		-----------
 		Generates a stream of online standard deviations.
 		"""
+		pass
+
+	def mean(self, chunk = None):
+		pass
+	def std(self, chunk = None):
 		pass
 
     # need a way to represent these objects
