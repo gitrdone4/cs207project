@@ -319,7 +319,7 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
             """Returns interpolated value for given time"""
 
             if t in times:          #time already exits in ts -- return it
-                return values[times.index(t)]
+                return values[list(times).index(t)]
 
             elif t >= times[-1]:    #time is above the domain of the existing values -- return max time value
                 return values[-1]

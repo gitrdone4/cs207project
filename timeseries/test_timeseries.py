@@ -146,30 +146,36 @@ def correct_length(class_name):
     ts = class_name(values=[1] * 100, times=range(100))
     assert len(ts) == 100
 
-# J: why are we using `class_name` as an arg
-# if this is only to be used for ArrayTimeSeries
-# def update_get_array_time_series_by_index(class_name):
-#     """ Confirm that we can set a new time and value for a given index in ArrayTimeSeries"""
-#     ts = class_name(values=[1,2,3,4,5],times=[1,2,3,4,5])
-#     assert ts[1] == (2,2)
-#     ts[1] = (42,42)
-#     assert ts[1] == (42,42)
-
 def interpolate_ts(class_name):
+    """
+    Test piece-wise linear interpolate function with values both
+    inside and outside the domain of time values.
+    """
+
     a = class_name(values=[1,2,3],times=[0,5,10])
     b = class_name(values=[100, -100],times=[2.5,7.5])
-
     c_times=[5,10,15,20]
     c = class_name(values=[i*2 for i in c_times],times=c_times)
 
-    # Simple cases
-    assert a.interpolate([1]) == class_name(times=[1],values=[1.2])
+    # Confirm that if we try to interpolate a value that actually already exists
+    # in the time series, we just return it
+    assert a.interpolate([5]) == class_name(times=[5],values=[2]), \
+        "Interpolate not returning existing value when present"
 
+    # Interpolating between 2 existing points
+    # time delta is 5,value delta is 1, so (.2 * 1) +1 = 1.2
+    assert a.interpolate([1]) == class_name(times=[1],values=[1.2]), \
+        "Interpolate not returning correct value between 2 known points"
+
+    # Confirm that interpolate returns end points when we seek values
+    # outside of the existing domain of values
+    assert b.interpolate([-100,100]) == \
+        class_name(times=[-100,100],values=[100,-100]), \
+        "Interpolate not returning endpoints for times outside of existing domain"
+
+    # Check both endpoints and imterolated mid-values
     assert c.interpolate([2,6,11,17,25]) == \
         class_name(times=[2,6,11,17,25],values=[10,12,22,34,40])
-
-    assert b.interpolate([-100,100]) == \
-        class_name(times=[-100,100],values=[100,-100])
 
 def verify_lazy_property_time_series(class_name):
     ts = class_name([1,2,3,4,5],[1,2,3,4,5])
@@ -236,7 +242,7 @@ def method_iter(class_name):
     assert cum_sum==18
 
 def method_values(class_name):
-    #N: Changed from np array to list
+    #N: Changed from np array to list (and then back to np array)
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
     assert isinstance(threes.values(), np.ndarray)
 
