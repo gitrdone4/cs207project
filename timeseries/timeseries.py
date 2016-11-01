@@ -128,9 +128,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, np.ndarray):
-                raise "Cannot sub a numpy array to a TimeSeries!"
+                raise "Cannot sub a numpy array from a TimeSeries!"
             if isinstance(rhs, list):
-                raise "Cannot sub a list to a TimeSeries!"
+                raise "Cannot sub a list from a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return self.__class__((a - rhs for a in self), self._times)
             else:
@@ -144,6 +144,10 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     def __mul__(self, rhs):
         try:
+            if isinstance(rhs, np.ndarray):
+                raise "Cannot mul a numpy array with a TimeSeries!"
+            if isinstance(rhs, list):
+                raise "Cannot mul a list with a TimeSeries!"
             if isinstance(rhs, numbers.Real):
                 return TimeSeries((a * rhs for a in self), self._times)
             else:
