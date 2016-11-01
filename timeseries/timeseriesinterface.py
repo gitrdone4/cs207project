@@ -3,7 +3,10 @@
 import abc
 
 class TimeSeriesInterface(abc.ABC):
-    """Interface for TimeSeries"""
+    """
+    Interface for TimeSeries
+
+    """
 
     ##############################################################################
     ## GLOBAL CONSTANT FOR ALL TIMESERIES
