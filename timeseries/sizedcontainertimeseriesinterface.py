@@ -1,8 +1,6 @@
-
-from timeseriesinterface import TimeSeriesInterface
-import numpy as np
 import abc
-import numbers
+import numpy as np
+from timeseriesinterface import TimeSeriesInterface
 
 class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     """
@@ -11,12 +9,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     Abstract interface class for a TimeSeries of a fixed size.
     """
 
-    ## NOTES (clean up later before tuesday):
-    # J: how to cleanly enforce that all subclasses
-    # of SizedContainerTimeSeriesInterface implement
-    # self._values and self._times ??
-
-    # J: maximum length of `values` after which
     # abbreviation will occur in __str__() and __repr__()
     MAX_LENGTH = 10
 
@@ -39,14 +31,6 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         Description
         -----------
         All TimeSeries of fixed size must support equality checking with '=='
-        """
-
-    @abc.abstractmethod
-    def __ne__(self):
-        """
-        Description
-        -----------
-        All TimeSeries of fixed size must support the '!='' operator
         """
 
     ###############################################################
@@ -271,23 +255,24 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         return bool(abs(self))
 
-
-    # J: why do these return np.arrays?
-    # N: Switching it to cast to lists for easier testing
     def values(self):
+        """Return values as np.array for use in unit tests"""
         return np.array(self._values)
 
     def times(self):
+        """Return values as np.array for use in unit tests"""
         return np.array(self._times)
 
     def items(self):
+        """Returns list of zipped time-value tuples for use in unit tests"""
         return list(zip(self._times, self._values))
 
-    # Return internal storage as lists for eaiser testing
     def values_lst(self):
+        """Return values as list for use in unit tests"""
         return list(self._values)
 
     def times_lst(self):
+        """Return times as list for use in unit tests"""
         return list(self._times)
 
     def interpolate(self,ts_to_interpolate):
@@ -304,18 +289,18 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         """
         def binary_search(times, t):
             """ Returns surrounding time indexes for value that is to be interpolated"""
-            min = 0
-            max = len(times) - 1
+            low = 0
+            high = len(times) - 1
             while True:
-                if max < min:
-                    return (max,min)
-                m = (min + max) // 2
+                if high < low:
+                    return (high, low)
+                m = (low + high) // 2
                 if times[m] < t:
-                    min = m + 1
+                    low = m + 1
                 else:
-                    max = m - 1
+                    high = m - 1
 
-        def interpolate_val(times,values,t):
+        def interpolate_val(times, values, t):
             """Returns interpolated value for given time"""
 
             if t in times:          #time already exits in ts -- return it
@@ -328,14 +313,14 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
                 return values[0]
 
             else:                   #time is between two existing points -- interpolate it
-                low,high = binary_search(times, t)
+                low, high = binary_search(times, t)
                 slope = (float(values[high]) - values[low])/(times[high] - times[low])
                 c = values[low]
                 interpolated_val = (t-times[low])*slope + c
                 return interpolated_val
 
-        interpolated_ts = [interpolate_val(self._times,self._values,t) for t in ts_to_interpolate]
-        return self.__class__(values=interpolated_ts,times=ts_to_interpolate)
+        interpolated_ts = [interpolate_val(self._times, self._values, t) for t in ts_to_interpolate]
+        return self.__class__(values=interpolated_ts, times=ts_to_interpolate)
 
     ##############################################################################
     ## GLOBAL HELPER METHODS FOR ALL CONTAINER TIME SERIES.
@@ -343,15 +328,19 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     ##############################################################################
 
     def __ne__(self, other):
+        """Not equal delegates to not __eq__"""
         return not self.__eq__(other)
 
-    def __radd__(self, other): # other + self delegates to self.__add__
+    def __radd__(self, other):
+        """right add delegates to self.__add__"""
         return self + other
 
     def __rsub__(self, other):
+        """right sub delegates to self.__sub__"""
         return -(self - other)
 
     def __rmul__(self, other):
+        """right mul delegates to self.__mul__"""
         return self * other
 
     @staticmethod
