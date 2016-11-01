@@ -17,11 +17,15 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     Notes
     -----
-        PRE: _times are mandatory elements that must represent a montonic sequence.
+        PRE: 
+         - `values` is sorted in non-decreasing order
+         - _times are mandatory elements that must represent a montonic sequence.
 
-    INVARIANTS:
+    INVARIANTS: inital_data and times must be sequences.
 
-    WARNINGS: User must provide times and values.
+    WARNINGS: 
+        - User must provide times and values.
+        - Does not maintain an accurate time series if `input data` is unsorted.
 
     """
     def __init__(self, times, values):

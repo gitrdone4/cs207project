@@ -22,12 +22,9 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     Notes
     -----
     PRE: `values` is sorted in non-decreasing order
-    POST:
-
-    INVARIANTS:
 
     WARNINGS:
-    - Does not maintain an accurate time series if `input_data` is unsorted.
+    - Does not maintain an accurate time series if `input data` is unsorted.
     """
 
     def __init__(self, values, times=None):
@@ -47,15 +44,14 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         Notes
         -----
         PRE: If times is not provided, `values` must be sorted
-        POST:
 
-        INVARIANTS:
-        inital_data and times (if provided) must be sequences.
+        WARNINGS: inital data and times must be sequences.
 
-        WARNINGS:
+        Examples:
+        ---------
+        >>> ts = TimeSeries(times= [1,2,3], values= [100,200,300])
 
         """
-
         # First confirm `inital_data` is a sequence.
         # J: all Python sequences implement __iter__(), which we can use here.
 
@@ -76,6 +72,14 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             raise ValueError("Time data should contain no repeats")
 
     def __len__(self):
+        """
+        Method used to determine the length of the TimeSeries
+
+        Returns:
+        --------
+        length : int
+            The length of the ATimeSeries based on the ._values field.
+        """
         return len(self._values)
 
 
@@ -103,12 +107,40 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
     # J: should this not be (self - other)?
 
     def __neg__(self):
+        """
+            Used to return a time series instance with each value being negative of the original. The times are left untouched.
+
+            Returns:
+            -------
+                self : an instance of self with negated values but no change to the times
+        """
         return self.__class__((-x for x in self._values), self._times)
 
     def __pos__(self):
+        """
+            Used to return a time series instance with each value's sign preserved
+
+            Returns:
+            -------
+                self : an instance of self with each value's sign preserved
+        """
         return self.__class__((x for x in self._values), self._times)
 
     def __add__(self, rhs):
+        """
+            The rhs argument will be added to each element of the time series if it is an instance of numbers.Real.
+            If the rhs argument is an instance of TimeSeries, it will do the add element-wise. 
+
+            Parameters: 
+            -----------
+            rhs : instance of SizedContainerTimeSeriesInterface
+                used to perform the add on the TimeSeries represented by self
+
+            Raises:
+            -------
+                TypeError : if an attempt to add a list or np.ndarray instance to the TimeSeries is made
+
+        """
         try:
             if isinstance(rhs, np.ndarray):
                 raise "Cannot add a numpy array to a TimeSeries!"
@@ -127,6 +159,20 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             raise NotImplemented # R: test me. should fail when we try to add a numpy array or list
 
     def __sub__(self, rhs):
+        """
+            The rhs argument will be subtracted from each element of the time series if it is an instance of numbers.Real.
+            If the rhs argument is an instance of TimeSeries, it will do the subtraction element-wise.
+
+            Parameters:
+            -----------
+            rhs : instance of SizedContainerTimeSeriesInterface
+                used to perform the sub on the TimeSeries represented by self
+
+            Raises:
+            -------
+                TypeError : if an attempt to sub from a list or np.ndarray instance to the TimeSeries is made
+
+        """
         try:
             if isinstance(rhs, np.ndarray):
                 raise "Cannot sub a numpy array from a TimeSeries!"
@@ -144,6 +190,20 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
 
     def __mul__(self, rhs):
+        """
+            The rhs argument will be multiplied with each element of the time series if it is an instance of numbers.Real.
+            If the rhs argument is an instance of TimeSeries, it will do the multiplication element-wise.
+
+            Parameters:
+            -----------
+            rhs : instance of SizedContainerTimeSeriesInterface
+                used to perform the multiplication on the TimeSeries represented by self
+
+            Raises:
+            -------
+                TypeError : if an attempt to multiply with a list or np.ndarray instance to the TimeSeries is made
+
+        """
         try:
             if isinstance(rhs, np.ndarray):
                 raise "Cannot mul a numpy array with a TimeSeries!"
@@ -161,6 +221,22 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
 
     def __eq__(self, rhs):
+        """
+        Method used to test if two SizedContainerTimeSeriesInterface instances have the same times and values
+
+        Parameters:
+        -----------
+        rhs : instance of SizedContainerTimeSeriesInterface
+            rhs will be compared to the time series sequence represented by self
+
+        Raises:
+        -------
+        TypeError : if rhs is a np.ndarray type
+
+        WARNINGS:
+            - if rhs is a list, TypeError is thrown
+            - np.array_equal compares both elements and dimensions.
+        """
         # R: leverages self._values is a list. Will have to change when we relax this.
         try:
             if isinstance(rhs, np.ndarray):
@@ -194,7 +270,29 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         return self.identity()
 
     def mean(self, chunk = None):
+        """
+        Method used to calculate the mean of the time series. 
+
+        Parameters:
+        -----------
+        chunk = an optional subset of the time series to do the calculation on 
+
+        Returns: 
+        --------
+        np.mean : the mean of the time series
+        """
         return statistics.mean(self._values)
 
     def std(self, chunk = None):
+        """
+        Method used to calculate the standard deviation of the time series. 
+
+        Parameters:
+        -----------
+        chunk = an optional subset of the time series to do the calculation on
+
+        Returns:
+        --------
+        np.std : the standard deviation of the time series 
+        """
         return statistics.stdev(self._values)
