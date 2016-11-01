@@ -49,13 +49,14 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
 
     def __eq__(self, rhs):
         # Note: np.array_equal compares both elements and dimensions.
-        self.__class__._check_time_domains_helper(self, rhs)
         try:
+            if isinstance(rhs, list):
+                raise "Cannot compare list to ArrayTimeSeries!"
+            self.__class__._check_time_domains_helper(self, rhs)
             return (np.array_equal(self._values,rhs._values) and np.array_equal(self._times,rhs._times))
 
         except TypeError:
             raise NotImplemented
-
 
 
     def __add__ (self,rhs):
