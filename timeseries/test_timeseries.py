@@ -41,6 +41,8 @@ def test_sized_container_timeseries():
         method_mul_int(class_name)
         method_mul_two_timeseries(class_name)
         method_ne(class_name)
+        method_mean(class_name)
+        method_std(class_name)
         method_produce()
 
 def test_time_series():
@@ -346,7 +348,7 @@ def method_mean(class_name):
 
 def method_std(class_name):
     threes = class_name(values=range(0, 10, 3),times=range(100,104))
-    assert threes.std()==3.3541019662496847
+    assert threes.std()==3.872983346207417
 
 def method_produce():
     t = iter(range(1,11))

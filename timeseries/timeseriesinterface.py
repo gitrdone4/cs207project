@@ -88,3 +88,31 @@ class TimeSeriesInterface(abc.ABC):
     @abc.abstractmethod
     def __rmul__(self):
         pass
+
+    @abc.abstractmethod
+    def mean(self, chunk = None):
+        """
+        Description
+        -----------
+        All TimeSeries should support the ability to calculate the mean of values present in an instance.
+
+        Parameters
+        ----------
+        chunk : int
+            Can be used for subclass instances with no storage. Represents the size of the values within a TimeSeries instance.
+        """
+        pass
+
+    @abc.abstractmethod
+    def std(self, chunk = None):
+        """
+        Description
+        -----------
+        All TimeSeries should support the ability to calculate the standard deviation of values present in an instance.
+
+        Parameters
+        ----------
+        chunk : int
+            Can be used for subclass instances with no storage. Represents the size of the values within a TimeSeries instance.
+        """
+        pass
