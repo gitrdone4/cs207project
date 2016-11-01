@@ -153,16 +153,19 @@ def interpolate_ts(class_name):
 
     a = class_name(values=[1,2,3], times=[0,5,10])
     b = class_name(values=[100, -100], times=[2.5,7.5])
+
     c_times=[5,10,15,20]
     c = class_name(values=[i*2 for i in c_times], times=c_times)
 
     # Confirm that if we try to interpolate a value that actually already exists
     # in the time series, we just return it
-    assert a.interpolate([5]) == class_name(times=[5], values=[2]), \
+
+    assert a.interpolate([5]) == class_name(times=[5],values=[2]), \
         "Interpolate not returning existing value when present"
 
     # Interpolating between 2 existing points
     # time delta is 5,value delta is 1, so (.2 * 1) +1 = 1.2
+
     assert a.interpolate([1]) == class_name(times=[1], values=[1.2]), \
         "Interpolate not returning correct value between 2 known points"
 
