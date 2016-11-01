@@ -1,9 +1,11 @@
-from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
-from lazy import LazyOperation
-from lazy import lazy
-import numpy as np
 import numbers
 import statistics
+import numpy as np
+from lazy import LazyOperation
+from lazy import lazy
+from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+
+
 
 class TimeSeries(SizedContainerTimeSeriesInterface):
     """
@@ -83,29 +85,6 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
         return len(self._values)
 
 
-    #### ABSTRACT THE METHODS BELOW TO BASE CLASS; REMOVE THIS LATER ######
-
-    # J: new implementation inherited from parent class.
-    # leaving this here in case need to debug tests....
-
-    # def __setitem__(self, index, value):
-    #     try:
-    #         self._values[index] = value
-    #     except IndexError:
-    #         raise IndexError("Index out of bounds!")
-
-    # J: Also abstracted this to parent class...
-    # def __contains__(self, needle):
-
-    #     # J this also works for
-    #     # R: leverages self._values is a list.
-    #     # Will have to change when we relax this.
-    #     return needle in self._values
-
-
-
-    # J: should this not be (self - other)?
-
     def __neg__(self):
         """
             Used to return a time series instance with each value being negative of the original. The times are left untouched.
@@ -131,7 +110,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
             The rhs argument will be added to each element of the time series if it is an instance of numbers.Real.
             If the rhs argument is an instance of TimeSeries, it will do the add element-wise. 
 
-            Parameters: 
+            Parameters:
             -----------
             rhs : instance of SizedContainerTimeSeriesInterface
                 used to perform the add on the TimeSeries represented by self
@@ -271,21 +250,7 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
     def mean(self, chunk = None):
         """
-        Method used to calculate the mean of the time series. 
-
-        Parameters:
-        -----------
-        chunk = an optional subset of the time series to do the calculation on 
-
-        Returns: 
-        --------
-        np.mean : the mean of the time series
-        """
-        return statistics.mean(self._values)
-
-    def std(self, chunk = None):
-        """
-        Method used to calculate the standard deviation of the time series. 
+        Method used to calculate the mean of the time series.
 
         Parameters:
         -----------
@@ -293,6 +258,20 @@ class TimeSeries(SizedContainerTimeSeriesInterface):
 
         Returns:
         --------
-        np.std : the standard deviation of the time series 
+        np.mean : the mean of the time series
+        """
+        return statistics.mean(self._values)
+
+    def std(self, chunk = None):
+        """
+        Method used to calculate the standard deviation of the time series.
+
+        Parameters:
+        -----------
+        chunk = an optional subset of the time series to do the calculation on
+
+        Returns:
+        --------
+        np.std : the standard deviation of the time series
         """
         return statistics.stdev(self._values)
