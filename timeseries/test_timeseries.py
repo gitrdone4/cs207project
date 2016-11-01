@@ -46,6 +46,7 @@ def test_time_series():
     threes_fives(TimeSeries)
     verify_lazy_property_time_series(TimeSeries)
     verify_lazyfied_time_series_check_length(TimeSeries)
+    add_timeseries_nparray_not_allowed(TimeSeries)
     # Code for these tests still needs to be abtracted to sizedcontainertimeseries interface
 
 ##############################################################################
@@ -176,6 +177,15 @@ def verify_lazyfied_time_series_check_length(class_name):
         return len(a)==len(b)
     thunk = check_length(class_name(range(0,4),range(1,5)), class_name(range(1,5),range(2,6)))
     assert thunk.eval()==True
+
+def add_timeseries_nparray_not_allowed(class_name):
+    """
+        It should fail when we try to add a numpy array or list to a TimeSeries instance
+    """
+    ts = class_name(values=[1,2,3] , times=[1,2,3])
+    with raises(TypeError):
+        rhs = np.array([1,2,3])
+        ts + rhs
 
 # should have made a fixture sorry!
 def method_getitem(class_name):
