@@ -1,5 +1,5 @@
 from pytest import raises
-from simulatedtimeseries import SimulatedTimeSeries
+from timeseries.simulatedtimeseries import SimulatedTimeSeries
 import numpy as np
 
 def test_chunk_out_of_range():

@@ -1,6 +1,6 @@
 import abc
 import numpy as np
-from timeseriesinterface import TimeSeriesInterface
+from timeseries.timeseriesinterface import TimeSeriesInterface
 
 class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
     """

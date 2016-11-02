@@ -1,11 +1,11 @@
 import operator
 from pytest import raises
 import numpy as np
-from lazy import lazy
-from lazy import LazyOperation
-from timeseries import TimeSeries
-from arraytimeseries import ArrayTimeSeries
-from simulatedtimeseries import SimulatedTimeSeries
+from timeseries.lazy import lazy
+from timeseries.lazy import LazyOperation
+from timeseries.timeseries import TimeSeries
+from timeseries.arraytimeseries import ArrayTimeSeries
+from timeseries.simulatedtimeseries import SimulatedTimeSeries
 
 def test_sized_container_timeseries():
     """

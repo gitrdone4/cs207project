@@ -1,4 +1,4 @@
-from streamtimeseriesinterface import StreamTimeSeriesInterface
+from timeseries.streamtimeseriesinterface import StreamTimeSeriesInterface
 import math
 
 class SimulatedTimeSeries(StreamTimeSeriesInterface):

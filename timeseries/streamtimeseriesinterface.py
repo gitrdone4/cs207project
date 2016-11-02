@@ -1,6 +1,6 @@
 # Implements StreamTimeSeriesInterface ABC.
 
-from timeseriesinterface import TimeSeriesInterface
+from timeseries.timeseriesinterface import TimeSeriesInterface
 import abc
 
 class StreamTimeSeriesInterface(TimeSeriesInterface):

@@ -1,9 +1,9 @@
 import numbers
 import statistics
 import numpy as np
-from lazy import LazyOperation
-from lazy import lazy
-from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+from timeseries.lazy import LazyOperation
+from timeseries.lazy import lazy
+from timeseries.sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
 
 
 
