@@ -30,7 +30,7 @@ def purge_demo_data():
     try: 
         os.remove("DELETEME.dbdb")
     except:
-        print "couldn't delete"
+        pass
 
 def test_balance_successful():
     gen_demo_data()
