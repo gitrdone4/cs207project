@@ -11,6 +11,7 @@ sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
 
 from crosscorr import kernal_dist
+from crosscorr import standardize
 import unbalancedDB
 import numpy as np
 #below is your module. Use your ListTimeSeries or ArrayTimeSeries..
@@ -35,20 +36,6 @@ LIGHT_CURVES_DIR = "light_curves/"
 DB_DIR = "temp/"
 
 
-def load_ts():
-    global LIGHT_CURVES_DIR
-    timeseries_dict = {}
-
-    for file in os.listdir(LIGHT_CURVES_DIR):
-        if file.startswith("ts-") and file.endswith(".txt"):
-            #id_num = int(file[3:-4])
-            filepath = LIGHT_CURVES_DIR + file
-            data = np.loadtxt(filepath)
-            times, values = data.T
-            ts = ats.ArrayTimeSeries(times=times,values=values)
-            timeseries_dict[file] = ts
-
-    return timeseries_dict
 
 def load_ts(ts_name):
      global LIGHT_CURVES_DIR
@@ -70,11 +57,18 @@ def load_input(filepath):
     except(IOError):
         print("Error: Unable to load %s" % filepath)
     else:
-        print("Lenght", len(data))
-        print("Dim", (data[:,:2].shape))
-        times, values = data[:,:2].T
-        ts = ats.ArrayTimeSeries(times=times,values=values)
-        return ts
+
+        #Only read first two cols of file
+        data = data[:,:2]
+
+        #Remove duplicate time values (if they exist) and resort
+        _, indices = np.unique(data[:, 0], return_index=True)
+        data = data[indices, :]
+
+        times, values = data.T
+        full_ts = ats.ArrayTimeSeries(times=times,values=values)
+        interpolated_ts = full_ts.interpolate(np.arange(0.0, 1.0, (1.0 /100)))
+        return interpolated_ts
 
 
 def load_vp_lcs():
@@ -172,13 +166,12 @@ if __name__ == "__main__":
             d, ts2_id, ts2 = search_vpdb(closest_vp,input_ts)
 
             import matplotlib.pyplot as plt
-            plt.plot(input_ts, label=input_path)
-            plt.plot(ts2, label=ts2_id)
+            standts1 = standardize(input_ts, input_ts.mean(), input_ts.std())
+            standts2 = standardize(ts2, ts2.mean(), ts2.std())
+            plt.plot(standts1, label=input_path)
+            plt.plot(standts2, label=ts2_id)
             plt.legend()
             plt.show()
-
-
-
             break
         else:
             break
