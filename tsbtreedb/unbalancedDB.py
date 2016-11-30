@@ -9,11 +9,11 @@ class ValueRef(object):
     def __init__(self, referent=None, address=0):
         self._referent = referent #value to store
         self._address = address #address to store at
-        
+
     @property
     def address(self):
         return self._address
-    
+
     def prepare_to_store(self, storage):
         pass
 
@@ -40,7 +40,7 @@ class ValueRef(object):
 
 class BinaryNodeRef(ValueRef):
     "reference to a btree node on disk"
-    
+
     #calls the BinaryNode's store_refs
     def prepare_to_store(self, storage):
         "have a node store its refs"
@@ -67,7 +67,7 @@ class BinaryNodeRef(ValueRef):
             ValueRef(address=d['value']),
             BinaryNodeRef(address=d['right']),
         )
-    
+
 class BinaryNode(object):
     @classmethod
     def from_node(cls, node, **kwargs):
@@ -142,8 +142,8 @@ class BinaryTree(object):
         value_ref = ValueRef(value)
         #insert and get new tree ref
         self._tree_ref = self._insert(node, key, value_ref)
-        
-    
+
+
     def _insert(self, node, key, value_ref):
         "insert a new node creating a new path from root"
         #create a tree ifnthere was none so far
@@ -172,7 +172,7 @@ class BinaryTree(object):
     #         self._refresh_tree_ref()
     #     node = self._follow(self._tree_ref)
     #     self._tree_ref = self._delete(node, key)
-        
+
     # def _delete(self, node, key):
     #     "underlying delete implementation"
     #     if node is None:
@@ -210,14 +210,14 @@ class BinaryTree(object):
         "get a node from a reference"
         #calls BinaryNodeRef.get
         return ref.get(self._storage)
-       
+
     def _find_max(self, node):
         while True:
             next_node = self._follow(node.right_ref)
             if next_node is None:
                 return node
             node = next_node
-            
+
     # NEW METHOD 1
     def get_min(self):
         "get minimum value in a tree"
@@ -226,8 +226,8 @@ class BinaryTree(object):
             next_node = self._follow(node.left_ref)
             if next_node is None:
                 return self._follow(node.value_ref)
-            node = next_node    
-            
+            node = next_node
+
     # NEW METHOD 2
     def get_left(self, key):
         "get key left of a key"
@@ -440,12 +440,12 @@ class DBDB(object):
     def delete(self, key):
         self._assert_not_closed()
         return self._tree.delete(key)
-    
+
     # NEW METHOD 1
     def get_min(self):
         self._assert_not_closed()
         return self._tree.get_min()
-    
+
     # NEW METHOD 2
     def get_left(self, key):
         self._assert_not_closed()
@@ -465,7 +465,7 @@ class DBDB(object):
     # NEW METHOD 5
     def chop(self, chop_key):
         self._assert_not_closed()
-        return self._tree.chop(chop_key)        
+        return self._tree.chop(chop_key)
 
 def connect(dbname):
     try:
@@ -475,94 +475,96 @@ def connect(dbname):
         f = os.fdopen(fd, 'r+b')
     return DBDB(f)
 
-#####################################
-# TEST EXAMPLES 1
-#####################################
-# an unbalanced stupid example
-db = connect("test4.dbdb")
-db.close()
 
-db = connect("test4.dbdb")
-db.set(16, "big")
-db.set(15, "med")
-db.set(14, "sml")
-db.commit()
-db.close()
+if __name__ == "__main__":
+    #####################################
+    # TEST EXAMPLES 1
+    #####################################
+    # an unbalanced stupid example
+    db = connect("test4.dbdb")
+    db.close()
 
-db = connect("test4.dbdb")
-assert db.get(16)=='big' # test get()
-assert db.get_min()=='sml' # test get_min()
-assert db.get_left(16)==(15, u'med') # test get_left()
-assert db.get_left(15)==(14, u'sml') # so the tree is indeed unbalanced
-assert db.chop(15.5)==[(15, u'med'), (14, u'sml')] # test chop is robust to whether the tree is balanced or not
-db.close()
+    db = connect("test4.dbdb")
+    db.set(16, "big")
+    db.set(15, "med")
+    db.set(14, "sml")
+    db.commit()
+    db.close()
 
-db = connect("test4.dbdb")
-db.set(16, "really big")
-db.close()
+    db = connect("test4.dbdb")
+    assert db.get(16)=='big' # test get()
+    assert db.get_min()=='sml' # test get_min()
+    assert db.get_left(16)==(15, u'med') # test get_left()
+    assert db.get_left(15)==(14, u'sml') # so the tree is indeed unbalanced
+    assert db.chop(15.5)==[(15, u'med'), (14, u'sml')] # test chop is robust to whether the tree is balanced or not
+    db.close()
 
-db = connect("test4.dbdb")
-assert db.get(16)=='big' # test commit required for changes to be finalized
-db.close()
+    db = connect("test4.dbdb")
+    db.set(16, "really big")
+    db.close()
 
-#####################################
-# TEST EXAMPLES 2
-#####################################
-# a more complicated balanced example
-db = connect("test5.dbdb")
-db.close()
+    db = connect("test4.dbdb")
+    assert db.get(16)=='big' # test commit required for changes to be finalized
+    db.close()
 
-db = connect("test5.dbdb")
-input_data = [
-    (8,"eight"),
-    (3,"three"),
-    (10,"ten"),
-    (1,"one"), 
-    (6,"six"),
-    (14,"fourteen"),
-    (4,"four"),
-    (7,"seven"),
-    (13,"thirteen"),
-    ]
-for key, val in input_data:
-    db.set(key, val)
-db.commit()
-db.close()
+    #####################################
+    # TEST EXAMPLES 2
+    #####################################
+    # a more complicated balanced example
+    db = connect("test5.dbdb")
+    db.close()
 
-db = connect("test5.dbdb")
-# db.traverse_in_order_debugger()
-# two ways to visualize the tree
-# (A) see diagram: https://en.wikipedia.org/wiki/Binary_search_tree
-# (B) use this helper function
-def print_children(key):
-    try:
-        print (key, 'left: ', db.get_left(key))
-    except:
-        print ('None')
-    try:
-        print (key, 'right: ', db.get_right(key))
-    except:
-        print ('None')
-    print ('\n')
-# for key, val in input_data:
-#     print_children(key)
+    db = connect("test5.dbdb")
+    input_data = [
+        (8,"eight"),
+        (3,"three"),
+        (10,"ten"),
+        (1,"one"),
+        (6,"six"),
+        (14,"fourteen"),
+        (4,"four"),
+        (7,"seven"),
+        (13,"thirteen"),
+        ]
+    for key, val in input_data:
+        db.set(key, val)
+    db.commit()
+    db.close()
 
-# testing
-assert db.get_left(8)==(3,"three")
-assert db.get_right(8)==(10,"ten")
-assert db.get_left(3)==(1,"one")
-assert db.get_right(3)==(6,"six")
-assert db.get_left(6)==(4,"four")
-assert db.get_right(6)==(7,"seven")
-assert db.get_right(10)==(14,"fourteen")
-assert db.get_left(14)==(13,"thirteen") # ensure that we do match wikipedia
-assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
-assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
-db.close()
+    db = connect("test5.dbdb")
+    # db.traverse_in_order_debugger()
+    # two ways to visualize the tree
+    # (A) see diagram: https://en.wikipedia.org/wiki/Binary_search_tree
+    # (B) use this helper function
+    def print_children(key):
+        try:
+            print (key, 'left: ', db.get_left(key))
+        except:
+            print ('None')
+        try:
+            print (key, 'right: ', db.get_right(key))
+        except:
+            print ('None')
+        print ('\n')
+    # for key, val in input_data:
+    #     print_children(key)
 
-print ('success')
+    # testing
+    assert db.get_left(8)==(3,"three")
+    assert db.get_right(8)==(10,"ten")
+    assert db.get_left(3)==(1,"one")
+    assert db.get_right(3)==(6,"six")
+    assert db.get_left(6)==(4,"four")
+    assert db.get_right(6)==(7,"seven")
+    assert db.get_right(10)==(14,"fourteen")
+    assert db.get_left(14)==(13,"thirteen") # ensure that we do match wikipedia
+    assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
+    assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
+    db.close()
 
-# test locking
-# test unbalanced
-# test ordering
-# test duplicates
+    print ('success')
+
+    # test locking
+    # test unbalanced
+    # test ordering
+    # test duplicates

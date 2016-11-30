@@ -53,14 +53,34 @@ def tsmaker(mean, scale, jitter, length = 100):
     values = norm.pdf(times, mean, scale) + jitter*np.random.randn(100)
     return ats.ArrayTimeSeries(times=times, values=values)
 
-def make_n_ts(n):
-    return [tsmaker(abs(np.random.normal(.5)), np.random.exponential(), np.random.exponential(2)) for i in range(n)]
+def random_ts(jitter,length = 100):
+    """
+    Creates uniform random array time series object.
 
-def write_ts(ts,id):
+    Args:
+        jitter: how much variation to data points should have. (A value of zero is basically a straight line.)
+        length: Length of the time series. Defaults to 100 values.
+    Returns:
+        An array time series object.
+
+    """
+    times = np.arange(0.0, 1.0, (1.0 / length))
+    values = jitter*np.random.random(100)
+    return ats.ArrayTimeSeries(times=times, values=values)
+
+def make_n_ts(n):
+    mean = .5
+    scale = np.random.exponential(2)
+    jitter = np.random.exponential()
+    norm_ts = [tsmaker(mean, scale, jitter) for i in range(n//2)]
+    rand_ts = [random_ts(np.random.uniform(0,10)) for i in range(n//2)]
+    return norm_ts + rand_ts
+
+def write_ts(ts,i):
     global LIGHT_CURVES_DIR
 
     os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
-    filename = "ts-{}.txt".format(id)
+    filename = "ts-{}.txt".format(i)
     path = LIGHT_CURVES_DIR + filename
     datafile_id = open(path, 'wb')
     data = np.array([ts.times(), ts.values()])

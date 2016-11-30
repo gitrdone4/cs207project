@@ -1,7 +1,17 @@
 import numpy.fft as nfft
 import numpy as np
 #below is your module. Use your ListTimeSeries or ArrayTimeSeries..
+
+# Hacky solution to import array time series from sister directory by inserting it into system path
+# should fix once time series library is turned into a proper python model
+
+import sys
+import os
+from os.path import dirname, abspath
+d = dirname(dirname(abspath(__file__)))
+sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
+
 from scipy.stats import norm
 import random
 
