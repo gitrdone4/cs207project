@@ -58,7 +58,7 @@ def load_ts(ts_name):
         try:
             data = np.loadtxt(filepath)
         except(IOError):
-            print("Unable to load %s" % file)
+            print("Error: Unable to load %s" % ts_name)
         else:
             times, values = data.T
             ts = ats.ArrayTimeSeries(times=times,values=values)
@@ -68,9 +68,11 @@ def load_input(filepath):
     try:
         data = np.loadtxt(filepath)
     except(IOError):
-        print("Unable to load %s" % file)
+        print("Error: Unable to load %s" % filepath)
     else:
-        times, values = data.T
+        print("Lenght", len(data))
+        print("Dim", (data[:,:2].shape))
+        times, values = data[:,:2].T
         ts = ats.ArrayTimeSeries(times=times,values=values)
         return ts
 
@@ -106,6 +108,30 @@ def build_vp_dbs(vp,timeseries_dict):
     db.commit()
     db.close()
 
+def search_vpdb(vp_t,input_ts):
+    dist_to_vp, vp_id = vp_t
+    print(vp_id,dist_to_vp)
+    print(vp_id)
+    db_path = DB_DIR + vp_id[:-4] + ".dbdb"
+    print(db_path)
+    db = unbalancedDB.connect(DB_DIR + vp_id[:-4] + ".dbdb")
+    x = db.chop(dist_to_vp)
+    print(len(x))
+    #x = sorted(x)
+    min_dist = dist_to_vp
+    min_dist_ts_id = vp_id
+    min_ts = load_ts(vp_id)
+    for i in x:
+        ts2 = load_ts(i[1])
+        distance = (kernal_dist(input_ts,ts2))
+        if (distance < min_dist):
+            min_dist = distance
+            min_dist_ts_id = i[1]
+            min_ts = ts2
+
+    db.close()
+    return(min_dist,min_dist_ts_id,min_ts)
+
 
 if __name__ == "__main__":
     # Default usage options
@@ -120,9 +146,13 @@ if __name__ == "__main__":
         # First, identify which flags were included
         for arg in sys.argv[1:]:
             if arg.lower() in ['-h','--help', 'help']: need_help = True
-            if '.txt' in arg.lower():
+            if '.txt' in arg.lower() or '.dat_folded' in arg.lower()  :
                 have_input = True
                 input_path = arg
+            else:
+                print("Error: no compatible input file provided.")
+                print("Usage: ./similarsearch input.txt  [optional flags]")
+                break
 
         if need_help:
             print (HELP_MESSAGE)
@@ -137,8 +167,18 @@ if __name__ == "__main__":
                     vp_distances.append((kernal_dist(input_ts, vps_dict[k]),k))
 
             vp_distances = sorted(vp_distances)
-            closest_vp = vp_distances[0][1]
-            print(closest_vp)
+            closest_vp = vp_distances[0]
+            print("Closest vp:", closest_vp)
+            d, ts2_id, ts2 = search_vpdb(closest_vp,input_ts)
+
+            import matplotlib.pyplot as plt
+            plt.plot(input_ts, label=input_path)
+            plt.plot(ts2, label=ts2_id)
+            plt.legend()
+            plt.show()
+
+
+
             break
         else:
             break

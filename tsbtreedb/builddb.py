@@ -105,7 +105,7 @@ if __name__ == "__main__":
         else:
             timeseries_dict = load_ts()
             print("Loaded %d timeseries files" % len(timeseries_dict))
-            vantage_points = pick_vantage_points(timeseries_dict,n=5)
+            vantage_points = pick_vantage_points(timeseries_dict,n=20)
             clear_temp()
             for vp in vantage_points:
                 build_vp_dbs(vp,timeseries_dict)
