@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+#
+# CS207 Group Project Part 7
+# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os

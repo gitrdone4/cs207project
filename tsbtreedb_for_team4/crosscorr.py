@@ -1,9 +1,12 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+#
+# CS207 Group Project Part 7
+# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
-import random
-import sys
 import os
+import sys
+import random
 import numpy as np
 import numpy.fft as nfft
 from scipy.stats import norm

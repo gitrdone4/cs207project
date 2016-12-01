@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+#
+# CS207 Group Project Part 7
+# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os
@@ -8,6 +11,7 @@ import random
 
 import crosscorr
 import makelcs
+from makelcs import clear_dir
 import genvpdbs
 import simsearch
 import unbalancedDB
@@ -20,6 +24,7 @@ def test_makelcs():
     makelcs.make_lc_files(50,lc_dir)
     ts = genvpdbs.load_ts(lc_dir)
     assert(len(ts) == 50)
+    #clear_dir(TEMP_DIR,recreate=False)
 
 def test_db_1():
     db_fname = TEMP_DIR + "test1.dbdb"
@@ -87,15 +92,13 @@ def test_db_2():
     assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
     assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
     db.close()
+    clear_dir(TEMP_DIR,recreate=False)
 
 def test_ccorr():
     from makelcs import tsmaker
     from crosscorr import kernel_corr, kernel_dist, standardize
-
     t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
     t2 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
-    
-
     assert(kernel_corr(t1,t1) == 1)
     assert(kernel_dist(t1,t1) == 0)
 

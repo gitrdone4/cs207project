@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+#
+# CS207 Group Project Part 7
+# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import pickle
 import os
@@ -477,97 +480,3 @@ def connect(dbname):
         fd = os.open(dbname, os.O_RDWR | os.O_CREAT)
         f = os.fdopen(fd, 'r+b')
     return DBDB(f)
-
-
-if __name__ == "__main__":
-    #####################################
-    # TEST EXAMPLES 1
-    #####################################
-    # an unbalanced stupid example
-    db = connect("test4.dbdb")
-    db.close()
-
-    db = connect("test4.dbdb")
-    db.set(16, "big")
-    db.set(15, "med")
-    db.set(14, "sml")
-    db.commit()
-    db.close()
-
-    db = connect("test4.dbdb")
-    assert db.get(16)=='big' # test get()
-    assert db.get_min()=='sml' # test get_min()
-    assert db.get_left(16)==(15, u'med') # test get_left()
-    assert db.get_left(15)==(14, u'sml') # so the tree is indeed unbalanced
-    assert db.chop(15.5)==[(15, u'med'), (14, u'sml')] # test chop is robust to whether the tree is balanced or not
-    db.close()
-
-    db = connect("test4.dbdb")
-    db.set(16, "really big")
-    db.close()
-
-    db = connect("test4.dbdb")
-    assert db.get(16)=='big' # test commit required for changes to be finalized
-    db.close()
-
-    #####################################
-    # TEST EXAMPLES 2
-    #####################################
-    # a more complicated balanced example
-    db = connect("test5.dbdb")
-    db.close()
-
-    db = connect("test5.dbdb")
-    input_data = [
-        (8,"eight"),
-        (3,"three"),
-        (10,"ten"),
-        (1,"one"),
-        (6,"six"),
-        (14,"fourteen"),
-        (4,"four"),
-        (7,"seven"),
-        (13,"thirteen"),
-        ]
-    for key, val in input_data:
-        db.set(key, val)
-    db.commit()
-    db.close()
-
-    db = connect("test5.dbdb")
-    # db.traverse_in_order_debugger()
-    # two ways to visualize the tree
-    # (A) see diagram: https://en.wikipedia.org/wiki/Binary_search_tree
-    # (B) use this helper function
-    def print_children(key):
-        try:
-            print (key, 'left: ', db.get_left(key))
-        except:
-            print ('None')
-        try:
-            print (key, 'right: ', db.get_right(key))
-        except:
-            print ('None')
-        print ('\n')
-    # for key, val in input_data:
-    #     print_children(key)
-
-    # testing
-    assert db.get_left(8)==(3,"three")
-    assert db.get_right(8)==(10,"ten")
-    assert db.get_left(3)==(1,"one")
-    assert db.get_right(3)==(6,"six")
-    assert db.get_left(6)==(4,"four")
-    assert db.get_right(6)==(7,"seven")
-    assert db.get_right(10)==(14,"fourteen")
-    assert db.get_left(14)==(13,"thirteen") # ensure that we do match wikipedia
-    assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
-    assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
-    db.close()
-
-    print ('success')
-
-    # test locking
-    # test unbalanced
-    # test ordering
-    # test duplicates

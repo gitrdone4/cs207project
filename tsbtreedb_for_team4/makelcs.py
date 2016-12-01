@@ -1,12 +1,14 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+#
+# CS207 Group Project Part 7
+# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os
 import random
 import numpy as np
 from scipy.stats import norm
-
 
 # Hacky solution to import array time series from sister directory by inserting it into system path
 # should fix once time series library is turned into a proper python model
@@ -17,18 +19,20 @@ import arraytimeseries as ats
 
 # Global variables
 
+from settings import LIGHT_CURVES_DIR
+
 HELP_MESSAGE = \
 """
 Make Light Curves
 
-A python command line utility for generating simulated light curve time series data files
+A python command line utility for generating simulated light curve time series data files.
+Can be used independently or called by simsearch. 
 
-Usage: ./makelcs 1000 [optional flags]
+Usage: ./makelcs 100 [optional flags]
 
 Optional flags:
   -d, --delete  Delete existing light curves and exit.
   -h, --help    Show this help message and exit.
-
 """
 
 def tsmaker(mean, scale, jitter, length = 100):
@@ -64,6 +68,13 @@ def random_ts(jitter,length = 100):
     return ats.ArrayTimeSeries(times=times, values=values)
 
 def make_n_ts(n):
+    """
+    Generates n random light curves to be stored to disk.
+
+    Currently set to do half based on normal pdf (with some noise thrown in)
+    and half uniformly randomly...but not working as well as I had hoped.
+    Should probably tweak in the future.
+    """
     mean = .5
     scale = np.random.exponential(2)
     jitter = np.random.exponential()
@@ -72,6 +83,7 @@ def make_n_ts(n):
     return norm_ts + rand_ts
 
 def write_ts(ts,i,LIGHT_CURVES_DIR):
+    """ Write light curve to disk as space delimited text file"""
     os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
     filename = "ts-{}.txt".format(i)
     path = LIGHT_CURVES_DIR + filename
@@ -82,14 +94,21 @@ def write_ts(ts,i,LIGHT_CURVES_DIR):
     np.savetxt(datafile_id, data, fmt=['%.3f','%8f'])
     datafile_id.close()
 
-def clear_dir(dir):
-    """Erase files in light curve directory"""
+def clear_dir(dir,recreate=True):
+    """Erase folder and recreate it"""
     import shutil
     if os.path.exists(dir):
         shutil.rmtree(dir)
-    os.makedirs(dir, exist_ok=True)
+    if(recreate):
+        os.makedirs(dir, exist_ok=True)
 
 def make_lc_files(num_lcs,lc_dir):
+    """
+    Executes functions above:
+        (1) Generates n light curves
+        (2) Deletes any existing light curve files
+        (3) Writes them to disk
+    """
     light_curves = make_n_ts(num_lcs)
     print("Generating %d light-curve files" % num_lcs, end="")
     clear_dir(lc_dir)
@@ -101,9 +120,6 @@ def make_lc_files(num_lcs,lc_dir):
 
 if __name__ == "__main__":
     """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
-    # Default usage options
-
-    from settings import LIGHT_CURVES_DIR
 
     need_help = False
     delete = False
