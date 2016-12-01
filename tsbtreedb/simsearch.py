@@ -6,22 +6,15 @@ import os
 import numpy as np
 import random
 
-from crosscorr import standardize, kernal_dist
+from crosscorr import standardize, kernel_dist
 from makelcs import make_lc_files
 from genvpdbs import create_vpdbs
 import unbalancedDB
-
-# This is a hacky solution to import the array time series class from sister directory by inserting it into system path
-# should fix once time series library is turned into a proper python model
-
-from os.path import dirname, abspath
-d = dirname(dirname(abspath(__file__)))
-sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
 
 # Global variables
 
-from settings import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
+from settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
 
 HELP_MESSAGE = \
 """
@@ -31,10 +24,10 @@ A python command line utility to searching for similar light curves.
 Usage: ./simsearch input.txt  [optional flags]
 
 Optional flags:
-  -h, --help    Show this help message and exit.
-  -p, --plot    Plot submitted light curve with most similar curve in database
-  -r, --rebuild   Recreate light curve database (Run automatically on first use)
-  -d, --demo  Run search on demo light curve data
+  -h, --help        Show this help message and exit.
+  -p, --plot        Plot submitted light curve with most similar curve in database
+  -r, --rebuild     Recreates light curve files vantage point indexes (Run automatically on first use)
+  -d, --demo        Loads a random time series from sample data folder and runs similarity search
 
 """
 USAGE = "Usage: ./simsearch input_ts.txt [optional flags]"
@@ -102,7 +95,7 @@ def find_closest_vp(vps_dict, ts):
     Returns tuple with filename of closest vantage point and distance to that vantage point.
     """
     s_ts = standardize(ts)
-    vp_distances = sorted([(kernal_dist(s_ts, standardize(vps_dict[vp])),vp) for vp in vps_dict])
+    vp_distances = sorted([(kernel_dist(s_ts, standardize(vps_dict[vp])),vp) for vp in vps_dict])
     dist_to_vp, vp_fn = vp_distances[0]
     return (vp_fn,dist_to_vp)
 
@@ -135,13 +128,42 @@ def search_vpdb(vp_t,ts):
 
     for d_to_vp,ts_fn in lc_candidates:
         candidate_ts = load_ts(ts_fn)
-        dist_to_ts = kernal_dist(standardize(candidate_ts),s_ts)
+        dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
         if (dist_to_ts < min_dist):
             min_dist = dist_to_ts
             closest_ts_fn = ts_fn
             closest_ts = candidate_ts
 
     return(min_dist,closest_ts_fn,closest_ts)
+
+def need_to_rebuild(LIGHT_CURVES_DIR,DB_DIR):
+    """Helper to determine whether required lc files and database files already exist or need to be generated"""
+
+    # If either of the folders do not exists, we need to rebuild
+    if not (os.path.isdir(LIGHT_CURVES_DIR)):
+        return True
+    if not (os.path.isdir(DB_DIR)):
+        return True
+
+    # Count correctly named lc files in lc dir
+    lc_files = 0
+    for file in os.listdir(LIGHT_CURVES_DIR):
+        if file.startswith("ts-") and file.endswith(".txt"):
+            lc_files +=1
+
+    if lc_files < 10:
+        return True
+
+    vpdb_files = 0
+    for file in os.listdir(DB_DIR):
+        if file.startswith("ts-") and file.endswith(".dbdb"):
+            vpdb_files += 1
+
+    if vpdb_files < 5:
+        return True
+
+    # If everything above evals to false, then we (probably) don't need to rebuild
+    return False
 
 def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
     """Plots two time series with matplotlib"""
@@ -154,24 +176,28 @@ def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
     plt.legend()
     plt.show()
 
-def rebuild_lcs_dbs():
-    print("Rebuilding...")
-    make_lc_files(1000)
-    create_vpdbs(20)
+def rebuild_lcs_dbs(LIGHT_CURVES_DIR):
+    """Calls functions to regenerate light curves and rebuild vp indexes"""
+    print("\nRebuilding simulated light curves and vantage point index files....\n(This may take up to 30 seconds)")
+    make_lc_files(1000, LIGHT_CURVES_DIR)
+    create_vpdbs(20, LIGHT_CURVES_DIR)
+    print("Indexes rebuilt.\n")
 
 def run_demo(plot=False):
+    """Loads a random time series from sample data folder and runs similarity search"""
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
-
     sim_search(SAMPLE_DIR + demo_ts_fn,plot)
 
 def sim_search(input_fpath,plot=False):
-    print("Loading %s" % input_fpath)
+    """Executes similarity search on submitted time series files"""
+    print("Loading %s..." % input_fpath,end="")
     input_ts = load_external_ts(input_fpath)
+    print("Done.")
     closest_vp = find_closest_vp(load_vp_lcs(), input_ts)
 
     min_dist,closest_ts_fn,closest_ts = search_vpdb(closest_vp,input_ts)
-
-    print("Closest light curve to %s: %s" % (input_fpath, closest_ts_fn))
+    print("\n============================ Results ============================")
+    print("%s is the closest light curve to %s" % (closest_ts_fn, input_fpath))
     print("Distance from %s to %s: %.5f" % (input_fpath, closest_ts_fn, min_dist))
     if plot:
         plot_two_ts(input_ts,input_fpath,closest_ts,closest_ts_fn)
@@ -181,7 +207,9 @@ if __name__ == "__main__":
     Main program loop. Determines which flags were submitted, confirms that lc files and db files
     exist (Recreates them if they don't) before kicking off similarity search.
     """
-    rebuild = False
+
+    # Default conditions
+    rebuild = need_to_rebuild(LIGHT_CURVES_DIR,DB_DIR)
     need_help = False
     input_fpath = False
     plot = False
@@ -209,7 +237,7 @@ if __name__ == "__main__":
             print (HELP_MESSAGE)
             break
         elif rebuild:
-            rebuild_lcs_dbs()
+            rebuild_lcs_dbs(LIGHT_CURVES_DIR)
 
         if demo:
             run_demo(plot)

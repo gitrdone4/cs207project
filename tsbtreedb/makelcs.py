@@ -1,6 +1,5 @@
 #!/usr/local/bin/python3
-
-
+# -*- coding: utf-8 -*-
 
 import sys
 import os
@@ -8,7 +7,6 @@ import random
 import numpy as np
 from scipy.stats import norm
 
-from settings import LIGHT_CURVES_DIR,TS_LENGTH
 
 # Hacky solution to import array time series from sister directory by inserting it into system path
 # should fix once time series library is turned into a proper python model
@@ -16,8 +14,6 @@ from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
-
-
 
 # Global variables
 
@@ -34,8 +30,6 @@ Optional flags:
   -h, --help    Show this help message and exit.
 
 """
-
-
 
 def tsmaker(mean, scale, jitter, length = 100):
     """
@@ -77,9 +71,7 @@ def make_n_ts(n):
     rand_ts = [random_ts(np.random.uniform(0,10)) for i in range(n//2)]
     return norm_ts + rand_ts
 
-def write_ts(ts,i):
-    global LIGHT_CURVES_DIR
-
+def write_ts(ts,i,LIGHT_CURVES_DIR):
     os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
     filename = "ts-{}.txt".format(i)
     path = LIGHT_CURVES_DIR + filename
@@ -90,25 +82,29 @@ def write_ts(ts,i):
     np.savetxt(datafile_id, data, fmt=['%.3f','%8f'])
     datafile_id.close()
 
-def erase_lc_dir():
+def clear_dir(dir):
     """Erase files in light curve directory"""
     import shutil
-    shutil.rmtree(LIGHT_CURVES_DIR)
-    os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+    os.makedirs(dir, exist_ok=True)
 
-def make_lc_files(num_lcs):
+def make_lc_files(num_lcs,lc_dir):
     light_curves = make_n_ts(num_lcs)
-    print("\n Generating %d light-curve files" % num_lcs, end="")
-    erase_lc_dir()
+    print("Generating %d light-curve files" % num_lcs, end="")
+    clear_dir(lc_dir)
     for i, ts in enumerate(light_curves):
         if i % 50 == 0:
             print('.', end="")
-        write_ts(ts,i)
+        write_ts(ts,i,lc_dir)
     print("Done.")
 
-
 if __name__ == "__main__":
+    """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
     # Default usage options
+
+    from settings import LIGHT_CURVES_DIR
+
     need_help = False
     delete = False
     num_lcs = 1000
@@ -129,13 +125,13 @@ if __name__ == "__main__":
         if delete:
             cmd = input('\nErase existing files in "%s" directory? (Y/n):\n' % LIGHT_CURVES_DIR)
             if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-                erase_lc_dir()
+                erase_dir(LIGHT_CURVES_DIR)
                 print("\nErased existing files. Exiting.")
                 break
 
         cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs))
         if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-            make_lc_files(num_lcs)
+            make_lc_files(num_lcs,LIGHT_CURVES_DIR)
             print("\nExiting.")
             break
         else:

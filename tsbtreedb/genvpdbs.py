@@ -1,91 +1,90 @@
 #!/usr/local/bin/python3
-
-# Hacky solution to import array time series from sister directory by inserting it into system path
-# should fix once time series library is turned into a proper python model
+# -*- coding: utf-8 -*-
 
 import sys
 import os
-from os.path import dirname, abspath
-d = dirname(dirname(abspath(__file__)))
-sys.path.insert(0,d + '/timeseries')
-import arraytimeseries as ats
-
-from crosscorr import kernal_dist
-import unbalancedDB
-import numpy as np
-#below is your module. Use your ListTimeSeries or ArrayTimeSeries..
-import arraytimeseries as ats
 import random
+import numpy as np
+
+from unbalancedDB import connect
+from crosscorr import kernel_dist, standardize
+from makelcs import clear_dir
+from settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
+import arraytimeseries as ats
 
 # Global variables
 
 HELP_MESSAGE = \
 """
-Build DB
+Generate Vantage Point Index DBs
 
 A python command line utility to generate vantage point DBs from light-curve files.
 
-Usage: ./builddb  [optional flags]
+Usage: ./genvpdbs  [optional flags]
 
 Optional flags:
   -h, --help    Show this help message and exit.
-
 """
-from settings import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
 
-def load_ts():
-    global LIGHT_CURVES_DIR
+def load_ts(LIGHT_CURVES_DIR):
+    """Loads time series text files; returns dict keyed to filename"""
     timeseries_dict = {}
-
     for file in os.listdir(LIGHT_CURVES_DIR):
         if file.startswith("ts-") and file.endswith(".txt"):
-            #id_num = int(file[3:-4])
             filepath = LIGHT_CURVES_DIR + file
             data = np.loadtxt(filepath)
             times, values = data.T
             ts = ats.ArrayTimeSeries(times=times,values=values)
             timeseries_dict[file] = ts
-
     return timeseries_dict
 
 def pick_vantage_points(timeseries_dict,n=20):
+    """Selects n light curves at random to serve as vantage points"""
     return random.sample(timeseries_dict.keys(), n)
 
 def calc_distances(vp_k,timeseries_dict):
+    """Calculates kernel distance between vantage point and all loaded light curves"""
     distances = []
-    vp = timeseries_dict[vp_k]
+    vp = standardize(timeseries_dict[vp_k])
     for k in timeseries_dict:
         if k != vp_k:
-            distances.append((kernal_dist(vp, timeseries_dict[k]),k))
+            k_dist = kernel_dist(vp, standardize(timeseries_dict[k]))
+            distances.append((k_dist,k))
     return distances
 
-def clear_vp_dbs():
-    import shutil
-    shutil.rmtree(DB_DIR)
-    os.makedirs(DB_DIR, exist_ok=True)
-
 def save_vp_dbs(vp,timeseries_dict):
-    sorted_ds = (calc_distances(vp,timeseries_dict))
-    db = unbalancedDB.connect(DB_DIR + vp[:-4] + ".dbdb")
+    """ Creates unbalanced binary tree databases and saves them to disk"""
+    sorted_ds = calc_distances(vp,timeseries_dict)
 
-    for key, val in sorted_ds:
-        db.set(key, val)
+    # ts-13.txt -> vp_dbs/ts-13.dbdb
+    db_filepath = DB_DIR + vp[:-4] + ".dbdb"
+    db = connect(db_filepath)
+
+    for dist_to_vp,ts_fn in sorted_ds:
+        db.set(dist_to_vp, ts_fn)
 
     db.commit()
     db.close()
 
-def create_vpdbs(n=20):
+def create_vpdbs(n,LIGHT_CURVES_DIR):
+    """
+    Executes functions above:
+        (1) Creates timeseries_dict from time series files on disk
+        (2) Picks 20 vantage points at random
+        (3) Calculates kernel distance between vantage points and generated time series (This can take a while)
+        (4) Saves kernel distance indexes to disk as binary tree databases
+    """
     print("Creating %d vantage point dbs" % n,end="")
-    timeseries_dict = load_ts()
+    timeseries_dict = load_ts(LIGHT_CURVES_DIR)
     vantage_points = pick_vantage_points(timeseries_dict,n)
-    clear_vp_dbs()
+    clear_dir(DB_DIR)
     for vp in vantage_points:
         print('.', end="")
         save_vp_dbs(vp,timeseries_dict)
     print("Done.")
 
 if __name__ == "__main__":
-    # Default usage options
+    """Enables this file to be run independently of simsearch as it's own CLU."""
     need_help = False
 
     # First, identify which flags were included
@@ -93,10 +92,10 @@ if __name__ == "__main__":
         if arg.lower() in ['-h','--help', 'help']: need_help = True
 
     while(True):
-
         if need_help:
             print (HELP_MESSAGE)
             break
         else:
+            print("Starting...(May take a little while)")
+            create_vpdbs(20,LIGHT_CURVES_DIR)
             break
-
