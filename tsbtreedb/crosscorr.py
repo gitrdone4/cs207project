@@ -7,6 +7,9 @@ import numpy as np
 
 import sys
 import os
+
+#from simsearch import TS_LENGTH
+
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.insert(0,d + '/timeseries')
@@ -47,9 +50,9 @@ def random_ts(jitter,length = 100):
     values = jitter*np.random.random(100)
     return ats.ArrayTimeSeries(times=times, values=values)
 
-def standardize(ts, m, s):
-    "standardize timeseries ts by mean m and std deviation s"
-    stand_vals = (ts.values() - m)/s
+def standardize(ts):
+    "standardize timeseries ts by its mean and std deviation"
+    stand_vals = (ts.values() - ts.mean())/ts.std()
     return ats.ArrayTimeSeries(times=ts.times(), values=stand_vals)
 
 
@@ -141,8 +144,8 @@ def kernal_dist(ts1, ts2, mult=1):
     """
 
     # Standardize the time series
-    ts1_stndrdzed = standardize(ts1,ts1.mean(), ts1.std())
-    ts2_stndrdzed = standardize(ts2,ts2.mean(), ts2.std())
+    ts1_stndrdzed = standardize(ts1)
+    ts2_stndrdzed = standardize(ts2)
 
     # Calculate the kernel correlation value for ts1 and ts2
     kernel_corr_val = kernel_corr(ts1_stndrdzed,ts2_stndrdzed, mult)
@@ -173,8 +176,8 @@ if __name__ == "__main__":
     plt.plot(t2, label='ts2')
     plt.legend()
     plt.show()
-    standts1 = standardize(t1, t1.mean(), t1.std())
-    standts2 = standardize(t2, t2.mean(), t2.std())
+    standts1 = standardize(t1)
+    standts2 = standardize(t2)
     print("Standardized: ")
     print(s_stats("standts1",standts1))
     print(s_stats("standts2",standts2))
@@ -190,8 +193,8 @@ if __name__ == "__main__":
     plt.plot(t4,label='ts4 - Random')
     plt.legend()
     plt.show()
-    standts3 = standardize(t3, t3.mean(), t3.std())
-    standts4 = standardize(t4, t4.mean(), t4.std())
+    standts3 = standardize(t3)
+    standts4 = standardize(t4)
     idx, mcorr = max_corr_at_phase(standts3, standts4)
     print("idx, mcorr:", idx, mcorr)
     sumcorr = kernel_corr(standts3, standts4, mult=10)

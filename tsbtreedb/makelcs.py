@@ -33,7 +33,7 @@ Optional flags:
   -h, --help    Show this help message and exit.
 
 """
-LIGHT_CURVES_DIR = "light_curves/"
+from simsearch import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
 
 
 def tsmaker(mean, scale, jitter, length = 100):
