@@ -31,7 +31,7 @@ Optional flags:
   -h, --help    Show this help message and exit.
 
 """
-from simsearch import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
+from settings import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
 
 def load_ts():
     global LIGHT_CURVES_DIR
@@ -59,24 +59,12 @@ def calc_distances(vp_k,timeseries_dict):
             distances.append((kernal_dist(vp, timeseries_dict[k]),k))
     return distances
 
-def clear_temp():
-    global DB_DIR
+def clear_vp_dbs():
     import shutil
     shutil.rmtree(DB_DIR)
     os.makedirs(DB_DIR, exist_ok=True)
 
-def print_children(key,db):
-    try:
-        print (key, 'left: ', db.get_left(key))
-    except:
-        print ('None')
-    try:
-        print (key, 'right: ', db.get_right(key))
-    except:
-        print ('None')
-    print ('\n')
-
-def build_vp_dbs(vp,timeseries_dict):
+def save_vp_dbs(vp,timeseries_dict):
     sorted_ds = (calc_distances(vp,timeseries_dict))
     db = unbalancedDB.connect(DB_DIR + vp[:-4] + ".dbdb")
 
@@ -86,6 +74,15 @@ def build_vp_dbs(vp,timeseries_dict):
     db.commit()
     db.close()
 
+def create_vpdbs(n=20):
+    print("Creating %d vantage point dbs" % n,end="")
+    timeseries_dict = load_ts()
+    vantage_points = pick_vantage_points(timeseries_dict,n)
+    clear_vp_dbs()
+    for vp in vantage_points:
+        print('.', end="")
+        save_vp_dbs(vp,timeseries_dict)
+    print("Done.")
 
 if __name__ == "__main__":
     # Default usage options
@@ -101,12 +98,5 @@ if __name__ == "__main__":
             print (HELP_MESSAGE)
             break
         else:
-            timeseries_dict = load_ts()
-            print("Loaded %d timeseries files" % len(timeseries_dict))
-            vantage_points = pick_vantage_points(timeseries_dict,n=20)
-            clear_temp()
-            for vp in vantage_points:
-                build_vp_dbs(vp,timeseries_dict)
-            print("Wrote %d vantage point dbs" % len(vantage_points))
             break
 

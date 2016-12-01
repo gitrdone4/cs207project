@@ -7,6 +7,8 @@ import numpy as np
 import random
 
 from crosscorr import standardize, kernal_dist
+from makelcs import make_lc_files
+from genvpdbs import create_vpdbs
 import unbalancedDB
 
 # This is a hacky solution to import the array time series class from sister directory by inserting it into system path
@@ -18,6 +20,8 @@ sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
 
 # Global variables
+
+from settings import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
 
 HELP_MESSAGE = \
 """
@@ -34,11 +38,6 @@ Optional flags:
 
 """
 USAGE = "Usage: ./simsearch input_ts.txt [optional flags]"
-LIGHT_CURVES_DIR = "light_curves/"
-DB_DIR = "vp_dbs/"
-SAMPLE_DIR = "sample_data/"
-TEMP_DIR = "temp/"
-TS_LENGTH = 100 #Number of data points for generated time series
 
 def load_nparray(filepath):
     """Helper to load space delimited nparray from disk"""
@@ -155,8 +154,10 @@ def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
     plt.legend()
     plt.show()
 
-def rebuild():
-    pass
+def rebuild_lcs_dbs():
+    print("Rebuilding...")
+    make_lc_files(1000)
+    create_vpdbs(20)
 
 def run_demo(plot=False):
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
@@ -180,11 +181,10 @@ if __name__ == "__main__":
     Main program loop. Determines which flags were submitted, confirms that lc files and db files
     exist (Recreates them if they don't) before kicking off similarity search.
     """
-
+    rebuild = False
     need_help = False
     input_fpath = False
     plot = False
-    rebuild = False
     demo = False
 
     while(True):
@@ -209,7 +209,7 @@ if __name__ == "__main__":
             print (HELP_MESSAGE)
             break
         elif rebuild:
-            rebuild()
+            rebuild_lcs_dbs()
 
         if demo:
             run_demo(plot)

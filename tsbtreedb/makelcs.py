@@ -1,22 +1,23 @@
 #!/usr/local/bin/python3
 
-# Hacky solution to import array time series from sister directory by inserting it into system path
-# should fix once time series library is turned into a proper python model
+
 
 import sys
 import os
+import random
+import numpy as np
+from scipy.stats import norm
+
+from settings import LIGHT_CURVES_DIR,TS_LENGTH
+
+# Hacky solution to import array time series from sister directory by inserting it into system path
+# should fix once time series library is turned into a proper python model
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.insert(0,d + '/timeseries')
 import arraytimeseries as ats
 
 
-import crosscorr
-import numpy as np
-#below is your module. Use your ListTimeSeries or ArrayTimeSeries..
-import arraytimeseries as ats
-from scipy.stats import norm
-import random
 
 # Global variables
 
@@ -26,14 +27,14 @@ Make Light Curves
 
 A python command line utility for generating simulated light curve time series data files
 
-Usage: ./makelcs 100 [optional flags]
+Usage: ./makelcs 1000 [optional flags]
 
 Optional flags:
   -d, --delete  Delete existing light curves and exit.
   -h, --help    Show this help message and exit.
 
 """
-from simsearch import LIGHT_CURVES_DIR,DB_DIR,SAMPLE_DIR,TEMP_DIR,TS_LENGTH
+
 
 
 def tsmaker(mean, scale, jitter, length = 100):
@@ -91,16 +92,26 @@ def write_ts(ts,i):
 
 def erase_lc_dir():
     """Erase files in light curve directory"""
-    global LIGHT_CURVES_DIR
     import shutil
     shutil.rmtree(LIGHT_CURVES_DIR)
     os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
+
+def make_lc_files(num_lcs):
+    light_curves = make_n_ts(num_lcs)
+    print("\n Generating %d light-curve files" % num_lcs, end="")
+    erase_lc_dir()
+    for i, ts in enumerate(light_curves):
+        if i % 50 == 0:
+            print('.', end="")
+        write_ts(ts,i)
+    print("Done.")
+
 
 if __name__ == "__main__":
     # Default usage options
     need_help = False
     delete = False
-    num_lcs = 10
+    num_lcs = 1000
 
     # First, identify which flags were included
     for arg in sys.argv[1:]:
@@ -122,13 +133,10 @@ if __name__ == "__main__":
                 print("\nErased existing files. Exiting.")
                 break
 
-        cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs ))
+        cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs))
         if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-            light_curves = make_n_ts(num_lcs)
-            erase_lc_dir()
-            for i, ts in enumerate(light_curves):
-                write_ts(ts,i)
-            print("\nWrote %d light-curves files. Exiting." % num_lcs)
+            make_lc_files(num_lcs)
+            print("\nExiting.")
             break
         else:
             print("\nExiting.")
