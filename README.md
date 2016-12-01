@@ -22,6 +22,7 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 ### Required Python Modules
 
 - [NumPy](http://www.numpy.org)
+- [pytest](http://doc.pytest.org/en/latest/)
 
 ### Developers:
 - Jonne Seleva
