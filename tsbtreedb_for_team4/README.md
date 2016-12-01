@@ -15,6 +15,7 @@ Optional flags:
 For example:
 
 python3 ./simsearch.py -d
+
 python3 ./simsearch.py sample_data/51886.dat_folded -p
 
 ### Developers:
