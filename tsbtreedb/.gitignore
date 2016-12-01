@@ -91,6 +91,7 @@ ENV/
 # MAC OS .DS_Store
 .DS_Store
 
-# Ignore temporary files and generated light curve files 
+# Ignore temporary files and generated light curve files
 temp/
 light_curves/
+vp_dbs/
