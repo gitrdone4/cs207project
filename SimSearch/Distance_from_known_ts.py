@@ -2,13 +2,14 @@ from scipy.stats import norm
 import random
 import os
 import numpy as np
-from WrappedDB import WrappedDB
 import sys
-sys.path.append('../')
+sys.path.append('../timeseries')
 from timeseries import TimeSeries
+sys.path.append('../cs207rbtree')
+import redblackDB
+sys.path.append('../SimSearch')
 from _corr import kernel_dist
-from cs207rbtree import redblackDB
-import sys
+
 
 #x=[];
 #v=[];
