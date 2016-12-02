@@ -14,8 +14,8 @@ class FileStorageManager(StorageManagerInterface):
 		a class variable self._id_dict
 
 		Examples:
-        ---------
-        >>> fsm = FileStorageManager()
+		---------
+		>>> fsm = FileStorageManager()
 		>>> ts = ArrayTimeSeries(times=[2,6,11,17,25], values=[10,12,22,34,40])
 		>>> unique_id = fsm.get_unique_id()
 		>>> fsm.store(unique_id, ts)
@@ -35,26 +35,26 @@ class FileStorageManager(StorageManagerInterface):
 
 		# if the map file already exists, open it
 		try:
-		    id_length_map = open(file_path, 'r')
-		    self._id_dict = json.load(id_length_map)
+			id_length_map = open(file_path, 'r')
+			self._id_dict = json.load(id_length_map)
 		except IOError:
-		    # if the file does not exist, create a new dict to be saved to disk in the store() method
-		    self._id_dict = dict()
+			# if the file does not exist, create a new dict to be saved to disk in the store() method
+			self._id_dict = dict()
 
 	def get_unique_id(self):
 		"""
-	    Description
-	    -----------
+		Description
+		-----------
 		Method used to create a new and unique id.
 
-	    Parameters
-	    ----------
-	    self: Instance of subclass of StorageManagerInterface.
+		Parameters
+		----------
+		self: Instance of subclass of StorageManagerInterface.
 
-	    Returns
-	    -------
-	    int : the newly created unique id
-	    """
+		Returns
+		-------
+		int : the newly created unique id
+		"""
 
 		# start the ids at 1
 		i = 1
@@ -63,7 +63,7 @@ class FileStorageManager(StorageManagerInterface):
 		while True:
 
 			# this string represents the name of the file stored on disk for this time series
-			new_id = 'ts_' + str(i)
+			new_id = 'ts_datafile_' + str(i)
 
 			# this is a unique id, return it
 			if new_id not in self._id_dict:
@@ -74,27 +74,27 @@ class FileStorageManager(StorageManagerInterface):
 
 	def store(self, id, t):
 		"""
-	    Description
-	    -----------
+		Description
+		-----------
 		Method used to store a time series using the storage manager. 
 
-	    Parameters
-	    ----------
-	    self: Instance of subclass of StorageManagerInterface.
+		Parameters
+		----------
+		self: Instance of subclass of StorageManagerInterface.
 
-	    id : int
-	    	Used as an identification of a particular time series being stored.
+		id : int
+			Used as an identification of a particular time series being stored.
 
-	    t : SizedContainerTimeSeriesInterface
-	    	A time series associated with SizedContainerTimeSeriesInterface
-	    	that allows for time series data persistence.
+		t : SizedContainerTimeSeriesInterface
+			A time series associated with SizedContainerTimeSeriesInterface
+			that allows for time series data persistence.
 
-	    Returns
-	    -------
-	    SizedContainerTimeSeriesInterface
-	    """
+		Returns
+		-------
+		SizedContainerTimeSeriesInterface
+		"""
 
-	    # verify that the provided id is an int and convert it to a string
+		# verify that the provided id is an int and convert it to a string
 		if isinstance(id, int):
 			id = str(id)
 
@@ -117,28 +117,28 @@ class FileStorageManager(StorageManagerInterface):
 
 	def size(self, id):
 		"""
-	    Description
-	    -----------
-	    Method used to return the size of a particular time series stored based on the 
-	    provided id.
+		Description
+		-----------
+		Method used to return the size of a particular time series stored based on the 
+		provided id.
 
-	    Parameters
-	    ----------
-	    self: Instance of subclass of StorageManagerInterface.
+		Parameters
+		----------
+		self: Instance of subclass of StorageManagerInterface.
 
-	    id : int
-	    	The id of the time series of interest.
+		id : int
+			The id of the time series of interest.
 
-	    Returns
-	    -------
-	    int : the size of the time series in question.
+		Returns
+		-------
+		int : the size of the time series in question.
 
-	    Notes
-	    -----
-	    POST: returns -1 if no time series is found using the provided id
-	    """
+		Notes
+		-----
+		POST: returns -1 if no time series is found using the provided id
+		"""
 
-	    # the id should be a string
+		# the id should be a string
 		if not isinstance(id, str):
 			id = str(id)
 
@@ -152,22 +152,22 @@ class FileStorageManager(StorageManagerInterface):
 
 	def get(self, id):
 		"""
-	    Description
-	    -----------
-	    Method used to return a particular time series stored based on the 
-	    provided id.
+		Description
+		-----------
+		Method used to return a particular time series stored based on the 
+		provided id.
 
-	    Parameters
-	    ----------
-	    self: Instance of subclass of StorageManagerInterface.
+		Parameters
+		----------
+		self: Instance of subclass of StorageManagerInterface.
 
-	    id : int
-	    	The id of the time series of interest.
+		id : int
+			The id of the time series of interest.
 
-	    Returns
-	    -------
-	    SizedContainerTimeSeriesInterface : the time series data requested by id.
-	    """
+		Returns
+		-------
+		SizedContainerTimeSeriesInterface : the time series data requested by id.
+		"""
 
 		# it should be a string
 		if not isinstance(id, str):
@@ -183,3 +183,10 @@ class FileStorageManager(StorageManagerInterface):
 			return ArrayTimeSeries(ts[0], ts[1])
 		else:
 			return None
+
+"""
+	Create a single instance of the FileStorageManager class. This is used in
+	SMTimeSeries for delegation in methods that are implemented to satisfy interface
+	requirements for SizedContainerTimeSeriesInterface.
+"""
+FileStorageManagerSingleton = FileStorageManager()
