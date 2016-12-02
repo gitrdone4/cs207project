@@ -1,4 +1,3 @@
-
 from pytest import raises
 from filestoragemanager import FileStorageManager
 from arraytimeseries import ArrayTimeSeries
@@ -24,6 +23,7 @@ def test_filestoragemanager():
 	# verify that a new .json map file can be created
 	# remove the file if it is present
 	os.remove('id_length_map.json')
+
 	# have the file storage manager create a new one and store a time series
 	fsm = FileStorageManager()
 	fsm.store(unique_id, ts)
@@ -67,7 +67,7 @@ def test_get_return_none():
 	remove_test_files()
 
 def remove_test_files():
-	test_files = ['2.npy', 'id_length_map.json', 'ts_1.npy', 'ts_2.npy']
+	test_files = ['1.npy','2.npy', 'ts_1.npy', 'ts_2.npy', 'ts_3.npy', 'ts_4.npy', 'id_length_map.json']
 	for i in test_files:
 		if os.path.exists(i):
 			os.remove(i)
