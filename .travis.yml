@@ -1,18 +1,29 @@
+# Travis configuration file using the build matrix feature
+# Read more under http://docs.travis-ci.com/user/build-configuration/
+# THIS SCRIPT IS SUPPOSED TO BE AN EXAMPLE. MODIFY IT ACCORDING TO YOUR NEEDS!
+
+sudo: false
 language: python
-python:
-    - "3.5"
-before_install:
-    - pip install portalocker
-    - pip install pytest pytest-cov
-    - pip install coveralls
-    - pip install -U scipy
-script:
-    - py.test
+python: "3.5"
+
+addons:
+  apt:
+    packages:
+      - git
+      - python-pip
+
+install:
+  - source tests/travis_install.sh
+  - pip install -r requirements.txt
 
 notifications:
-  slack: giterdone4:tjH4PGpsNZLksCUcnlBXPjhh
-  #on_success: change
-  #on_failure: change
+  - slack: giterdone4:tjH4PGpsNZLksCUcnlBXPjhh
+
+script:
+  - python setup.py test
 
 after_success:
-    - coveralls
+  - coveralls
+
+cache:
+  - apt
