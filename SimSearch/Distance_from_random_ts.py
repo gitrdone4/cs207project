@@ -3,8 +3,12 @@ import random
 import os
 import numpy as np
 import sys
-sys.path.append('../timeseries')
+
+from os.path import dirname, abspath
+d = dirname(dirname(abspath(__file__)))
+sys.path.insert(0,d + '/timeseries')
 from timeseries import TimeSeries
+
 sys.path.append('../cs207rbtree')
 import redblackDB
 sys.path.append('../SimSearch')
