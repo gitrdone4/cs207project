@@ -1,5 +1,5 @@
-from storagemanagerinterface import StorageManagerInterface
-from arraytimeseries import ArrayTimeSeries
+from cs207project.storagemanager.storagemanagerinterface import StorageManagerInterface
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 import numpy as np
 import json
 

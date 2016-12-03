@@ -1,6 +1,6 @@
-from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
-from arraytimeseries import ArrayTimeSeries
-from filestoragemanager import FileStorageManagerSingleton
+from cs207project.timeseries.sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
+from cs207project.storagemanager.filestoragemanager import FileStorageManagerSingleton
 import numbers
 import numpy as np
 

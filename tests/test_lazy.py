@@ -1,6 +1,6 @@
 from pytest import raises
-from timeseries import TimeSeries
-from lazy import lazy, lazy_add, lazy_mul, LazyOperation
+from cs207project.timeseries.timeseries import TimeSeries
+from cs207project.timeseries.lazy import lazy, lazy_add, lazy_mul, LazyOperation
 
 @lazy
 def lazy_kwargs_mul(a, b, optional = 1):

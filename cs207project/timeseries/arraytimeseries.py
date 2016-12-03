@@ -1,4 +1,4 @@
-from sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
+from cs207project.timeseries.sizedcontainertimeseriesinterface import SizedContainerTimeSeriesInterface
 import numpy as np
 import numbers
 

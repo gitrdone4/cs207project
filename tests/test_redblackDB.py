@@ -1,4 +1,4 @@
-from redblackDB import connect
+from cs207project.rbtree.redblackDB import connect
 import os
 
 def gen_demo_data():

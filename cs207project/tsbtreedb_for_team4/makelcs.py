@@ -15,11 +15,11 @@ from scipy.stats import norm
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.insert(0,d + '/timeseries')
-import arraytimeseries as ats
+import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables
 
-from settings import LIGHT_CURVES_DIR
+from cs207project.tsbtreedb_for_team4.settings import LIGHT_CURVES_DIR
 
 HELP_MESSAGE = \
 """

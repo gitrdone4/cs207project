@@ -9,14 +9,14 @@ import os
 import numpy as np
 import random
 
-import crosscorr
-import makelcs
-from makelcs import clear_dir
-import genvpdbs
-import simsearch
-import unbalancedDB
-import timeseries
-from settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR
+import cs207project.tsbtreedb_for_team4.crosscorr as cross
+import cs207project.tsbtreedb_for_team4.makelcs as makelcs
+from cs207project.tsbtreedb_for_team4.makelcs import clear_dir
+import cs207project.tsbtreedb_for_team4.genvpdbs as genvpdbs
+import cs207project.tsbtreedb_for_team4.simsearch as simsearch
+import cs207project.tsbtreedb_for_team4.unbalancedDB as unbalancedDB
+import cs207project.timeseries 
+from cs207project.tsbtreedb_for_team4.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR
 
 def test_makelcs():
     print("Testing 123")
@@ -95,8 +95,8 @@ def test_db_2():
     clear_dir(TEMP_DIR,recreate=False)
 
 def test_ccorr():
-    from makelcs import tsmaker
-    from crosscorr import kernel_corr, kernel_dist, standardize
+    from cs207project.tsbtreedb_for_team4.makelcs import tsmaker
+    from cs207project.tsbtreedb_for_team4.crosscorr import kernel_corr, kernel_dist, standardize
     t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
     t2 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
     assert(kernel_corr(t1,t1) == 1)

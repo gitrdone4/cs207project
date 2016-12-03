@@ -1,12 +1,12 @@
 import operator
 from pytest import raises
 import numpy as np
-from lazy import lazy
-from lazy import LazyOperation
-from timeseries import TimeSeries
-from arraytimeseries import ArrayTimeSeries
-from simulatedtimeseries import SimulatedTimeSeries
-from smtimeseries import SMTimeSeries
+from cs207project.timeseries.lazy import lazy
+from cs207project.timeseries.lazy import LazyOperation
+from cs207project.timeseries.timeseries import TimeSeries
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
+from cs207project.timeseries.simulatedtimeseries import SimulatedTimeSeries
+from cs207project.storagemanager.smtimeseries import SMTimeSeries
 import os, glob
 
 def test_sized_container_timeseries():

@@ -9,15 +9,15 @@ import os
 import numpy as np
 import random
 
-from crosscorr import standardize, kernel_dist
-from makelcs import make_lc_files
-from genvpdbs import create_vpdbs
-import unbalancedDB
-import arraytimeseries as ats
+from cs207project.tsbtreedb_for_team4.crosscorr import standardize, kernel_dist
+from cs207project.tsbtreedb_for_team4.makelcs import make_lc_files
+from cs207project.tsbtreedb_for_team4.genvpdbs import create_vpdbs
+import cs207project.tsbtreedb_for_team4.unbalancedDB
+import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables
 
-from settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
+from cs207project.tsbtreedb_for_team4.settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
 
 HELP_MESSAGE = \
 """

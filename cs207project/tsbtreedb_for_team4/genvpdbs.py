@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 #
 # CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
+# Created by Team 2 (Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os
 import random
 import numpy as np
 
-from unbalancedDB import connect
-from crosscorr import kernel_dist, standardize
-from makelcs import clear_dir
-from settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
-import arraytimeseries as ats
+from cs207project.tsbtreedb_for_team4.unbalancedDB import connect
+from cs207project.tsbtreedb_for_team4.crosscorr import kernel_dist, standardize
+from cs207project.tsbtreedb_for_team4.makelcs import clear_dir
+from cs207project.tsbtreedb_for_team4.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
+import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables
 

@@ -1,6 +1,6 @@
 from pytest import raises
-from filestoragemanager import FileStorageManager
-from arraytimeseries import ArrayTimeSeries
+from cs207project.storagemanager.filestoragemanager import FileStorageManager
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 import numpy as np
 import os
 
