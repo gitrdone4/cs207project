@@ -33,7 +33,7 @@ Just run `python setup.py test`
 - [pytest](http://doc.pytest.org/en/latest/)
 
 ### Developers:
-- Jonne Seleva
+- Jonne Saleva
 - Nathaniel Burbank
 - Nicholas Ruta
 - Rohan Thavarajah
