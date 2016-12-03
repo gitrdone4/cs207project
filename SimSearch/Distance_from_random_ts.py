@@ -9,8 +9,9 @@ d = dirname(dirname(abspath(__file__)))
 sys.path.insert(0,d + '/timeseries')
 from timeseries import TimeSeries
 
-sys.path.append('../cs207rbtree')
+sys.path.insert(0,d + '/cs207rbtree')
 import redblackDB
+
 sys.path.append('../SimSearch')
 from _corr import kernel_dist
 
