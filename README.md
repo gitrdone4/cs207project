@@ -12,6 +12,10 @@ Final group project for Harvard's CS 207 course, [Systems Development for Comput
 
 Time series are two-dimensional (or higher) arrays of numeric data, where ordered time-values are bound to specific data points that represent specific outcomes, measurements, or other values associated with specific times.  While time series data can be stored using traditional arrays or tables, the classes included in this library make working with these types of data sets in python easier by enforcing the core properties of a time series at a class level. For example, in a time series no two times can be repeated. And every represented value needs a time associated with it. By creating and manipulating data-sets using these classes, these properties are enforced at all times.
 
+### How to install
+1. Clone repo
+2. Run `python setup.py install`
+
 ### Additional Features
 
 1. Supports adding, subtracting, multiplying, and other manipulations on fixed-length data sets.
