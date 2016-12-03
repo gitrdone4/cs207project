@@ -16,6 +16,10 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 1. Clone repo
 2. Run `python setup.py install`
 
+### Running tests
+
+Just run `python setup.py test`
+
 ### Additional Features
 
 1. Supports adding, subtracting, multiplying, and other manipulations on fixed-length data sets.

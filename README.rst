@@ -14,6 +14,10 @@ How to install
 1. Clone repo
 2. Run:: python setup.py install
 
+Running tests
+=============
+Just run:: python setup.py test
+
 Additional Features
 ===================
 
