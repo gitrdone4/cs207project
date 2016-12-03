@@ -2,4 +2,7 @@
 Developers
 ==========
 
-* Jonne Saleva <jonne.saleva@gmail.com>
+* Nathaniel Burbank
+* Rohan Thavarajah
+* Nicholas Ruta
+* Jonne Saleva
