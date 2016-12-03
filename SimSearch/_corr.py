@@ -1,8 +1,12 @@
 import numpy.fft as nfft
+import sys   
 import numpy as np
-from timeseries import TimeSeries
 from scipy.stats import norm
+sys.path.append("../timeseries/")
+from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
+
+
 
 def stand(ts):
     '''
