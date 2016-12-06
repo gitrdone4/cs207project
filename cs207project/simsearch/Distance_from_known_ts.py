@@ -11,242 +11,286 @@ sys.path.append('../SimSearch')
 from _corr import kernel_dist
 
 
-#x=[];
-#v=[];
-num_vantage_points = 20
-num_of_timeseries = 1000
+# py.test --doctest-modules  --cov --cov-report term-missing Distance_from_known_ts.py
+
+def load_ts_file(filepath):
+    '''
+    Takes in file and reads time series from it
+
+	Parameters
+	----------
+	filepath: path of the file 
+	
+	Returns
+	-------
+	timeSeries object : TimeSeries class
+
+	>>> ts=load_ts_file('169975.dat_folded.txt')
+
+	>>> ts._values[0]
+	15.137
+    '''
+#Only considers the first two columns of the text file (other columns are discarded)
+#Only evaluates time values between 0 and 1
+#First column is presumed to be times and second column is presumed to be light curve values.
+    data = np.loadtxt(filepath, delimiter=' ',dtype = str)
+    clean_input = []
+    for i in range(len(data)):
+        row = data[i].split("\\t")
+        clean_input.append([float(row[0][2:]),float(row[1])])
+    data = np.array(clean_input)
+
+    _ , indices = np.unique(data[:, 0], return_index=True)
+
+    data = data[indices, :]
+    times, values = data.T
+    full_ts = TimeSeries(times=list(times),values=list(values))
+    interpolated_ts = full_ts.interpolate(list(np.arange(0.0, 1.0, (1.0 /100))))
+    full_ts_interpolated = TimeSeries(times=list(np.arange(0.0, 1.0, (1.0 /100))),values=list(interpolated_ts))
+    return full_ts_interpolated
+
+if len(sys.argv)<2:
+	raise ValueError("No input file containing time series passed")
+else:
+	test_ts=load_ts_file(sys.argv[1])
+
+num_vantage_points = 5
+num_of_timeseries = 30
+num_top=int(sys.argv[2])
+
 def tsmaker(m, s, j):
+    '''
+    Creates a random time series of 100 elements
+
+	Parameters
+	----------
+	m,s,j: parameters of the function norm.pdf
+
+	Returns
+	-------
+	timeSeries object : TimeSeries class
+
+	>>> ts = tsmaker(2,3,4)
+
+	>>> ts._times[0]
+	0.0
+    '''
     t = list(np.arange(0.0, 1.0, 0.01))
     v = norm.pdf(t, m, s) + j*np.random.randn(100)
     return TimeSeries(values=v,times=t)
 
 #[{1: <dist>, 2: <dist>, }_1, {}_2, ... {}_20] to
 # (1,2);(2,3)....|(3,4);.....|
-def encodeVantageDistances(decoded):
-	dbstring = []
-	for distances in decoded:
-		distancestring = []
-		for k, v in distances.items():
-			distancestring.append("(" + str(k) + "," + str(v) + ")")
-		dbstring.append(';'.join(distancestring))
-	return '|'.join(dbstring)
+def encodeVantagePoints(decoded):
+	'''
+	Encodes the vantage point to a string so that it can be stored
+
+	Parameters
+	----------
+	Decoded: Any list that is to be encoded
+
+	Returns
+	-------
+	string
+
+	>>> ts=encodeVantagePoints({1:(1,2)})
+	>>> ts[1]
+	'1'
+	'''
+	# dbstring = []
+	# for distances in decoded:
+	distancestring = []
+	for k, v in decoded.items():
+		distancestring.append("(" + str(k) + "," + str(v) + ")")
+	encodedString = ';'.join(distancestring)
+	return encodedString
+	# dbstring.append(';'.join(distancestring))
+	# return '|'.join(dbstring)
 
 # (1,2);(2,3)....|(3,4);.....| to
 #[{1: <dist>, 2: <dist>, }_1, {}_2, ... {}_20]
-def decodeVantageDistances(encoded):
-	distances_from_vantage_points = []
-	vantagePoints = encoded.split('|')
-	for point in vantagePoints:
-		dict_distances = {}
-		items = point.split(';')
-		for item in items:
-			# Grab key and value
-			split = item.split(',')
-			key = int(split[0][1:])
-			value = float(split[1][:-1])
-			dict_distances[key] = value
-		distances_from_vantage_points.append(dict_distances)
-	return distances_from_vantage_points
+def decodeVantagePoints(encoded):
+	'''
+	>>> ts=decodeVantagePoints('(1,2);(2,3)')
+	>>> ts
+	{1: 2.0, 2: 3.0}
+	'''
+	dict_distances = {}
+	items = encoded.split(';')
+	for item in items:
+		# Grab key and value
+		split = item.split(',')
+		key = int(split[0][1:])
+		value = float(split[1][:-1])
+		dict_distances[key] = value
+	return dict_distances
 
-def encodeTimeSeries(decoded):
+def encodeTimeSeries(timeSeries):
+	"""
+	Takes in time series object and transforms it into a string.
+	
+	Parameters
+	----------
+	timeSeries: Concrete class of SizedContainerTimeSeriesInterface
+	
+	Returns
+	-------
+	String representation of time series object, where each time and value is encoded in 
+	"(t,v)" and separated with ";"
+
+	>>> ts = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+	>>> k=encodeTimeSeries(ts)
+	>>> k
+	'(1,0);(1.5,2);(2,-1);(2.5,0.5);(10,0)'
+	"""
+	items = timeSeries.items()
 	encodedTimeSeries = []
-	i=0
-	#print("lenght of decoded is ",len(decoded))
-	for timeSeries in decoded:
-		#print("encoding time series number",i)
-		i+=1
-		#print("encoding time series ",timeSeries)
-		items = timeSeries.items()
-		#print("This time items is",len(items))
-		#print("I'm done with this one")
-		#print("Items are ",items)
-		for (time, value) in items:
-			#print((" + str(time) + "," + str(value) + "))
-			encodedTimeSeries.append("(" + str(time) + "," + str(value) + ")")
+	for (time, value) in items:
+		encodedTimeSeries.append("(" + str(time) + "," + str(value) + ")")
 	return ';'.join(encodedTimeSeries)
 
-def decodeTimeSeries(encoded):
-	itemStrings = encoded.split(';')
-	num_time_series=len(itemStrings)//100
-	ts=[]
-	for k in range(0,num_time_series):
-		t = []
-		v = []
-		start_index=100*k
-		end_index=100*k+100
-		#print(start_index)
-		#print(end_index)
-		points=itemStrings[start_index:end_index]		
-		for point in points:
-			(a,b)=point.split(',')
-			a=a[1:]
-			b=b[0:len(b)-2]
-			#print(a,b)
-			(time,val)=(float(a),float(b))
-			#print(time)
-			#print(val)
-			t.append(float(time))
-			v.append(float(val))
-		#print("t is ",t)
-		#print("v is ",v)
-		t=list(t)
-		ts_obj=TimeSeries(values=v,times=t)
-		#print("I'mhere",ts_obj)
-		ts.append(ts_obj)
-	return ts
-
-def encodesample(decoded):
-	encodedTimeSeries = []
-	#print(decoded)
-	items = decoded.items()
-	#print("len of items is",len(items))
-	for (time, value) in items:
-		#print("time is time ",value)
-		encodedTimeSeries.append("(" + str(time) + "," + str(value) + ")")
-	return str(encodedTimeSeries)
-
-def decodesample(encoded):
-	encoded=encoded[0:len(encoded)-1]
-	#print(encoded)
-	list_of_points=encoded.split(',')
-	#print(list_of_points[1])
-	#print(len(list_of_points))
-	t=[]
-	v=[]
-	for i in range(0,100):
-		a=list_of_points[2*i]
-		a=a[3:]
-		#print("a is ",a)
-		b=list_of_points[2*i+1]
-		b=b[0:len(b)-3]
-		#print("b is ",b)
-		#print(a,b)
-		(time,val)=(float(a),float(b))
-		#print(time)
-		#print(val)
-		t.append(float(time))
-		v.append(float(val))
-	#print("t is ",t)
-	#print("v is ",v)
-	t=list(t)
-	ts_obj=TimeSeries(values=v,times=t)
-	#print("I'mhere",ts_obj)
-	return ts_obj
-
+# Takes in encoded time series and transforms it into a TimeSeries object
+# Raise ValueError whenever improper
+def decodeTimeSeries(encodedTimeSeries):
+	"""
+	Takes in time series string and transforms it into a time series object.
+	Raises ValueError when the input string is malformed.
 	
-def encodeVantagePoints(decoded):
-	""""""
+	Parameters
+	----------
+	String representation of time series object, where each time and value is encoded in 
+	"(t,v)" and separated with ";"
+	
+	Returns
+	-------
+	timeSeries: TimeSeries class
 
-def decodeVantagePoints(encoded):
-	""""""
+	>>> ts = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+	>>> encodedString = encodeTimeSeries(ts)
+	>>> k=decodeTimeSeries(encodedString)
+	>>> k
+	TimeSeries(Length: 5, [0.0, 2.0, -1.0, 0.5, 0.0])
+	"""
+	itemStrings = encodedTimeSeries.split(';')
+	t = []
+	v = []
+	for itemString in itemStrings:
+		timeValuePair = itemString.split(',')
 
+		if len(timeValuePair) != 2:
+			raise ValueError('Time series string is malformed')
 
+		time = timeValuePair[0]
+		value = timeValuePair[1]
+		if len(time) < 2 or len(value) < 2:
+			raise ValueError('Time series string is malformed')			
+		
+		time = time[1:]
+		value = value[:-1]
+
+		# This might throw ValueError if time and value could not be converted to floats
+		t.append(float(time))
+		v.append(float(value))
+
+	z = TimeSeries(values=v, times=t)
+	return z
+
+def write_ts(ts,i):
+    """ Write light curve to disk as space delimited text file"""
+    '''
+    Write light curve to disk as space delimited text file
+	
+	Parameters
+	----------
+	ts: time series object
+	i : a counter to be appended to the file name where it is stored 
+	Returns
+	-------
+	None. 
+    '''
+    path = "ts-{}.txt".format(i)
+    datafile_id = open(path, 'wb')
+    data = np.array([ts._times, ts._values])
+    data = data.T
+
+    np.savetxt(datafile_id, data, fmt=['%.3f','%8f'])
+    datafile_id.close()
 
  # Get distance from vantage points from DB, and if its not there then proceed
-# os.remove('distanceFromVantagePoints.dbdb')
+
 db = redblackDB.connect("distanceFromVantagePoints.dbdb")
 db_vantagepoints = redblackDB.connect("vantagePoints.dbdb")
 db_data = redblackDB.connect("timeseriesdata.dbdb")
-db_known_ts = redblackDB.connect(sys.argv[1])
-
-dbKey = 'encodedDistance'
-dbKey_vantagepoint ='vantagePoints'
-dbKey_data = 'timeseriesdata'
-dbKey_known_ts = 'newtimeseries'
 
 distances_from_vantage_points = []
-# Check if it is in DB
-try:
-	#print("getting distances from storage") 
-	encodedDistances = db.get(dbKey)
-	distances_from_vantage_points = decodeVantageDistances(encodedDistances)
-	#print("Distances worked here they are for VP 19",distances_from_vantage_points[19])
-	#print("got data from storage")
-	#print("getting vantage points from storage")
-	decodedVantagePoints=db_vantagepoints.get(dbKey_vantagepoint)
-	v=decodeTimeSeries(decodedVantagePoints)
-	#print("got v",v[0])
+v=[]
+x=[]
 
-	#print("getting time series data from storage")
-	decodedData=db_data.get(dbKey_data)
-	x=decodeTimeSeries(decodedData)
-	#print("got x",x[0])
+try:
+
+	for i in range(num_vantage_points):
+		key='v'+str(i)
+		decodedVantagePoints=db_vantagepoints.get(key)
+		v.append(decodeTimeSeries(decodedVantagePoints))
+		distances_from_vantage_points.append(decodeVantagePoints(db.get(key)))
+
+	for i in range(num_of_timeseries):
+		key='x' + str(i)
+		x.append(decodeTimeSeries(db_data.get(key)))
 
 except KeyError:
-	v=[]
-	x=[]
+	
 	# Calculate and cache on disk
 	print('Not stored in disk, calculate distances')
-	
-	
 
 	#generation of 1000 time series
-	for i in range(0,num_of_timeseries):
+	for i in range(num_of_timeseries):
 		ts=tsmaker(4,2,8)
-		vals=ts.values()
 		x.append(ts)
-
-	#print(x)
+		db_data.set('x' + str(i), encodeTimeSeries(ts))
+	db_data.commit()
 
 	#generate 20 vantage points 
-	indices=random.sample(range(0,num_of_timeseries),num_vantage_points)
+	indices = random.sample(range(num_of_timeseries), num_vantage_points)
 	for i in range(0,num_vantage_points):
-		v.append(x[indices[i]])
-
-	#print("lenght of v is",len(v))
+		vi = x[indices[i]]
+		dbKey_vantagepoint='v'+str(i)
+		db_vantagepoints.set(dbKey_vantagepoint,encodeTimeSeries(vi))
+		v.append(vi)
+	db_vantagepoints.commit()
 
 	#Find distance of all points from each vantage point, store in array of dictionaries.
-	for i in range(0,num_vantage_points):
+	for i in range(num_vantage_points):
 		print('Working on vantage point: ', i)
-		dict_distances={};
-		for j in range(0,num_of_timeseries):
+		dict_distances = {}
+		for j in range(num_of_timeseries):
 			distance_bw=kernel_dist(v[i],x[j])
 			dict_distances[j]=distance_bw
 		distances_from_vantage_points.append(dict_distances)
-	db.set(dbKey, encodeVantageDistances(distances_from_vantage_points))
+		db.set('v' + str(i), encodeVantagePoints(dict_distances))
 	db.commit()
 
-	#Store the 20 vantage points into dictionary
-	db_vantagepoints.set(dbKey_vantagepoint,encodeTimeSeries(v))
-	db_vantagepoints.commit()
-
-	#store the 1000 time series into dictionary
-	db_data.set(dbKey_data,encodeTimeSeries(x))
-	db_data.commit()
-
-
-
-#generate random test sample for test series - 
-#test_ts=tsmaker(3,2,4)
-#db_known_ts.set(dbKey_known_ts,encodesample(test_ts))
-#db_known_ts.commit()
-decodedsample=db_known_ts.get(dbKey_known_ts)
-test_ts=decodesample(decodedsample)
-
-#print(v[1])
 corr=0
 closest='dummy'
-#print("length is",len(v[4]))
-#Find closest vantage point
-for i in range(0,num_vantage_points):
-	#print("Finding closest")
-	#print(i)
-	if kernel_dist(test_ts,v[i])>corr:
-		corr=kernel_dist(test_ts,v[i])
-		closest=i
 
-#Define region between them - 
+#Find closest vantage point
+for i in range(num_vantage_points):
+	if kernel_dist(test_ts,v[i]) > corr:
+		corr = kernel_dist(test_ts,v[i])
+		closest = str(i)
+
+#Define region between them
 max_region=2*corr
 remaining_time_series=[];
 
-distances_from_closest= distances_from_vantage_points[closest];
+distances_from_closest = decodeVantagePoints(db.get('v' + closest))
 
 for index in distances_from_closest.keys():
 	distance=distances_from_closest[index]
-	if distance>max_region:
+	if distance > max_region:
 		del distances_from_closest[index]
 
-final_distances=[]
+final_distances = []
 
 #find top-n-cut in this
 for i in distances_from_closest.keys():
@@ -255,7 +299,13 @@ for i in distances_from_closest.keys():
 final_distances.sort(key=lambda x:x[1])
 
 # final_distances
-indexes_and_distances_of_top_20=final_distances[1:20]
+indexes_and_distances_of_top_20=final_distances[:num_top]
 print("\nThe indexes and distances of top 20 matches are \n\n",indexes_and_distances_of_top_20)
-print("\nThey are contained in the file timeseriesdata.dbdb \n")
 
+counter=0
+for (key_top, _) in indexes_and_distances_of_top_20:
+	ts_top = decodeTimeSeries(db_data.get('x'+str(key_top)))
+	print(ts_top)
+	write_ts(ts_top,counter)
+	counter+=1
+print("The files have been written in the directory!")
