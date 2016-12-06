@@ -1,12 +1,11 @@
 import numpy.fft as nfft
 import numpy as np
-from timeseries import TimeSeries
 from scipy.stats import norm
-from arraytimeseries import ArrayTimeSeries
+from cs207project.timeseries.timeseries import TimeSeries
 
 def stand(ts):
     '''
-    Standardizes timeseries using its mean m and its standard 
+    Standardizes timeseries using its mean m and its standard
     '''
     # stand = (ts._values() - ts.mean())/ts.std()
     arrayvalues = np.asarray(ts._values)

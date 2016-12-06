@@ -3,9 +3,8 @@ import random
 import os
 import numpy as np
 import sys
-sys.path.append('../timeseries')
-from timeseries import TimeSeries
-sys.path.append('../cs207rbtree')
+from cs207project.timeseries.timeseries import TimeSeries
+sys.path.append('../rbtree')
 import redblackDB
 sys.path.append('../SimSearch')
 from _corr import kernel_dist
