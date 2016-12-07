@@ -9,10 +9,10 @@ import os
 import random
 import numpy as np
 
-from cs207project.tsbtreedb_for_team4.unbalancedDB import connect
-from cs207project.tsbtreedb_for_team4.crosscorr import kernel_dist, standardize
-from cs207project.tsbtreedb_for_team4.makelcs import clear_dir
-from cs207project.tsbtreedb_for_team4.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
+from cs207project.rbtree.redblackDB import connect
+from cs207project.tsrbtreedb.crosscorr import kernel_dist, standardize
+from cs207project.tsrbtreedb.makelcs import clear_dir
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
 import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables

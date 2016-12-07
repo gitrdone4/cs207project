@@ -11,15 +11,7 @@ import numpy as np
 import numpy.fft as nfft
 from scipy.stats import norm
 
-# This is a hacky solution to import the array time series class from sister directory by inserting it into system path
-# should fix once time series library is turned into a proper python model
-
-from os.path import dirname, abspath
-d = dirname(dirname(abspath(__file__)))
-sys.path.insert(0,d + '/timeseries')
-
-import timeseries
-import arraytimeseries as ats
+import cs207project.timeseries.arraytimeseries as ats
 
 def standardize(ts):
     """standardize timeseries ts by its mean and std deviation"""
