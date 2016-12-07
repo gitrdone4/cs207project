@@ -12,7 +12,7 @@ import random
 from cs207project.tsbtreedb_for_team4.crosscorr import standardize, kernel_dist
 from cs207project.tsbtreedb_for_team4.makelcs import make_lc_files
 from cs207project.tsbtreedb_for_team4.genvpdbs import create_vpdbs
-import cs207project.tsbtreedb_for_team4.unbalancedDB
+from cs207project.tsbtreedb_for_team4.unbalancedDB import connect
 import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables
@@ -116,7 +116,7 @@ def search_vpdb(vp_t,ts):
 
     vp_fn, dist_to_vp = vp_t
     db_path = DB_DIR + vp_fn[:-4] + ".dbdb"
-    db = unbalancedDB.connect(DB_DIR + vp_fn[:-4] + ".dbdb")
+    db = connect(DB_DIR + vp_fn[:-4] + ".dbdb")
     s_ts = standardize(ts)
 
     # Identify light curves in selected vantage db that are up to 2x the distance
