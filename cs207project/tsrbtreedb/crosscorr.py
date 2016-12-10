@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import os
 import sys
@@ -85,10 +82,8 @@ def kernel_corr(ts1, ts2, mult=1):
                      np.sum(np.exp(mult * ccor(ts2, ts2))))
 
     # return normalized kernel if k_norm is non-zero
-    if k_norm != 0:
-        return kernel/k_norm
-    else:
-        return 0
+    kernel_corr = kernel/k_norm if k_norm != 0 else 0
+    return kernel_corr
 
 def kernel_dist(ts1, ts2, mult=1):
     """
@@ -114,7 +109,3 @@ def kernel_dist(ts1, ts2, mult=1):
     # (Where C = kernel correlation )
     # However, we are using normalized kernels here, so the dist^2 will be 2(1-C(ts1,ts2))
     return np.sqrt(2*(1-kernel_corr_val))
-
-def s_stats(n,ts):
-    """Prints summary stats for ts """
-    return "%s mean: %.4f, %s std: %.4f" % (n,ts.mean(),n,ts.std())
