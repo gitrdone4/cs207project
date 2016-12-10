@@ -197,7 +197,6 @@ def sim_search(input_fpath,DB_DIR,LIGHT_CURVES_DIR,plot=False):
     input_ts = load_external_ts(input_fpath)
     print("Done.")
     closest_vp = find_closest_vp(load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
-    print("Closet vp",closest_vp)
     min_dist,closest_ts_fn,closest_ts = search_vpdb(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR)
     print("\n============================ Results ============================")
     print("%s is the closest light curve to %s" % (closest_ts_fn, input_fpath))
