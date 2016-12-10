@@ -15,9 +15,10 @@ import cs207project.tsrbtreedb.makelcs as makelcs
 from cs207project.tsrbtreedb.makelcs import clear_dir
 import cs207project.tsrbtreedb.genvpdbs as genvpdbs
 import cs207project.tsrbtreedb.simsearch as simsearch
+from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.tsrbtreedb.unbalancedDB as unbalancedDB
 import cs207project.timeseries
-from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR
+from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR
 
 def test_value_and_file_asserts():
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
@@ -26,7 +27,7 @@ def test_value_and_file_asserts():
         simsearch.load_nparray(fp)
 
     with raises(ValueError):
-        simsearch.load_ts(fp,fp)
+        simsearch.load_ts(fp,FileStorageManager(lc_temp_dir))
 
 def test_makelcs():
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
@@ -35,10 +36,9 @@ def test_makelcs():
 
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
 
-
-    makelcs.make_lc_files(100,lc_temp_dir)
+    makelcs.make_lcs_wfm(100,lc_temp_dir)
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
-    ts = genvpdbs.load_ts(lc_temp_dir)
+    ts = genvpdbs.load_ts_fsm(lc_temp_dir)
     assert(len(ts) == 100)
 
     genvpdbs.create_vpdbs(10,lc_temp_dir,db_temp_dir)
@@ -52,17 +52,9 @@ def test_simsearch():
     simsearch.rebuild_lcs_dbs(lc_temp_dir,db_temp_dir,10,100)
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
 
-    gen_lc_fns = []
-    for file in os.listdir(lc_temp_dir):
-        if file.startswith("ts-") and file.endswith(".txt"):
-            gen_lc_fns.append(file)
-
-    lc_fn = random.sample(gen_lc_fns, 1)
-
-    lc_path = lc_temp_dir + lc_fn[0]
-
-    simsearch.sim_search(lc_path,db_temp_dir,lc_temp_dir,plot=False)
-
+    demo_ts_fn = random.choice(os.listdir('cs207project/tsrbtreedb/' + SAMPLE_DIR))
+    demo_fp = 'cs207project/tsrbtreedb/' + SAMPLE_DIR + demo_ts_fn
+    simsearch.sim_search(demo_fp,db_temp_dir,lc_temp_dir,False)
 
     #clear_dir(TEMP_DIR,recreate=False)
 
@@ -155,8 +147,7 @@ def test_ccorr():
         kernel_dist(t1, t5)
 
 
-
 def test_clear():
-     clear_dir(TEMP_DIR,recreate=False)
-
+    """Clear test dir for tests"""
+    clear_dir(TEMP_DIR,recreate=False)
 

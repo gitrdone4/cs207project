@@ -30,18 +30,6 @@ Optional flags:
   -h, --help    Show this help message and exit.
 """
 
-def load_ts(LIGHT_CURVES_DIR):
-    """Loads time series text files; returns dict keyed to filename"""
-    timeseries_dict = {}
-    for file in os.listdir(LIGHT_CURVES_DIR):
-        if file.startswith("ts-") and file.endswith(".txt"):
-            filepath = LIGHT_CURVES_DIR + file
-            data = np.loadtxt(filepath)
-            times, values = data.T
-            ts = ats.ArrayTimeSeries(times=times,values=values)
-            timeseries_dict[file] = ts
-    return timeseries_dict
-
 def load_ts_fsm(lc_dir):
     """Loads time series from fsm; returns dict keyed to filename"""
     timeseries_dict = {}
@@ -80,7 +68,7 @@ def save_vp_dbs(vp,timeseries_dict, DB_DIR):
     db.commit()
     db.close()
 
-def create_vpdbs(n, LIGHT_CURVES_DIR, DB_DIR):
+def create_vpdbs(n,lc_dir,db_dir):
     """
     Executes functions above:
         (1) Creates timeseries_dict from time series files on disk
@@ -89,12 +77,12 @@ def create_vpdbs(n, LIGHT_CURVES_DIR, DB_DIR):
         (4) Saves kernel distance indexes to disk as binary tree databases
     """
     print("Creating %d vantage point dbs" % n,end="")
-    timeseries_dict = load_ts_fsm(LIGHT_CURVES_DIR)
+    timeseries_dict = load_ts_fsm(lc_dir)
     vantage_points = pick_vantage_points(timeseries_dict,n)
-    clear_dir(DB_DIR)
+    clear_dir(db_dir)
     for vp in vantage_points:
         print('.', end="")
-        save_vp_dbs(vp,timeseries_dict,DB_DIR)
+        save_vp_dbs(vp,timeseries_dict,db_dir)
     print("Done.")
 
 if __name__ == "__main__":

@@ -78,20 +78,6 @@ def make_n_ts(n):
     rand_ts = [random_ts(np.random.uniform(0,10)) for i in range(n//2)]
     return norm_ts + rand_ts
 
-def write_ts(ts,i,LIGHT_CURVES_DIR):
-    """ Write light curve to disk as space delimited text files"""
-    os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
-    filename = "ts-{}.txt".format(i)
-    path = LIGHT_CURVES_DIR + filename
-    datafile_id = open(path, 'wb')
-    data = np.array([ts.times(), ts.values()])
-    data = data.T
-
-    np.savetxt(datafile_id, data, fmt=['%.3f','%8f'])
-    datafile_id.close()
-
-
-
 
 def clear_dir(dir,recreate=True):
     """Erase folder and recreate it"""
@@ -100,22 +86,6 @@ def clear_dir(dir,recreate=True):
         shutil.rmtree(dir)
     if(recreate):
         os.makedirs(dir, exist_ok=True)
-
-def make_lc_files(num_lcs,lc_dir):
-    """
-    Executes functions above:
-        (1) Generates n light curves
-        (2) Deletes any existing light curve files
-        (3) Writes them to disk
-    """
-    light_curves = make_n_ts(num_lcs)
-    print("Generating %d light-curve files" % num_lcs, end="")
-    clear_dir(lc_dir)
-    for i, ts in enumerate(light_curves):
-        if i % 50 == 0:
-            print('.', end="")
-        write_ts(ts,i,lc_dir)
-    print("Done.")
 
 def write_ts_wfm(ts,fsm):
     """ Write light curve to disk useing file storage manager"""
@@ -138,7 +108,6 @@ def make_lcs_wfm(num_lcs,lc_dir=''):
             print('.', end="")
         write_ts_wfm(ts,fsm)
     print("Done.")
-
 
 if __name__ == "__main__":
     """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
