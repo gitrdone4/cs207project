@@ -11,6 +11,7 @@ sys.path.append('../cs207rbtree')
 import redblackDB
 sys.path.append('../SimSearch')
 from _corr import kernel_dist
+import pprint
 
 # py.test --doctest-modules  --cov --cov-report term-missing Distance_from_known_ts.py
 
@@ -31,6 +32,7 @@ def load_ts_file(filepath):
 	>>> ts._values[0]
 	15.137
     '''
+
 #Only considers the first two columns of the text file (other columns are discarded)
 #Only evaluates time values between 0 and 1
 #First column is presumed to be times and second column is presumed to be light curve values.
@@ -55,8 +57,8 @@ if len(sys.argv)<2:
 else:
 	test_ts=load_ts_file(sys.argv[1])
 
-num_vantage_points = 5
-num_of_timeseries = 30
+num_vantage_points = 20
+num_of_timeseries = 1000
 num_top=int(sys.argv[2])
 
 def tsmaker(m, s, j):
@@ -196,6 +198,29 @@ def decodeTimeSeries(encodedTimeSeries):
 	z = TimeSeries(values=v, times=t)
 	return z
 
+def read_ts(i):
+	'''
+	Read Time Series from disk
+
+	Parameters
+	----------
+	i:ID of the time series to be read from disk
+
+	Returns
+	-------
+	time series object
+	'''
+	filename='ts-'+str(i)+'.txt'
+	t=[]
+	v=[]
+	lines = [line.rstrip('\n') for line in open(filename)]
+	for line in lines:
+		(time,val)=line.split(" ")
+		t.append(time)
+		v.append(float(val))
+	ts=TimeSeries(values=v,times=t)
+	return ts
+
 def write_ts(ts,i):
     """ Write light curve to disk as space delimited text file"""
     '''
@@ -229,50 +254,81 @@ x=[]
 
 try:
 
-	for i in range(num_vantage_points):
-		key='v'+str(i)
-		decodedVantagePoints=db_vantagepoints.get(key)
-		v.append(decodeTimeSeries(decodedVantagePoints))
-		distances_from_vantage_points.append(decodeVantagePoints(db.get(key)))
+	#try to read the file containing the dictionary of vantagepoint_id:vantagepoint_timeseries
 
-	for i in range(num_of_timeseries):
-		key='x' + str(i)
-		x.append(decodeTimeSeries(db_data.get(key)))
+	#try to check if there are 20 redblack trees. One of these will be read in the later part oft he code. 
+	#db_data.get('hello')
+	#raise KeyError
+	file=open('vantagepointids.txt')
+	print("Red Black trees already found!")
+	#dbfilename='db_vantagepoints'+closest
+	#vantagedb=redblackDB.connect(db_file_name+'.dbdb')
+	#vantagedb.get()
+	#for i in range(num_vantage_points):
+	#	key='v'+str(i)
+	#	decodedVantagePoints=db_vantagepoints.get(key)
+	#	v.append(decodeTimeSeries(decodedVantagePoints))
+	#	distances_from_vantage_points.append(decodeVantagePoints(db.get(key)))
 
-except KeyError:
+	#for i in range(num_of_timeseries):
+	#	key='x' + str(i)
+	#	x.append(decodeTimeSeries(db_data.get(key)))
+	
+except FileNotFoundError:
 	
 	# Calculate and cache on disk
 	print('Not stored in disk, calculate distances')
 
+	#generate 20 random indices as vantage point id's
+	vantage_point_ids=random.sample(range(num_of_timeseries), num_vantage_points)
+	filename='vantagepointids.txt'
+	fileh=open(filename,'w')
+	fileh.write(str(vantage_point_ids))
+	#print(len(vantage_point_ids))
+	vpcounter=1
 	#generation of 1000 time series
 	for i in range(num_of_timeseries):
 		ts=tsmaker(4,2,8)
+		write_ts(ts,i)
 		x.append(ts)
-		db_data.set('x' + str(i), encodeTimeSeries(ts))
-	db_data.commit()
+		#db_data.set('x' + str(i), encodeTimeSeries(ts))
+		#db_data.commit()
+		#if vantage point then retain in v
+		if i in vantage_point_ids:
+			v.append(ts)
 
-	#generate 20 vantage points 
-	indices = random.sample(range(num_of_timeseries), num_vantage_points)
-	for i in range(0,num_vantage_points):
-		vi = x[indices[i]]
-		dbKey_vantagepoint='v'+str(i)
-		db_vantagepoints.set(dbKey_vantagepoint,encodeTimeSeries(vi))
-		v.append(vi)
-	db_vantagepoints.commit()
-
-	#Find distance of all points from each vantage point, store in array of dictionaries.
+	
 	for i in range(num_vantage_points):
 		print('Working on vantage point: ', i)
+		db_file_name='db_vantagepoints'+str(i)
+		vantagedb=redblackDB.connect(db_file_name+'.dbdb')
 		dict_distances = {}
 		for j in range(num_of_timeseries):
 			distance_bw=kernel_dist(v[i],x[j])
 			dict_distances[j]=distance_bw
-		distances_from_vantage_points.append(dict_distances)
-		db.set('v' + str(i), encodeVantagePoints(dict_distances))
-	db.commit()
+		for key in dict_distances.keys():
+			#print("I am at key",key)
+			val=dict_distances[key]
+			#print("val is",val)
+			vantagedb.set(str(val),str(key))
+			#print("I set stuff")
+		vantagedb.commit()
+	
 
 corr=0
 closest='dummy'
+
+filename='vantagepointids.txt'
+fileh=open(filename,'r')
+vantageids=fileh.read()
+vantageids=vantageids[1:len(vantageids)-1]
+vantageids.replace(" ","")
+list=vantageids.split(',')
+#print('vantageids are',vantageids)
+v=[]
+for vp in list:
+	ts=read_ts(vp.replace(" ",""))
+	v.append(ts)
 
 #Find closest vantage point
 for i in range(num_vantage_points):
@@ -280,33 +336,19 @@ for i in range(num_vantage_points):
 		corr = kernel_dist(test_ts,v[i])
 		closest = str(i)
 
+
+
 #Define region between them
 max_region=2*corr
-remaining_time_series=[];
 
-distances_from_closest = decodeVantagePoints(db.get('v' + closest))
+dbfilename='db_vantagepoints'+closest
+vantagedb=redblackDB.connect(dbfilename+'.dbdb')
+dist=vantagedb.chop(str(max_region))
+rboutputs={}
+for i in dist:
+	(a,b)=i
+	rboutputs[b]=a;
 
-for index in distances_from_closest.keys():
-	distance=distances_from_closest[index]
-	if distance > max_region:
-		del distances_from_closest[index]
 
-final_distances = []
-
-#find top-n-cut in this
-for i in distances_from_closest.keys():
-	distance_from_test_sample=kernel_dist(x[i],test_ts)
-	final_distances.append((i,distance_from_test_sample))
-final_distances.sort(key=lambda x:x[1])
-
-# final_distances
-indexes_and_distances_of_top_20=final_distances[:num_top]
-print("\nThe indexes and distances of top 20 matches are \n\n",indexes_and_distances_of_top_20)
-
-counter=0
-for (key_top, _) in indexes_and_distances_of_top_20:
-	ts_top = decodeTimeSeries(db_data.get('x'+str(key_top)))
-	print(ts_top)
-	write_ts(ts_top,counter)
-	counter+=1
-print("The files have been written in the directory!")
+sortedrbouts=sorted(rboutputs, key=rboutputs.get, reverse=True)[:num_top]
+print('IDs of the top ',num_top,'time series are',','.join(map(str,sortedrbouts)))

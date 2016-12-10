@@ -1,16 +1,40 @@
 import numpy.fft as nfft
 import sys   
 import numpy as np
+import random
 from scipy.stats import norm
 sys.path.append("../timeseries/")
 from timeseries import TimeSeries
 from arraytimeseries import ArrayTimeSeries
 
+def tsmaker(m, s, j):
+    '''
+    Creates a random time series of 100 elements
 
+    Parameters
+    ----------
+    m,s,j: parameters of the function norm.pdf
+
+    Returns
+    -------
+    timeSeries object : TimeSeries class
+
+    >>> ts = tsmaker(2,3,4)
+
+    >>> ts._times[0]
+    0.0
+    '''
+    t = list(np.arange(0.0, 1.0, 0.01))
+    v = norm.pdf(t, m, s) + j*np.random.randn(100)
+    return TimeSeries(values=v,times=t)
 
 def stand(ts):
     '''
     Standardizes timeseries using its mean m and its standard 
+
+    >>> ts = tsmaker(0.5, 0.1, 0.01)
+    >>> np.abs(np.round(stand(ts).mean()))
+    0.0
     '''
     # stand = (ts._values() - ts.mean())/ts.std()
     arrayvalues = np.asarray(ts._values)
@@ -35,6 +59,11 @@ def ccor(ts1, ts2):
     Returns
     -------
     The two time series' cross-correlation.
+
+    >>> ts1 = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts2 = TimeSeries(values=[4, 9.8, 7, 2, -0.5], times=[1, 1.5, 2, 2.5, 10])
+    >>> np.round(ccor(ts1,ts2),2)
+    array([ 0.31, -0.22, -0.31, -0.01,  0.23])
     '''
     # calculate fast fourier transform of the two time series
     stand1=stand(ts1)
@@ -68,6 +97,13 @@ def max_corr_at_phase(ts1, ts2):
     idx, maxcorr : int, float
         Tuple of the time at which cross-correlation is maximized, and the
         cross-correlation at that point.
+
+    >>> ts1 = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts2 = TimeSeries(values=[4, 9.8, 7, 2, -0.5], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts1 = stand(ts1)
+    >>> ts2 = stand(ts2)
+    >>> np.round(max_corr_at_phase(ts1, ts2),2)
+    array([ 0.  ,  0.31])
     '''
 
     # calculate cross-correlation between the two time series
@@ -101,6 +137,13 @@ def kernel_corr(ts1, ts2, mult=1):
     -------
     float
         Distance between two time series.
+
+    >>> ts1 = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts2 = TimeSeries(values=[4, 9.8, 7, 2, -0.5], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts1 = stand(ts1)
+    >>> ts2 = stand(ts2)
+    >>> format(kernel_corr(ts1, ts2, 3), '.2f')
+    '0.43'
     '''
 
     # calculate cross-correlation
@@ -134,6 +177,13 @@ def kernel_dist(ts1, ts2, mult=1):
     -------
     float
         Distance value
+
+    >>> ts1 = TimeSeries(values=[0, 2, -1, 0.5, 0], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts2 = TimeSeries(values=[4, 9.8, 7, 2, -0.5], times=[1, 1.5, 2, 2.5, 10])
+    >>> ts1 = stand(ts1)
+    >>> ts2 = stand(ts2)
+    >>> format(kernel_dist(ts1, ts2, 3), '.2f')
+    '1.06'
     '''
     stand1=stand(ts1)
     stand2=stand(ts2)
