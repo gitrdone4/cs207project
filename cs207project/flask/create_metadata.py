@@ -1,4 +1,4 @@
-# create_metadata_array.py
+# create_metadata.py
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
 # imports
@@ -39,7 +39,7 @@ def get_metadata(fname):
     ts_out = pd.read_csv('light_curves/'+fname, sep=' ')
     ts_out.columns = ['_', 'value']
     _id = int(re.sub('(ts-|\.txt)', '' ,fname))
-    mean = ts_out.value.mean() 
+    mean = ts_out.value.mean()
     std = ts_out.value.std()
     blarg = np.random.uniform()
     level = np.random.choice(a_to_f)
@@ -51,7 +51,7 @@ def get_metadata(fname):
 def main():
 
     # get names of text files
-    fnames = [s for s in os.listdir('light_curves/') if s.endswith('.txt')]
+    fnames = [s for s in os.listdir('../light_curves/') if s.endswith('.txt')]
 
     # construct metadata array
     metadata_arr = pd.DataFrame([get_metadata(f) for f in fnames])
