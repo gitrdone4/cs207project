@@ -1,8 +1,6 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
+
 
 import sys
 import os
@@ -10,19 +8,22 @@ import numpy as np
 import random
 
 from pytest import raises
-import cs207project.tsrbtreedb.crosscorr as crosscorr
+
+from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize, ccor
 import cs207project.tsrbtreedb.makelcs as makelcs
-from cs207project.tsrbtreedb.makelcs import clear_dir
+from cs207project.tsrbtreedb.makelcs import clear_dir, tsmaker, random_ts
 import cs207project.tsrbtreedb.genvpdbs as genvpdbs
 import cs207project.tsrbtreedb.simsearch as simsearch
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.tsrbtreedb.unbalancedDB as unbalancedDB
-import cs207project.timeseries
+
+
 from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR
 
 def test_value_and_file_asserts():
+    """Confirm that we raise value error when attempting to load non-existent time series """
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
-    fp = "Nonexistant file path"
+    fp = "Non-existent file path"
     with raises(IOError):
         simsearch.load_nparray(fp)
 
@@ -33,16 +34,37 @@ def test_makelcs():
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
     db_temp_dir = TEMP_DIR + DB_DIR
 
-
+    # Before we've generated anything, confirm that our rebuild detector method properly detects that we need to rebuild
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
 
+    makelcs.make_lcs_wfm(5,lc_temp_dir)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
+
+    clear_dir(TEMP_DIR,recreate=False)
+    # Generate 100 light curves in temp dir
     makelcs.make_lcs_wfm(100,lc_temp_dir)
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
-    ts = genvpdbs.load_ts_fsm(lc_temp_dir)
-    assert(len(ts) == 100)
 
+    # load that back in from disk
+    lc_dict = genvpdbs.load_ts_fsm(lc_temp_dir)
+    assert(len(lc_dict) == 100)
+
+
+def test_genvpdbs():
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    db_temp_dir = TEMP_DIR + DB_DIR
+
+    # Create 10 vantage point database files
     genvpdbs.create_vpdbs(10,lc_temp_dir,db_temp_dir)
+
+    # With vantage points created, we should have fully created dataset
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
+
+    # Load vantage points back in from disk
+    vp_dict = simsearch.load_vp_lcs(db_temp_dir,lc_temp_dir)
+    assert(len(vp_dict) == 10)
+
+    clear_dir(TEMP_DIR,recreate=False)
 
 
 def test_simsearch():
@@ -50,13 +72,62 @@ def test_simsearch():
     db_temp_dir = TEMP_DIR + DB_DIR
 
     simsearch.rebuild_lcs_dbs(lc_temp_dir,db_temp_dir,10,100)
+
+    # Repeat checks from above on re-generated data
+    lc_dict = genvpdbs.load_ts_fsm(lc_temp_dir)
+    assert(len(lc_dict) == 100)
+    vp_dict = simsearch.load_vp_lcs(db_temp_dir,lc_temp_dir)
+    assert(len(vp_dict) == 10)
     assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
 
     demo_ts_fn = random.choice(os.listdir('cs207project/tsrbtreedb/' + SAMPLE_DIR))
     demo_fp = 'cs207project/tsrbtreedb/' + SAMPLE_DIR + demo_ts_fn
     simsearch.sim_search(demo_fp,db_temp_dir,lc_temp_dir,False)
 
-    #clear_dir(TEMP_DIR,recreate=False)
+def test_crosscorr():
+
+    t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
+
+    # First confirm that the kernel correlation and distance methods
+    # return 1 and 0 when comparing a ts with itself
+    assert(kernel_corr(t1,t1) == 1)
+    assert(kernel_dist(t1,t1) == 0)
+
+    t2 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
+    t3 = standardize(random_ts(0.5))
+
+    # Now let's do the opposite -- ensure that we see some distance for different curves
+    assert(kernel_dist(t1,t2) > 0)
+    assert(kernel_dist(t1,t3) > 0)
+    assert(kernel_corr(t1,t2) < 1)
+    assert(kernel_corr(t1,t3) < 1)
+
+def test_crosscorr_errors():
+    """Test that we have checks for varies error conditions"""
+
+    t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
+    t4 = standardize(random_ts(0.5,200))
+    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
+
+    #Confirm that we raise value error if we attempt to compare time series
+    # that are not the same length
+    with raises(ValueError):
+        ccor(t1, t4)
+
+    with raises(ValueError):
+        kernel_dist(t1, t4)
+
+    with raises(ValueError):
+        kernel_corr(t1,t4)
+
+    #Confirm that we raise value error if we attempt to compare time series
+    # that have not been standardized first
+    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
+    with raises(ValueError):
+        kernel_dist(t4, t5)
+
+
+## Tests for unbalanced binary tree (Was created for part 7, but it no longer used)
 
 def test_db_1():
     db_fname = TEMP_DIR + "test1.dbdb"
@@ -125,26 +196,7 @@ def test_db_2():
     assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
     db.close()
 
-def test_ccorr():
-    from cs207project.tsrbtreedb.makelcs import tsmaker, random_ts
-    from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize
-    t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
-    t2 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
-    t3 = standardize(random_ts(0.5))
-    t4 = standardize(random_ts(0.5,200))
-    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
-    assert(kernel_corr(t1,t1) == 1)
-    assert(kernel_dist(t1,t1) == 0)
-    assert(kernel_dist(t1,t2) > 0)
-    assert(kernel_dist(t1,t3) > 0)
 
-    with raises(ValueError):
-        crosscorr.ccor(t1, t4)
-
-    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
-
-    with raises(ValueError):
-        kernel_dist(t1, t5)
 
 
 def test_clear():

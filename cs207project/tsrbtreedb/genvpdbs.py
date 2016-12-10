@@ -1,8 +1,6 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
+
 
 import sys
 import os
@@ -85,19 +83,19 @@ def create_vpdbs(n,lc_dir,db_dir):
         save_vp_dbs(vp,timeseries_dict,db_dir)
     print("Done.")
 
-if __name__ == "__main__":
-    """Enables this file to be run independently of simsearch as it's own CLU."""
-    need_help = False
+# if __name__ == "__main__":
+#     """Enables this file to be run independently of simsearch as it's own CLU."""
+#     need_help = False
 
-    # First, identify which flags were included
-    for arg in sys.argv[1:]:
-        if arg.lower() in ['-h','--help', 'help']: need_help = True
+#     # First, identify which flags were included
+#     for arg in sys.argv[1:]:
+#         if arg.lower() in ['-h','--help', 'help']: need_help = True
 
-    while(True):
-        if need_help:
-            print (HELP_MESSAGE)
-            break
-        else:
-            print("Starting...(May take a little while)")
-            create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
-            break
+#     while(True):
+#         if need_help:
+#             print (HELP_MESSAGE)
+#             break
+#         else:
+#             print("Starting...(May take a little while)")
+#             create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+#             break

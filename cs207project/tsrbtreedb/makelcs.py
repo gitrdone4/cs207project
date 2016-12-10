@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os
@@ -109,40 +106,40 @@ def make_lcs_wfm(num_lcs,lc_dir=''):
         write_ts_wfm(ts,fsm)
     print("Done.")
 
-if __name__ == "__main__":
-    """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
+# if __name__ == "__main__":
+#     """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
 
-    need_help = False
-    delete = False
-    num_lcs = 1000
+#     need_help = False
+#     delete = False
+#     num_lcs = 1000
 
-    # First, identify which flags were included
-    for arg in sys.argv[1:]:
-        if arg.lower() in ['-h','--help', 'help']: need_help = True
-        elif arg.lower() in ['-d','--delete']: delete = True
-        elif int(sys.argv[1]) > 0 and int(sys.argv[1]) < 100000:
-            num_lcs = int(sys.argv[1])
+#     # First, identify which flags were included
+#     for arg in sys.argv[1:]:
+#         if arg.lower() in ['-h','--help', 'help']: need_help = True
+#         elif arg.lower() in ['-d','--delete']: delete = True
+#         elif int(sys.argv[1]) > 0 and int(sys.argv[1]) < 100000:
+#             num_lcs = int(sys.argv[1])
 
-    while(True):
+#     while(True):
 
-        if need_help:
-            print (HELP_MESSAGE)
-            break
+#         if need_help:
+#             print (HELP_MESSAGE)
+#             break
 
-        if delete:
-            cmd = input('\nErase existing files in "%s" directory? (Y/n):\n' % LIGHT_CURVES_DIR)
-            if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-                erase_dir(LIGHT_CURVES_DIR)
-                print("\nErased existing files. Exiting.")
-                break
+#         if delete:
+#             cmd = input('\nErase existing files in "%s" directory? (Y/n):\n' % LIGHT_CURVES_DIR)
+#             if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
+#                 erase_dir(LIGHT_CURVES_DIR)
+#                 print("\nErased existing files. Exiting.")
+#                 break
 
-        cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs))
-        if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-            #make_lc_files(num_lcs,LIGHT_CURVES_DIR)
-            make_lcs_wfm(num_lcs,LIGHT_CURVES_DIR)
-            print("\nExiting.")
-            break
-        else:
-            print("\nExiting.")
-            break
+#         cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs))
+#         if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
+#             #make_lc_files(num_lcs,LIGHT_CURVES_DIR)
+#             make_lcs_wfm(num_lcs,LIGHT_CURVES_DIR)
+#             print("\nExiting.")
+#             break
+#         else:
+#             print("\nExiting.")
+#             break
 

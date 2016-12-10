@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import sys
 import os
@@ -47,7 +44,7 @@ def load_nparray(filepath):
 
 
 def load_ts(ts_id,fsm):
-    """Helper to load previously generated ts file from disk"""
+    """Helper to load previously generated ts file from disk vis fsm"""
     if ts_id.startswith("ts_datafile"):
         return fsm.get(ts_id)
     else:
@@ -90,7 +87,7 @@ def load_vp_lcs(db_dir,lc_dir):
         if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
             lc_id = file[:-5]
             vp_dict[lc_id] = load_ts(lc_id,fsm)
-    #print("Loaded %d vp files" % len(vps_dict))
+
     return vp_dict
 
 def find_closest_vp(vps_dict, ts):
