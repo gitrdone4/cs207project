@@ -10,7 +10,7 @@ import numpy as np
 import random
 
 from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
-from cs207project.tsrbtreedb.makelcs import make_lc_files
+from cs207project.tsrbtreedb.makelcs import make_lcs_wfm
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
 from cs207project.rbtree.redblackDB import connect
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
@@ -45,15 +45,22 @@ def load_nparray(filepath):
     else:
         return nparray
 
-def load_ts(ts_fname,LIGHT_CURVES_DIR):
+# def load_ts(ts_fname,LIGHT_CURVES_DIR):
+#     """Helper to load previously generated ts file from disk"""
+#     if ts_fname.startswith("ts-"):
+#         filepath = LIGHT_CURVES_DIR + ts_fname
+#         data = load_nparray(filepath)
+#         times, values = data.T
+#         return ats.ArrayTimeSeries(times=times,values=values)
+#     else:
+#         raise ValueError("'%s' does not appear to be a time series file" % ts_fname)
+
+def load_ts(ts_id,fsm):
     """Helper to load previously generated ts file from disk"""
-    if ts_fname.startswith("ts-"):
-        filepath = LIGHT_CURVES_DIR + ts_fname
-        data = load_nparray(filepath)
-        times, values = data.T
-        return ats.ArrayTimeSeries(times=times,values=values)
+    if ts_id.startswith("ts_datafile"):
+        return fsm.get(ts_id)
     else:
-        raise ValueError("'%s' does not appear to be a time series file" % ts_fname)
+        raise ValueError("'%s' does not appear to be a time series file" % ts_id)
 
 def load_external_ts(filepath):
     """
@@ -80,16 +87,18 @@ def load_external_ts(filepath):
     interpolated_ats = full_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
 
-def load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR):
+def load_vp_lcs(DB_DIR,lc_dir):
     """
     Based on names of vantage point db files loads and returns time series curves
     of identified vantage points from disk
     """
     vp_dict= {}
+    fsm = FileStorageManager(lc_dir)
+
     for file in os.listdir(DB_DIR):
-        if file.startswith("ts-") and file.endswith(".dbdb"):
-            lc_id = file[:-5] + '.txt'
-            vp_dict[lc_id] = load_ts(lc_id,LIGHT_CURVES_DIR)
+        if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
+            lc_id = file[:-5]
+            vp_dict[lc_id] = load_ts(lc_id,fsm)
     #print("Loaded %d vp files" % len(vps_dict))
     return vp_dict
 
@@ -115,9 +124,11 @@ def search_vpdb(vp_t,ts,DB_DIR,LIGHT_CURVES_DIR):
 
     """
 
+    fsm = FileStorageManager(LIGHT_CURVES_DIR)
+
     vp_fn, dist_to_vp = vp_t
-    db_path = DB_DIR + vp_fn[:-4] + ".dbdb"
-    db = connect(DB_DIR + vp_fn[:-4] + ".dbdb")
+    db_path = DB_DIR + vp_fn + ".dbdb"
+    db = connect(DB_DIR + vp_fn + ".dbdb")
     s_ts = standardize(ts)
 
     # Identify light curves in selected vantage db that are up to 2x the distance
@@ -128,10 +139,10 @@ def search_vpdb(vp_t,ts,DB_DIR,LIGHT_CURVES_DIR):
     # Vantage point is ts to beat as we search through candidate light curves
     min_dist = dist_to_vp
     closest_ts_fn = vp_fn
-    closest_ts = load_ts(vp_fn,LIGHT_CURVES_DIR)
+    closest_ts = load_ts(vp_fn,fsm)
 
     for d_to_vp,ts_fn in lc_candidates:
-        candidate_ts = load_ts(ts_fn,LIGHT_CURVES_DIR)
+        candidate_ts = load_ts(ts_fn,fsm)
         dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
         if (dist_to_ts < min_dist):
             min_dist = dist_to_ts
@@ -152,7 +163,7 @@ def need_to_rebuild(LIGHT_CURVES_DIR,DB_DIR):
     # Count correctly named lc files in lc dir
     lc_files = 0
     for file in os.listdir(LIGHT_CURVES_DIR):
-        if file.startswith("ts-") and file.endswith(".txt"):
+        if file.startswith("ts_datafile") and file.endswith(".npy"):
             lc_files +=1
 
     if lc_files < 10:
@@ -160,7 +171,7 @@ def need_to_rebuild(LIGHT_CURVES_DIR,DB_DIR):
 
     vpdb_files = 0
     for file in os.listdir(DB_DIR):
-        if file.startswith("ts-") and file.endswith(".dbdb"):
+        if file.startswith("ts_datafile") and file.endswith(".dbdb"):
             vpdb_files += 1
 
     if vpdb_files < 5:
@@ -183,14 +194,14 @@ def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
 def rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR,n_vps= 20, n_lcs = 1000):
     """Calls functions to regenerate light curves and rebuild vp indexes"""
     print("\nRebuilding simulated light curves and vantage point index files....\n(This may take up to 30 seconds)")
-    make_lc_files(n_lcs, LIGHT_CURVES_DIR)
+    make_lcs_wfm(n_lcs, LIGHT_CURVES_DIR)
     create_vpdbs(n_vps,LIGHT_CURVES_DIR,DB_DIR)
     print("Indexes rebuilt.\n")
 
-def run_demo(plot=False):
+def run_demo(DB_DIR,LIGHT_CURVES_DIR,plot=False):
     """Loads a random time series from sample data folder and runs similarity search"""
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
-    sim_search(SAMPLE_DIR + demo_ts_fn,plot)
+    sim_search(SAMPLE_DIR + demo_ts_fn,DB_DIR,LIGHT_CURVES_DIR,plot)
 
 def sim_search(input_fpath,DB_DIR,LIGHT_CURVES_DIR,plot=False):
     """Executes similarity search on submitted time series files"""
@@ -198,6 +209,7 @@ def sim_search(input_fpath,DB_DIR,LIGHT_CURVES_DIR,plot=False):
     input_ts = load_external_ts(input_fpath)
     print("Done.")
     closest_vp = find_closest_vp(load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
+    #print(closest_vp)
     min_dist,closest_ts_fn,closest_ts = search_vpdb(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR)
     print("\n============================ Results ============================")
     print("%s is the closest light curve to %s" % (closest_ts_fn, input_fpath))
@@ -243,7 +255,7 @@ if __name__ == "__main__":
             rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR)
 
         if demo:
-            run_demo(plot)
+            run_demo(DB_DIR,LIGHT_CURVES_DIR,plot)
             break
 
         elif(input_fpath is not False):

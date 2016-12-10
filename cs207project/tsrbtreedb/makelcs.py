@@ -79,7 +79,7 @@ def make_n_ts(n):
     return norm_ts + rand_ts
 
 def write_ts(ts,i,LIGHT_CURVES_DIR):
-    """ Write light curve to disk as space delimited text file"""
+    """ Write light curve to disk as space delimited text files"""
     os.makedirs(LIGHT_CURVES_DIR, exist_ok=True)
     filename = "ts-{}.txt".format(i)
     path = LIGHT_CURVES_DIR + filename

@@ -12,6 +12,7 @@ import numpy as np
 from cs207project.rbtree.redblackDB import connect
 from cs207project.tsrbtreedb.crosscorr import kernel_dist, standardize
 from cs207project.tsrbtreedb.makelcs import clear_dir
+from cs207project.storagemanager.filestoragemanager import FileStorageManager
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
 import cs207project.timeseries.arraytimeseries as ats
 
@@ -41,6 +42,16 @@ def load_ts(LIGHT_CURVES_DIR):
             timeseries_dict[file] = ts
     return timeseries_dict
 
+def load_ts_fsm(lc_dir):
+    """Loads time series from fsm; returns dict keyed to filename"""
+    timeseries_dict = {}
+    fsm = FileStorageManager(lc_dir)
+
+    for i in fsm.get_ids():
+        timeseries_dict[i] = fsm.get(i)
+
+    return timeseries_dict
+
 def pick_vantage_points(timeseries_dict,n=20):
     """Selects n light curves at random to serve as vantage points"""
     return random.sample(timeseries_dict.keys(), n)
@@ -59,8 +70,8 @@ def save_vp_dbs(vp,timeseries_dict, DB_DIR):
     """ Creates unbalanced binary tree databases and saves them to disk"""
     sorted_ds = calc_distances(vp,timeseries_dict)
 
-    # ts-13.txt -> vp_dbs/ts-13.dbdb
-    db_filepath = DB_DIR + vp[:-4] + ".dbdb"
+    # ts_datafile_51 -> vp_dbs/ts_datafile_51.dbdb
+    db_filepath = DB_DIR + vp + ".dbdb"
     db = connect(db_filepath)
 
     for dist_to_vp,ts_fn in sorted_ds:
@@ -78,7 +89,7 @@ def create_vpdbs(n, LIGHT_CURVES_DIR, DB_DIR):
         (4) Saves kernel distance indexes to disk as binary tree databases
     """
     print("Creating %d vantage point dbs" % n,end="")
-    timeseries_dict = load_ts(LIGHT_CURVES_DIR)
+    timeseries_dict = load_ts_fsm(LIGHT_CURVES_DIR)
     vantage_points = pick_vantage_points(timeseries_dict,n)
     clear_dir(DB_DIR)
     for vp in vantage_points:

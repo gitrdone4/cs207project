@@ -179,12 +179,17 @@ class FileStorageManager(StorageManagerInterface):
 		if id in self._id_dict:
 
 			# load the numpy data from the binary file associated with the provided id
-			ts = np.load(id + ".npy")
+			ts = np.load(self._dir_path + id + ".npy")
 
 			# return a SizedContainerTimeSeriesInterface instance
 			return ArrayTimeSeries(ts[0], ts[1])
 		else:
 			return None
+
+	def get_ids(self):
+		"""Returns list of ids for previously generated time series"""
+		return self._id_dict.keys()
+
 
 """
 	Create a single instance of the FileStorageManager class. This is used in
