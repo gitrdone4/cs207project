@@ -129,10 +129,10 @@ def make_lcs_wfm(num_lcs,lc_dir=''):
         (1) Generates n light curves
         (3) Writes them to disk
     """
+    clear_dir(lc_dir)
     fsm = FileStorageManager(lc_dir)
     light_curves = make_n_ts(num_lcs)
     print("Generating %d light-curve files" % num_lcs, end="")
-    #clear_dir(lc_dir)
     for i, ts in enumerate(light_curves):
         if i % 50 == 0:
             print('.', end="")
