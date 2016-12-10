@@ -13,6 +13,7 @@ from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
 from cs207project.tsrbtreedb.makelcs import make_lc_files
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
 from cs207project.rbtree.redblackDB import connect
+from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.timeseries.arraytimeseries as ats
 
 # Global variables

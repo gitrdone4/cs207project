@@ -11,6 +11,7 @@ import numpy as np
 from scipy.stats import norm
 
 import cs207project.timeseries.arraytimeseries as ats
+from cs207project.storagemanager.filestoragemanager import FileStorageManager
 
 # Global variables
 
@@ -89,6 +90,9 @@ def write_ts(ts,i,LIGHT_CURVES_DIR):
     np.savetxt(datafile_id, data, fmt=['%.3f','%8f'])
     datafile_id.close()
 
+
+
+
 def clear_dir(dir,recreate=True):
     """Erase folder and recreate it"""
     import shutil
@@ -112,6 +116,29 @@ def make_lc_files(num_lcs,lc_dir):
             print('.', end="")
         write_ts(ts,i,lc_dir)
     print("Done.")
+
+def write_ts_wfm(ts,fsm):
+    """ Write light curve to disk useing file storage manager"""
+    unique_id = fsm.get_unique_id()
+    fsm.store(unique_id, ts)
+
+def make_lcs_wfm(num_lcs,lc_dir=''):
+    """
+    Executes functions above:
+        (1) Makes FileStoage Manager object
+        (1) Generates n light curves
+        (3) Writes them to disk
+    """
+    fsm = FileStorageManager(lc_dir)
+    light_curves = make_n_ts(num_lcs)
+    print("Generating %d light-curve files" % num_lcs, end="")
+    #clear_dir(lc_dir)
+    for i, ts in enumerate(light_curves):
+        if i % 50 == 0:
+            print('.', end="")
+        write_ts_wfm(ts,fsm)
+    print("Done.")
+
 
 if __name__ == "__main__":
     """ CML interface for running makelcs directly. (Ordinary these functions are called from simsearch) """
@@ -142,7 +169,8 @@ if __name__ == "__main__":
 
         cmd = input('\nErase existing files in "%s" directory and generate %d new simulated light-curves?(Y/n):\n' %(LIGHT_CURVES_DIR, num_lcs))
         if cmd.lower() == 'y' or cmd.lower() == 'yes' or cmd == '':
-            make_lc_files(num_lcs,LIGHT_CURVES_DIR)
+            #make_lc_files(num_lcs,LIGHT_CURVES_DIR)
+            make_lcs_wfm(num_lcs,LIGHT_CURVES_DIR)
             print("\nExiting.")
             break
         else:

@@ -23,15 +23,17 @@ class FileStorageManager(StorageManagerInterface):
 		>>> stored_ts = fsm.get(unique_id)
 		>>> assert stored_ts[2] == 22.0
 	"""
-	def __init__(self):
+	def __init__(self,dir_path = ''):
 		"""
-		 The manager maintains a persistent structure in memory and on disk which maps ids to the 
-		 appropriate files and keeps track of lengths. It creates an on disk json file to store 
+		 The manager maintains a persistent structure in memory and on disk which maps ids to the
+		 appropriate files and keeps track of lengths. It creates an on disk json file to store
 		 an id/length map or, if one already exists, updates the map.
 		"""
 
 		# set the file name for the time series id/length map
-		file_path = 'id_length_map.json'
+		file_path = dir_path +'id_length_map.json'
+
+		self._dir_path = dir_path # Store optional file path to store lcs
 
 		# if the map file already exists, open it
 		try:
@@ -102,14 +104,14 @@ class FileStorageManager(StorageManagerInterface):
 		ts = np.vstack((t.times(), t.values())).astype(np.float64)
 
 		# save the time series to disk as a binary file in .npy format
-		np.save(str(id), ts)
+		np.save(self._dir_path + str(id), ts)
 
 		# update the id/length map in memory for this store
 		self._id_dict[id] = len(t.times())
 
 		# update the id/length map on disk for this store
 		# store the map as a json file
-		with open("id_length_map.json", "w") as outfile:
+		with open(self._dir_path + "id_length_map.json", "w") as outfile:
 			json.dump(self._id_dict, outfile)
 
 		# return this instance of SizedContainerTimeSeriesInterface
