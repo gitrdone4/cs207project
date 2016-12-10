@@ -179,11 +179,11 @@ def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
     plt.legend()
     plt.show()
 
-def rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR):
+def rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR,n_vps= 20, n_lcs = 1000):
     """Calls functions to regenerate light curves and rebuild vp indexes"""
     print("\nRebuilding simulated light curves and vantage point index files....\n(This may take up to 30 seconds)")
-    make_lc_files(1000, LIGHT_CURVES_DIR)
-    create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+    make_lc_files(n_lcs, LIGHT_CURVES_DIR)
+    create_vpdbs(n_vps,LIGHT_CURVES_DIR,DB_DIR)
     print("Indexes rebuilt.\n")
 
 def run_demo(plot=False):
