@@ -19,10 +19,37 @@ import cs207project.timeseries
 from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR
 
 def test_makelcs():
-    lc_dir = TEMP_DIR + LIGHT_CURVES_DIR
-    makelcs.make_lc_files(50,lc_dir)
-    ts = genvpdbs.load_ts(lc_dir)
-    assert(len(ts) == 50)
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    db_temp_dir = TEMP_DIR + DB_DIR
+
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
+
+
+    makelcs.make_lc_files(100,lc_temp_dir)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
+    ts = genvpdbs.load_ts(lc_temp_dir)
+    assert(len(ts) == 100)
+
+    genvpdbs.create_vpdbs(10,lc_temp_dir,db_temp_dir)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
+
+
+def test_simsearch():
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    db_temp_dir = TEMP_DIR + DB_DIR
+
+    gen_lc_fns = []
+    for file in os.listdir(lc_temp_dir):
+        if file.startswith("ts-") and file.endswith(".txt"):
+            gen_lc_fns.append(file)
+
+    lc_fn = random.sample(gen_lc_fns, 1)
+
+    lc_path = lc_temp_dir + lc_fn[0]
+
+    simsearch.sim_search(lc_path,db_temp_dir,lc_temp_dir,plot=False)
+
+
     #clear_dir(TEMP_DIR,recreate=False)
 
 def test_db_1():
