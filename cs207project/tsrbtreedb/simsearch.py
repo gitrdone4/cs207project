@@ -44,7 +44,7 @@ def load_nparray(filepath):
     else:
         return nparray
 
-def load_ts(ts_fname):
+def load_ts(ts_fname,LIGHT_CURVES_DIR):
     """Helper to load previously generated ts file from disk"""
     if ts_fname.startswith("ts-"):
         filepath = LIGHT_CURVES_DIR + ts_fname
@@ -79,7 +79,7 @@ def load_external_ts(filepath):
     interpolated_ats = full_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
 
-def load_vp_lcs():
+def load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR):
     """
     Based on names of vantage point db files loads and returns time series curves
     of identified vantage points from disk
@@ -88,7 +88,7 @@ def load_vp_lcs():
     for file in os.listdir(DB_DIR):
         if file.startswith("ts-") and file.endswith(".dbdb"):
             lc_id = file[:-5] + '.txt'
-            vp_dict[lc_id] = load_ts(lc_id)
+            vp_dict[lc_id] = load_ts(lc_id,LIGHT_CURVES_DIR)
     #print("Loaded %d vp files" % len(vps_dict))
     return vp_dict
 
@@ -102,7 +102,7 @@ def find_closest_vp(vps_dict, ts):
     dist_to_vp, vp_fn = vp_distances[0]
     return (vp_fn,dist_to_vp)
 
-def search_vpdb(vp_t,ts):
+def search_vpdb(vp_t,ts,DB_DIR,LIGHT_CURVES_DIR):
     """
     Searches for most similar light curve based on pre-computed distances in vpdb
 
@@ -127,10 +127,10 @@ def search_vpdb(vp_t,ts):
     # Vantage point is ts to beat as we search through candidate light curves
     min_dist = dist_to_vp
     closest_ts_fn = vp_fn
-    closest_ts = load_ts(vp_fn)
+    closest_ts = load_ts(vp_fn,LIGHT_CURVES_DIR)
 
     for d_to_vp,ts_fn in lc_candidates:
-        candidate_ts = load_ts(ts_fn)
+        candidate_ts = load_ts(ts_fn,LIGHT_CURVES_DIR)
         dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
         if (dist_to_ts < min_dist):
             min_dist = dist_to_ts
@@ -179,11 +179,11 @@ def plot_two_ts(ts1,ts1_name,ts2,ts2_name,stand=True):
     plt.legend()
     plt.show()
 
-def rebuild_lcs_dbs(LIGHT_CURVES_DIR):
+def rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR,n_vps= 20, n_lcs = 1000):
     """Calls functions to regenerate light curves and rebuild vp indexes"""
     print("\nRebuilding simulated light curves and vantage point index files....\n(This may take up to 30 seconds)")
-    make_lc_files(1000, LIGHT_CURVES_DIR)
-    create_vpdbs(20, LIGHT_CURVES_DIR)
+    make_lc_files(n_lcs, LIGHT_CURVES_DIR)
+    create_vpdbs(n_vps,LIGHT_CURVES_DIR,DB_DIR)
     print("Indexes rebuilt.\n")
 
 def run_demo(plot=False):
@@ -191,14 +191,13 @@ def run_demo(plot=False):
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
     sim_search(SAMPLE_DIR + demo_ts_fn,plot)
 
-def sim_search(input_fpath,plot=False):
+def sim_search(input_fpath,DB_DIR,LIGHT_CURVES_DIR,plot=False):
     """Executes similarity search on submitted time series files"""
     print("Loading %s..." % input_fpath,end="")
     input_ts = load_external_ts(input_fpath)
     print("Done.")
-    closest_vp = find_closest_vp(load_vp_lcs(), input_ts)
-
-    min_dist,closest_ts_fn,closest_ts = search_vpdb(closest_vp,input_ts)
+    closest_vp = find_closest_vp(load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
+    min_dist,closest_ts_fn,closest_ts = search_vpdb(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR)
     print("\n============================ Results ============================")
     print("%s is the closest light curve to %s" % (closest_ts_fn, input_fpath))
     print("Distance from %s to %s: %.5f" % (input_fpath, closest_ts_fn, min_dist))
@@ -240,14 +239,14 @@ if __name__ == "__main__":
             print (HELP_MESSAGE)
             break
         elif rebuild:
-            rebuild_lcs_dbs(LIGHT_CURVES_DIR)
+            rebuild_lcs_dbs(LIGHT_CURVES_DIR,DB_DIR)
 
         if demo:
             run_demo(plot)
             break
 
         elif(input_fpath is not False):
-            sim_search(input_fpath,plot)
+            sim_search(input_fpath,DB_DIR,LIGHT_CURVES_DIR,plot)
             break
         else:
             print("Error: no compatible time series or light curve file provided")

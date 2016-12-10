@@ -9,7 +9,8 @@ import os
 import numpy as np
 import random
 
-import cs207project.tsrbtreedb.crosscorr as cross
+from pytest import raises
+import cs207project.tsrbtreedb.crosscorr as crosscorr
 import cs207project.tsrbtreedb.makelcs as makelcs
 from cs207project.tsrbtreedb.makelcs import clear_dir
 import cs207project.tsrbtreedb.genvpdbs as genvpdbs
@@ -18,11 +19,51 @@ import cs207project.tsrbtreedb.unbalancedDB as unbalancedDB
 import cs207project.timeseries
 from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR
 
+def test_value_and_file_asserts():
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    fp = "Nonexistant file path"
+    with raises(IOError):
+        simsearch.load_nparray(fp)
+
+    with raises(ValueError):
+        simsearch.load_ts(fp,fp)
+
 def test_makelcs():
-    lc_dir = TEMP_DIR + LIGHT_CURVES_DIR
-    makelcs.make_lc_files(50,lc_dir)
-    ts = genvpdbs.load_ts(lc_dir)
-    assert(len(ts) == 50)
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    db_temp_dir = TEMP_DIR + DB_DIR
+
+
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
+
+
+    makelcs.make_lc_files(100,lc_temp_dir)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == True)
+    ts = genvpdbs.load_ts(lc_temp_dir)
+    assert(len(ts) == 100)
+
+    genvpdbs.create_vpdbs(10,lc_temp_dir,db_temp_dir)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
+
+
+def test_simsearch():
+    lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
+    db_temp_dir = TEMP_DIR + DB_DIR
+
+    simsearch.rebuild_lcs_dbs(lc_temp_dir,db_temp_dir,10,100)
+    assert(simsearch.need_to_rebuild(lc_temp_dir,db_temp_dir) == False)
+
+    gen_lc_fns = []
+    for file in os.listdir(lc_temp_dir):
+        if file.startswith("ts-") and file.endswith(".txt"):
+            gen_lc_fns.append(file)
+
+    lc_fn = random.sample(gen_lc_fns, 1)
+
+    lc_path = lc_temp_dir + lc_fn[0]
+
+    simsearch.sim_search(lc_path,db_temp_dir,lc_temp_dir,plot=False)
+
+
     #clear_dir(TEMP_DIR,recreate=False)
 
 def test_db_1():
@@ -91,14 +132,31 @@ def test_db_2():
     assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
     assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
     db.close()
-    clear_dir(TEMP_DIR,recreate=False)
 
 def test_ccorr():
-    from cs207project.tsrbtreedb.makelcs import tsmaker
+    from cs207project.tsrbtreedb.makelcs import tsmaker, random_ts
     from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize
     t1 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
     t2 = standardize(tsmaker(0.5, 0.1, random.uniform(0,10)))
+    t3 = standardize(random_ts(0.5))
+    t4 = standardize(random_ts(0.5,200))
+    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
     assert(kernel_corr(t1,t1) == 1)
     assert(kernel_dist(t1,t1) == 0)
+    assert(kernel_dist(t1,t2) > 0)
+    assert(kernel_dist(t1,t3) > 0)
+
+    with raises(ValueError):
+        crosscorr.ccor(t1, t4)
+
+    t5 = tsmaker(0.5, 0.1, random.uniform(0,10))
+
+    with raises(ValueError):
+        kernel_dist(t1, t5)
+
+
+
+def test_clear():
+     clear_dir(TEMP_DIR,recreate=False)
 
 

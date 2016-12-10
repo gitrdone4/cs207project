@@ -50,12 +50,12 @@ def ccor(ts1, ts2):
     # and the conjugate of ts2 (Yhat) scaled by s
     return  nfft.ifft(X * Yhat).real * s
 
-def max_corr_at_phase(ts1, ts2):
-    """ this is just for checking the max correlation with the kernelized cross-correlation """
-    ccorts = ccor(ts1, ts2)
-    idx = np.argmax(ccorts)
-    maxcorr = ccorts[idx]
-    return idx, maxcorr
+# def max_corr_at_phase(ts1, ts2):
+#     """ this is just for checking the max correlation with the kernelized cross-correlation """
+#     ccorts = ccor(ts1, ts2)
+#     idx = np.argmax(ccorts)
+#     maxcorr = ccorts[idx]
+#     return idx, maxcorr
 
 def kernel_corr(ts1, ts2, mult=1):
     """

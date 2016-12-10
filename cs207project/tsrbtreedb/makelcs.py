@@ -44,7 +44,7 @@ def tsmaker(mean, scale, jitter, length = 100):
 
     """
     times = np.arange(0.0, 1.0, (1.0 / length))
-    values = norm.pdf(times, mean, scale) + jitter*np.random.randn(100)
+    values = norm.pdf(times, mean, scale) + jitter*np.random.randn(length)
     return ats.ArrayTimeSeries(times=times, values=values)
 
 def random_ts(jitter,length = 100):
@@ -59,7 +59,7 @@ def random_ts(jitter,length = 100):
 
     """
     times = np.arange(0.0, 1.0, (1.0 / length))
-    values = jitter*np.random.random(100)
+    values = jitter*np.random.random(length)
     return ats.ArrayTimeSeries(times=times, values=values)
 
 def make_n_ts(n):

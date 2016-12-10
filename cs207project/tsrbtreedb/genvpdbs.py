@@ -55,7 +55,7 @@ def calc_distances(vp_k,timeseries_dict):
             distances.append((k_dist,k))
     return distances
 
-def save_vp_dbs(vp,timeseries_dict):
+def save_vp_dbs(vp,timeseries_dict, DB_DIR):
     """ Creates unbalanced binary tree databases and saves them to disk"""
     sorted_ds = calc_distances(vp,timeseries_dict)
 
@@ -69,7 +69,7 @@ def save_vp_dbs(vp,timeseries_dict):
     db.commit()
     db.close()
 
-def create_vpdbs(n,LIGHT_CURVES_DIR):
+def create_vpdbs(n, LIGHT_CURVES_DIR, DB_DIR):
     """
     Executes functions above:
         (1) Creates timeseries_dict from time series files on disk
@@ -83,7 +83,7 @@ def create_vpdbs(n,LIGHT_CURVES_DIR):
     clear_dir(DB_DIR)
     for vp in vantage_points:
         print('.', end="")
-        save_vp_dbs(vp,timeseries_dict)
+        save_vp_dbs(vp,timeseries_dict,DB_DIR)
     print("Done.")
 
 if __name__ == "__main__":
@@ -100,5 +100,5 @@ if __name__ == "__main__":
             break
         else:
             print("Starting...(May take a little while)")
-            create_vpdbs(20,LIGHT_CURVES_DIR)
+            create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
             break
