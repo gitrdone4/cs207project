@@ -6,11 +6,11 @@ import json
 class FileStorageManager(StorageManagerInterface):
 	"""
 		This class inherits from the StorageManagerInterface ABC and implements it by putting 2-d numpy
-		arrays with 64-bit floats for both times and values onto disk. 
+		arrays with 64-bit floats for both times and values onto disk.
 
 		NOTES
 		-----
-		PRE: It supports access to the time series in memory both on get and store calls by managing 
+		PRE: It supports access to the time series in memory both on get and store calls by managing
 		a class variable self._id_dict
 
 		Examples:
@@ -33,7 +33,7 @@ class FileStorageManager(StorageManagerInterface):
 		# set the file name for the time series id/length map
 		file_path = dir_path +'id_length_map.json'
 
-		self._dir_path = dir_path # Store optional file path to store lcs
+		self._dir_path = dir_path # Store optional dir path to store light curve within
 
 		# if the map file already exists, open it
 		try:
@@ -78,7 +78,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to store a time series using the storage manager. 
+		Method used to store a time series using the storage manager.
 
 		Parameters
 		----------
@@ -121,7 +121,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to return the size of a particular time series stored based on the 
+		Method used to return the size of a particular time series stored based on the
 		provided id.
 
 		Parameters
@@ -156,7 +156,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to return a particular time series stored based on the 
+		Method used to return a particular time series stored based on the
 		provided id.
 
 		Parameters
