@@ -27,10 +27,12 @@ def simsearch_by_ts(ts,n=5):
 		n: number of time series to return. (Defaults to 5)
 
     Returns:
-    	Returns a three argument tuple: (closest_dist_dic,new_bool,id).
-		First argument is a dictionary of the n closest time series ids keyed by
-		distances. Second augment is the newly assigned id of the new time series (if
-		it does not exist) or the id of the existing ts. if we find a match.
+    	Returns a three argument tuple:
+		 - First element is a dictionary of the n closest time series ids keyed by
+		distances.
+		 - Second augment is the newly assigned id of the new time series (if it's new) or
+		 the id of the existing ts if it's not new.
+		 - Third element is a bool to report whether the ts is new or not.
 
 		Example: ({.456:"ts_425",.3021:"ts_537"},1201,True)
 
