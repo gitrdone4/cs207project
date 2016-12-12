@@ -20,7 +20,7 @@ def simsearch_by_id(id,n=5):
 	pass
 
 def simsearch_by_ts(ts,n=5):
-		"""
+	"""
 	Args:
 		ts: a (JSON???) encapsulation of an external time series;
 			(Although it would be easier if you sent an array time series object)
@@ -52,6 +52,20 @@ def rebuild_vp_indexs():
 	saved to disk. May take some time(up to 30 seconds in my experience)
 	should be called after simsearch_by_ts if simsearch_by_ts returns True and
 	has added a new time series to disk.
+
+	"""
+	pass
+
+def get_by_id(id):
+	"""
+	Args:
+		id: int id of existing ts in database (e.g (547))
+
+	Returns:
+		Returns the array time series object associated with id
+
+	Raises:
+		ValueError: If id does not exist in the database
 
 	"""
 	pass
