@@ -96,7 +96,6 @@ def add_ts_to_vpdbs(ts,ts_fn,db_dir,lc_dir):
             db.commit()
             db.close()
 
-
 def load_vp_lcs(db_dir,lc_dir):
     """
     Based on names of vantage point db files loads and returns time series curves
