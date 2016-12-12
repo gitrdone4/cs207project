@@ -1,7 +1,10 @@
 import cs207project.tsrbtreedb.simsearch
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
+from cs207project.tsrbtreedb.makelcs import clear_dir
+from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, tsid_to_fn
 
+def
 
 def simsearch_by_id(id,n=5):
 	"""
@@ -17,7 +20,12 @@ def simsearch_by_id(id,n=5):
 		ValueError: If id does not exist in the database
 
 	"""
-	pass
+	fsm = FileStorageManager(LIGHT_CURVES_DIR)
+	input_ts = simsearch.load_ts(tsid_to_fn(id),fsm):
+	closest_vp = simsearch.find_closest_vp(load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
+
+	return simsearch.search_vpdb_for_n(closest_vp,input_ts,db_dir,lc_dir,n)
+
 
 def simsearch_by_ts(ts,n=5):
 	"""
@@ -44,7 +52,19 @@ def simsearch_by_ts(ts,n=5):
 		very close to zero)
 
 	"""
-	pass
+	is_new = False
+	fsm = FileStorageManager(LIGHT_CURVES_DIR)
+	interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+	closest_vp = simsearch.find_closest_vp(load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR),interpolated_ats)
+	n_closest_dict, tsid = search_vpdb_for_n(closest_vp,input_ts,db_dir,lc_dir,n)
+
+	if tsid == -1:
+		is_new = True
+		tsid = fsm.get_unique_id()
+    	fsm.store(unique_id, tsid)
+
+    return (n_closest_dict,tsid,is_new)
+
 
 def rebuild_vp_indexs():
 	"""
@@ -54,7 +74,7 @@ def rebuild_vp_indexs():
 	has added a new time series to disk.
 
 	"""
-	pass
+	simsearch.create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
 
 def get_by_id(id):
 	"""
@@ -68,4 +88,11 @@ def get_by_id(id):
 		ValueError: If id does not exist in the database
 
 	"""
-	pass
+	fsm = FileStorageManager(LIGHT_CURVES_DIR)
+	try:
+		ats = simsearch.load_ts(tsid_to_fn(id),fsm)
+		return ats
+	except ValueError:
+		raise #Can not find ts by that id
+
+
