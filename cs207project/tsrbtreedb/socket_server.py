@@ -1,24 +1,25 @@
 # SERVER
 
 from socketserver import BaseRequestHandler, TCPServer
-from serialization import serialize, Deserializer
+from cs207project.socketclient.serialization import serialize, Deserializer
 import json
 import cs207project.timeseries.arraytimeseries as ats
 import numpy as np
-from simsearch_interface import simsearch_by_id, simsearch_by_ts, rebuild_vp_indexs
+from cs207project.tsrbtreedb.simsearch_interface import simsearch_by_id, simsearch_by_ts, rebuild_vp_indexs
+
 
 # delete me when simsearch_interface is up and running
 ##############################################################
-def simsearch_by_id(id, n):
-    return {40:"idsearch154", 30:"idsearch231"}
+# def simsearch_by_id(id, n):
+#     return {40:"idsearch154", 30:"idsearch231"}
 
-def simsearch_by_ts(ts, n):
-    return {57:"tssearch001", 31:"tssearch007"}, None, None
+# def simsearch_by_ts(ts, n):
+#     return {57:"tssearch001", 31:"tssearch007"}, None, None
 ##############################################################
 
-class EchoHandler(BaseRequestHandler): 
+class EchoHandler(BaseRequestHandler):
     def handle(self):
-        print('Got connection from', self.client_address) 
+        print('Got connection from', self.client_address)
         while True:
             msg = self.request.recv(8192)
             if not msg:
@@ -52,7 +53,7 @@ class EchoHandler(BaseRequestHandler):
             # if ts_is_new: rebuild_vp_indexs()
 
 if __name__ == '__main__':
-    serv = TCPServer(('', 20001), EchoHandler) 
+    serv = TCPServer(('', 20001), EchoHandler)
     serv.serve_forever()
 
 '''
@@ -63,9 +64,9 @@ from socketserver import BaseRequestHandler, TCPServer
 from serialization import serialize, Deserializer
 import json
 
-class EchoHandler(BaseRequestHandler): 
+class EchoHandler(BaseRequestHandler):
     def handle(self):
-        print('Got connection from', self.client_address) 
+        print('Got connection from', self.client_address)
         while True:
             msg = self.request.recv(8192)
             if not msg:
@@ -92,16 +93,16 @@ class EchoHandler(BaseRequestHandler):
             # N: Per above,the only way to check if a ts already exists is to run a sim search if see if any
             # existing time series have a distance of 0. (See my simsearch_by_ts method)
 
-            # STEP 3 -- PERFORM SIM SEARCH. 
+            # STEP 3 -- PERFORM SIM SEARCH.
             # I think sim search should return a dictionary of the closest time series keyed by distances is that right?
             sim_search_out = {40:"timeseries425", 30:"timeseries312"}
-            #N: Yes, looks good. See simsearch_by_id method. 
+            #N: Yes, looks good. See simsearch_by_id method.
             best_match = json.dumps(sim_search_out, sort_keys=True)
 
             # STEP 4 -- SERIALIZE AGAIN AND SEND BACK TO CLIENT (json->byte conversion)
             self.request.send(serialize(best_match))
 
-            # here is how I see this work flow working: 
+            # here is how I see this work flow working:
             # If sever receives an id:
 
             try:
@@ -123,6 +124,6 @@ class EchoHandler(BaseRequestHandler):
             if ts_is_new: rebuild_vp_indexs()
 
 if __name__ == '__main__':
-    serv = TCPServer(('', 20001), EchoHandler) 
+    serv = TCPServer(('', 20001), EchoHandler)
     serv.serve_forever()
 '''

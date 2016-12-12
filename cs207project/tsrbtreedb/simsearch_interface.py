@@ -1,3 +1,6 @@
+#!/usr/local/bin/python3
+# -*- coding: utf-8 -*-
+
 import cs207project.tsrbtreedb.simsearch as simsearch
 import numpy as np
 from cs207project.storagemanager.filestoragemanager import FileStorageManager

@@ -10,7 +10,7 @@ def serialize(json_obj):
     json_len = len(json_encoded)
     lengthfield = int.to_bytes(json_len+LENGTH_FIELD_LENGTH, LENGTH_FIELD_LENGTH, byteorder='little')
     msg = lengthfield+json_encoded
-    return msg    
+    return msg
 
 class Deserializer(object):
     '''A buffering and bytes-to-json engine.
@@ -51,4 +51,3 @@ class Deserializer(object):
         except json.JSONDecodeError:
             print('Invalid JSON object received:\n'+str(json_str))
             return None
-        

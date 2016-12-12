@@ -3,8 +3,8 @@
 import sys
 from serialization import serialize, Deserializer
 from socket import socket, AF_INET, SOCK_STREAM
-import json 
-import collections 
+import json
+import collections
 
 import sys
 import os
@@ -67,7 +67,7 @@ s.connect(('localhost', 20001))
 
 user_input = sys.argv[1]
 # 1 prep message for json conversion
-if str.isdigit(user_input): 
+if str.isdigit(user_input):
 	json_prep = {"type":"with_id","id":user_input}
 elif isinstance(user_input, str):
 	full_ts = load_external_ts(user_input)
