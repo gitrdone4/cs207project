@@ -159,9 +159,6 @@ def search_vpdb_for_n(vp_t,ts,db_dir,lc_dir,n):
 
     """
 
-    def tsfn_to_id(tsfn):
-        return tsfn[12:]
-
     s_ts = standardize(ts)
     vp_fn, dist_to_vp = vp_t
     lc_candidates = find_lc_candidates(vp_t,ts,db_dir,lc_dir)
@@ -170,6 +167,7 @@ def search_vpdb_for_n(vp_t,ts,db_dir,lc_dir,n):
     dist_list = []
 
     existing_ts_id = -1
+    
     for d_to_vp,ts_fn in lc_candidates:
         candidate_ts = load_ts(ts_fn,fsm)
         dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
