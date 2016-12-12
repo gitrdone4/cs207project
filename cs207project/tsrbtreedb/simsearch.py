@@ -84,6 +84,7 @@ def load_vp_lcs(db_dir,lc_dir):
     vp_dict= {}
     fsm = FileStorageManager(lc_dir)
 
+    print("current wd:", os.getcwd())
     for file in os.listdir(db_dir):
         if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
             lc_id = file[:-5]
@@ -113,8 +114,7 @@ def find_lc_candidates(vp_t,ts,db_dir,lc_dir):
     # that the time series is from the vantage point
     lc_candidates = db.chop(2 * dist_to_vp)
     db.close()
-    print("lc_candidates")
-    print(type(lc_candidates),len(lc_candidates),lc_candidates[0])
+
     return (lc_candidates,fsm)
 
 def search_vpdb(vp_t,ts,db_dir,lc_dir):
@@ -161,13 +161,13 @@ def search_vpdb_for_n(vp_t,ts,db_dir,lc_dir,n):
 
     s_ts = standardize(ts)
     vp_fn, dist_to_vp = vp_t
-    lc_candidates = find_lc_candidates(vp_t,ts,db_dir,lc_dir)
+    lc_candidates,fsm = find_lc_candidates(vp_t,ts,db_dir,lc_dir)
     lc_candidates.append((0,vp_fn))
 
     dist_list = []
 
     existing_ts_id = -1
-    
+
     for d_to_vp,ts_fn in lc_candidates:
         candidate_ts = load_ts(ts_fn,fsm)
         dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
@@ -175,7 +175,7 @@ def search_vpdb_for_n(vp_t,ts,db_dir,lc_dir,n):
         if dist_to_ts < .00001:
             existing_ts_id = tsfn_to_id(ts_fn)
         else:
-            dist_list.append((dist_to_ts,closest_ts_fn))
+            dist_list.append((dist_to_ts,tsfn_to_id(ts_fn)))
 
     return (dict(heapq.nsmallest(n, dist_list)),existing_ts_id)
 

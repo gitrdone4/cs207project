@@ -14,7 +14,7 @@ TS_LENGTH = 100 #Number of data points for generated time series
 
 
 def tsid_to_fn(tsid):
-	return 'ts_datafile_' + tsid
+	return 'ts_datafile_' + str(tsid)
 
 def tsfn_to_id(tsfn):
-    return tsfn.replace('ts_datafile_','')
+    return int(tsfn.replace('ts_datafile_',''))
