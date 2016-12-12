@@ -315,7 +315,7 @@ except FileNotFoundError:
 		vantagedb.commit()
 	
 
-corr=sys.maxsize
+corr=0
 closest='dummy'
 
 filename='vantagepointids.txt'
@@ -332,7 +332,7 @@ for vp in list:
 
 #Find closest vantage point
 for i in range(num_vantage_points):
-	if kernel_dist(test_ts,v[i]) < corr:
+	if kernel_dist(test_ts,v[i]) > corr:
 		corr = kernel_dist(test_ts,v[i])
 		closest = str(i)
 
@@ -350,5 +350,5 @@ for i in dist:
 	rboutputs[b]=a;
 
 
-sortedrbouts=sorted(rboutputs, key=rboutputs.get, reverse=False)[:num_top]
+sortedrbouts=sorted(rboutputs, key=rboutputs.get, reverse=True)[:num_top]
 print('IDs of the top ',num_top,'time series are',','.join(map(str,sortedrbouts)))
