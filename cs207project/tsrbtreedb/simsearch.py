@@ -76,6 +76,27 @@ def load_external_ts(filepath):
     interpolated_ats = full_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
 
+
+def add_ts_to_vpdbs(ts,ts_fn,db_dir,lc_dir):
+    """
+    Based on names of vantage point db files, adds single new time seires to vp indexes
+    """
+    vp_dict= {}
+    fsm = FileStorageManager(lc_dir)
+
+    s_ts = standardize(ts)
+
+    for file in os.listdir(db_dir):
+        if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
+            vp_ts = load_ts(file[:-5],fsm)
+            dist_to_vp = kernel_dist(standardize(vp_ts),s_ts)
+            print("Adding " + ts_fn + " to " + (db_dir + file) )
+            db = connect(db_dir + file)
+            db.set(dist_to_vp,ts_fn)
+            db.commit()
+            db.close()
+
+
 def load_vp_lcs(db_dir,lc_dir):
     """
     Based on names of vantage point db files loads and returns time series curves
@@ -84,7 +105,6 @@ def load_vp_lcs(db_dir,lc_dir):
     vp_dict= {}
     fsm = FileStorageManager(lc_dir)
 
-    print("current wd:", os.getcwd())
     for file in os.listdir(db_dir):
         if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
             lc_id = file[:-5]

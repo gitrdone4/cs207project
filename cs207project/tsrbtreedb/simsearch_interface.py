@@ -103,6 +103,10 @@ if __name__ == "__main__":
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
     print(demo_ts_fn)
     ts = simsearch.load_external_ts(SAMPLE_DIR + demo_ts_fn)
-    print(simsearch_by_ts(ts,n=5))
+    n_closest_dict,tsid,is_new  = simsearch_by_ts(ts,n=5)
+
+    if is_new:
+        simsearch.add_ts_to_vpdbs(ts,tsid,DB_DIR,LIGHT_CURVES_DIR)
+
     #rebuild_vp_indexs()
 
