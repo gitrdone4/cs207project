@@ -6,6 +6,20 @@ from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, tsid_to_fn, SAMPLE_DIR
 
 
+def add_ts(ts,fsm):
+
+    # print("Adding new ts with id ",tsid)
+
+    # first save to disk
+    interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    tsid = fsm.get_unique_id()
+    fsm.store(tsid,interpolated_ats)
+
+    # then update vantage point indexies
+    simsearch.add_ts_to_vpdbs(ts,tsid,DB_DIR,LIGHT_CURVES_DIR)
+    return (tsid)
+
+
 def simsearch_by_id(id,n=5):
     """
     Args:
@@ -60,9 +74,7 @@ def simsearch_by_ts(ts,n=5):
 
     if tsid == -1:
         is_new = True
-        tsid = fsm.get_unique_id()
-        print("new",tsid)
-        fsm.store(tsid,interpolated_ats)
+        tsid = add_ts(ts,fsm)
 
     return (n_closest_dict,tsid,is_new)
 
@@ -76,6 +88,7 @@ def rebuild_vp_indexs():
 
     """
     simsearch.create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+
 
 def get_by_id(id):
     """
@@ -96,17 +109,19 @@ def get_by_id(id):
     except ValueError:
         raise #Can not find ts by that id
 
+
 if __name__ == "__main__":
     #print(simsearch_by_id(512,5))
-    import random 
+    import random
     import os
     demo_ts_fn = random.choice(os.listdir(SAMPLE_DIR))
     print(demo_ts_fn)
     ts = simsearch.load_external_ts(SAMPLE_DIR + demo_ts_fn)
     n_closest_dict,tsid,is_new  = simsearch_by_ts(ts,n=5)
 
-    if is_new:
-        simsearch.add_ts_to_vpdbs(ts,tsid,DB_DIR,LIGHT_CURVES_DIR)
+    print("isnew",is_new)
+    print("tsid",tsid)
+    print("n_closest_dict",n_closest_dict)
 
     #rebuild_vp_indexs()
 
