@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.npy
 *.json
+*.dbdb
 
 # C extensions
 *.so
@@ -92,3 +93,8 @@ ENV/
 
 # MAC OS .DS_Store
 .DS_Store
+
+# Ignore temporary files and generated light curve files
+temp/
+light_curves/
+vp_dbs/

@@ -6,11 +6,11 @@ import json
 class FileStorageManager(StorageManagerInterface):
 	"""
 		This class inherits from the StorageManagerInterface ABC and implements it by putting 2-d numpy
-		arrays with 64-bit floats for both times and values onto disk. 
+		arrays with 64-bit floats for both times and values onto disk.
 
 		NOTES
 		-----
-		PRE: It supports access to the time series in memory both on get and store calls by managing 
+		PRE: It supports access to the time series in memory both on get and store calls by managing
 		a class variable self._id_dict
 
 		Examples:
@@ -23,15 +23,17 @@ class FileStorageManager(StorageManagerInterface):
 		>>> stored_ts = fsm.get(unique_id)
 		>>> assert stored_ts[2] == 22.0
 	"""
-	def __init__(self):
+	def __init__(self,dir_path = ''):
 		"""
-		 The manager maintains a persistent structure in memory and on disk which maps ids to the 
-		 appropriate files and keeps track of lengths. It creates an on disk json file to store 
+		 The manager maintains a persistent structure in memory and on disk which maps ids to the
+		 appropriate files and keeps track of lengths. It creates an on disk json file to store
 		 an id/length map or, if one already exists, updates the map.
 		"""
 
 		# set the file name for the time series id/length map
-		file_path = 'id_length_map.json'
+		file_path = dir_path +'id_length_map.json'
+
+		self._dir_path = dir_path # Store optional dir path to store light curve within
 
 		# if the map file already exists, open it
 		try:
@@ -76,7 +78,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to store a time series using the storage manager. 
+		Method used to store a time series using the storage manager.
 
 		Parameters
 		----------
@@ -102,14 +104,14 @@ class FileStorageManager(StorageManagerInterface):
 		ts = np.vstack((t.times(), t.values())).astype(np.float64)
 
 		# save the time series to disk as a binary file in .npy format
-		np.save(str(id), ts)
+		np.save(self._dir_path + str(id), ts)
 
 		# update the id/length map in memory for this store
 		self._id_dict[id] = len(t.times())
 
 		# update the id/length map on disk for this store
 		# store the map as a json file
-		with open("id_length_map.json", "w") as outfile:
+		with open(self._dir_path + "id_length_map.json", "w") as outfile:
 			json.dump(self._id_dict, outfile)
 
 		# return this instance of SizedContainerTimeSeriesInterface
@@ -119,7 +121,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to return the size of a particular time series stored based on the 
+		Method used to return the size of a particular time series stored based on the
 		provided id.
 
 		Parameters
@@ -154,7 +156,7 @@ class FileStorageManager(StorageManagerInterface):
 		"""
 		Description
 		-----------
-		Method used to return a particular time series stored based on the 
+		Method used to return a particular time series stored based on the
 		provided id.
 
 		Parameters
@@ -177,12 +179,17 @@ class FileStorageManager(StorageManagerInterface):
 		if id in self._id_dict:
 
 			# load the numpy data from the binary file associated with the provided id
-			ts = np.load(id + ".npy")
+			ts = np.load(self._dir_path + id + ".npy")
 
 			# return a SizedContainerTimeSeriesInterface instance
 			return ArrayTimeSeries(ts[0], ts[1])
 		else:
 			return None
+
+	def get_ids(self):
+		"""Returns list of ids for previously generated time series"""
+		return self._id_dict.keys()
+
 
 """
 	Create a single instance of the FileStorageManager class. This is used in

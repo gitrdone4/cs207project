@@ -12,7 +12,7 @@ import sys
 from setuptools import setup
 
 packages = ['cs207project','cs207project.timeseries','cs207project.storagemanager',
-'cs207project.rbtree','cs207project.tsbtreedb_for_team4, cs207project.simsearch']
+'cs207project.rbtree','cs207project.tsrbtreedb','cs207project.simsearch','cs207project.socketclient']
 
 def setup_package():
     needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)

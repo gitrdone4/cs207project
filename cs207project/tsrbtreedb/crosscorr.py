@@ -1,8 +1,5 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-#
-# CS207 Group Project Part 7
-# Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
 
 import os
 import sys
@@ -11,15 +8,7 @@ import numpy as np
 import numpy.fft as nfft
 from scipy.stats import norm
 
-# This is a hacky solution to import the array time series class from sister directory by inserting it into system path
-# should fix once time series library is turned into a proper python model
-
-from os.path import dirname, abspath
-d = dirname(dirname(abspath(__file__)))
-sys.path.insert(0,d + '/timeseries')
-
-import timeseries
-import arraytimeseries as ats
+import cs207project.timeseries.arraytimeseries as ats
 
 def standardize(ts):
     """standardize timeseries ts by its mean and std deviation"""
@@ -58,12 +47,12 @@ def ccor(ts1, ts2):
     # and the conjugate of ts2 (Yhat) scaled by s
     return  nfft.ifft(X * Yhat).real * s
 
-def max_corr_at_phase(ts1, ts2):
-    """ this is just for checking the max correlation with the kernelized cross-correlation """
-    ccorts = ccor(ts1, ts2)
-    idx = np.argmax(ccorts)
-    maxcorr = ccorts[idx]
-    return idx, maxcorr
+# def max_corr_at_phase(ts1, ts2):
+#     """ this is just for checking the max correlation with the kernelized cross-correlation """
+#     ccorts = ccor(ts1, ts2)
+#     idx = np.argmax(ccorts)
+#     maxcorr = ccorts[idx]
+#     return idx, maxcorr
 
 def kernel_corr(ts1, ts2, mult=1):
     """
@@ -93,10 +82,8 @@ def kernel_corr(ts1, ts2, mult=1):
                      np.sum(np.exp(mult * ccor(ts2, ts2))))
 
     # return normalized kernel if k_norm is non-zero
-    if k_norm != 0:
-        return kernel/k_norm
-    else:
-        return 0
+    kernel_corr = kernel/k_norm if k_norm != 0 else 0
+    return kernel_corr
 
 def kernel_dist(ts1, ts2, mult=1):
     """
@@ -122,7 +109,3 @@ def kernel_dist(ts1, ts2, mult=1):
     # (Where C = kernel correlation )
     # However, we are using normalized kernels here, so the dist^2 will be 2(1-C(ts1,ts2))
     return np.sqrt(2*(1-kernel_corr_val))
-
-def s_stats(n,ts):
-    """Prints summary stats for ts """
-    return "%s mean: %.4f, %s std: %.4f" % (n,ts.mean(),n,ts.std())
