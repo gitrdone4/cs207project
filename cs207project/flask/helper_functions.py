@@ -4,7 +4,7 @@
 
 from flask import render_template, make_response, jsonify, request
 
-def parse_query_string(arg_name, arg_val):
+def parse_timeseries_get(arg_name, arg_val):
     """
     Description
     ----------
@@ -30,10 +30,15 @@ def parse_query_string(arg_name, arg_val):
     """
 
     # initialize separator lookup dict
-    separators = {'mean_in': '-', 'level_in': ',', 'level': ',', 'id': ','}
+    separators = {
+        'mean_in': '-', 
+        'level_in': ',', 
+        'level': ','
+    }
 
     # validate `arg_name` input
-    assert arg_name in separators
+    if arg_name not in separators:
+        raise 
 
     # get the right separtor, split and return
     sep = separators[arg_name]
@@ -55,25 +60,22 @@ def get_filter_expression(query_args):
     Returns
     -------
     A list of SQL filter expessions as strings
-    """    
+    """
 
     def _create_sql_filter(arg):
 
         # first parse the actual string argument
-        arg_vals = parse_query_string(arg, query_args[arg])
-        
+        arg_vals = parse_timeseries_get(arg, query_args[arg])
+
         if arg == "level_in":
             filter_exp = "ts_metadata_level IN {}".format(arg_vals)
-        
+
         elif arg == "mean_in":
             filter_exp = "ts_metadata_mean >= {} AND ts_metadata_mean <= {}"\
                             .format(*arg_vals)
 
         elif arg == "level":
             filter_exp = "ts_metadata_level = '{}'".format(*arg_vals)
-
-        elif arg == "id":
-            pass # TODO
 
         # append final result to filters list
         return filter_exp

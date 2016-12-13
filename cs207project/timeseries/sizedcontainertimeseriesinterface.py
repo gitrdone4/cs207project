@@ -322,6 +322,17 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
         interpolated_ts = [interpolate_val(self._times, self._values, t) for t in ts_to_interpolate]
         return self.__class__(values=interpolated_ts, times=ts_to_interpolate)
 
+    def to_dict(self):
+        """
+        Helper method to convert time series
+        to a dictionary. Good for dealing with JSON.
+        """
+        return {
+            'time': [t for t in self._times],
+            'value': [v for v in self._values]
+        }
+
+
     ##############################################################################
     ## GLOBAL HELPER METHODS FOR ALL CONTAINER TIME SERIES.
     ## NO NEED TO IMPLEMENT IN SUBCLASS.

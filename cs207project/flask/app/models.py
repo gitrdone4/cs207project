@@ -13,7 +13,7 @@ class TSMetadata(db.Model):
     Parameters
     ----------
     None :)
-
+o
     Returns
     -------
     """
@@ -26,6 +26,21 @@ class TSMetadata(db.Model):
 
     def __repr__(self):
         return '<TS Metadata: id: {}, mean: {}, std: {}, blarg: {}, level: {}>'\
-               .format(self.id, *[self.r(x) for x in [self.mean, self.std, self.blarg]], self.level)
+               .format(self.id, 
+                *map(self.r, [self.mean, self.std, self.blarg]), 
+                self.level)
+
+    def to_dict(self):
+        """
+        Represent Metadata as dict.
+        """
+        return {
+            
+            'id': self.id,
+            'mean': self.mean,
+            'std': self.std,
+            'blarg': self.blarg,
+            'level': self.level
+        }
 
 
