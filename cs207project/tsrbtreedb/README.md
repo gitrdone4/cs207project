@@ -4,7 +4,7 @@ A python command line utility to searching for similar light curves useing kerne
 
 ### Usage
 
-Usage: ./simsearch input.txt  [optional flags]
+Usage: ./simsearchutil.py input.txt  [optional flags]
 
 Optional flags:
   -h, --help        Show this help message and exit.
@@ -14,10 +14,10 @@ Optional flags:
 
 For example:
 
-python3 ./simsearch.py -d
+python3 ./simsearchutil.py -d
 
-python3 ./simsearch.py sample_data/51886.dat_folded -p
+python3 ./simsearchutil.py sample_data/51886.dat_folded -p
 
 ### Developers:
 
-Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah) for Team 4
+Created by Team 2 (Jonne Seleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah)
