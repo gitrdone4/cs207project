@@ -2,11 +2,13 @@
 # functions to make certain flask tasks easier.
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
+from flask import render_template, make_response, jsonify, request
+
 def parse_query_string(arg_name, arg_val):
     """
     Description
     ----------
-    Parses query string by splitting along
+    Parses query argument strings by splitting along
     the appropriate separator character, and
     returns a sequence of (a) bounds [in the case
     of `mean_in`] or (b) acceptable values [in the
@@ -28,7 +30,7 @@ def parse_query_string(arg_name, arg_val):
     """
 
     # initialize separator lookup dict
-    separators = {'mean_in': '-', 'level_in': ',', 'id': ','}
+    separators = {'mean_in': '-', 'level_in': ',', 'level': ',', 'id': ','}
 
     # validate `arg_name` input
     assert arg_name in separators
@@ -36,3 +38,46 @@ def parse_query_string(arg_name, arg_val):
     # get the right separtor, split and return
     sep = separators[arg_name]
     return tuple(arg_val.split(sep))
+
+def get_filter_expression(query_args):
+    """
+    Description
+    -----------
+    Parses the query arguments of an HTTP GET request
+    to our Flask app, and constructs a filter 
+    expression (string of SQL) to be used in querying 
+    the PostgreSQL metadata DB.
+
+    Parameters
+    ----------
+    None.
+
+    Returns
+    -------
+    A list of SQL filter expessions as strings
+    """    
+
+    def _create_sql_filter(arg):
+
+        # first parse the actual string argument
+        arg_vals = parse_query_string(arg, query_args[arg])
+        
+        if arg == "level_in":
+            filter_exp = "ts_metadata_level IN {}".format(arg_vals)
+        
+        elif arg == "mean_in":
+            filter_exp = "ts_metadata_mean >= {} AND ts_metadata_mean <= {}"\
+                            .format(*arg_vals)
+
+        elif arg == "level":
+            filter_exp = "ts_metadata_level = '{}'".format(*arg_vals)
+
+        elif arg == "id":
+            pass # TODO
+
+        # append final result to filters list
+        return filter_exp
+
+    filter_string = ' AND '.join([_create_sql_filter(arg) for arg in query_args])
+
+    return filter_string

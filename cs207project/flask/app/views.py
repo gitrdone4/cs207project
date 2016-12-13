@@ -7,7 +7,6 @@
 # and the socket-fronted Red-Black Tree database
 
 from flask import render_template, make_response, jsonify, request
-from flask_restful import reqparse
 from helper_functions import *
 from app import app, db, models
 import re
@@ -25,33 +24,9 @@ def get_metadata():
 
     # GET request
     if request.method == 'GET':
-        
-        # grab query string
-        query_string = request.args
 
-        # iterate over arguments in query,
-        # string and parse them as needed.
-        filters = []
-        for arg in query_string:
-            
-            # first parse the actual string argument
-            arg_vals = parse_query_string(arg, query_string[arg])
-            
-            if arg == 'level_in':
-                filter_exp = 'ts_metadata_level IN {}'.format(arg_vals)
-            
-            elif arg == 'mean_in':
-                filter_string = 'ts_metadata_mean >= {} AND ts_metadata_mean <= {}'\
-                                .format(*arg_vals)
-
-            elif arg == 'id':
-                pass # TODO
-            
-            # append final result to filters list
-            filters.append(filter_string)
-
-        # concatenate individual
-        filter_string = ' AND '.join(filters)
+        # parse query string and create filter expressions
+        filter_string = get_filter_expression(request.args)
 
         # filter and execute query
         query = models.TSMetadata\
