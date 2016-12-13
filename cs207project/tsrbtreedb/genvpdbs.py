@@ -1,6 +1,10 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
+"""
+genvpdbs.py contains the functions generate vantage point DBs from light-curve files.
+
+"""
 
 import sys
 import os
@@ -13,20 +17,6 @@ from cs207project.tsrbtreedb.makelcs import clear_dir
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH
 import cs207project.timeseries.arraytimeseries as ats
-
-# Global variables
-
-HELP_MESSAGE = \
-"""
-Generate Vantage Point Index DBs
-
-A python command line utility to generate vantage point DBs from light-curve files.
-
-Usage: ./genvpdbs  [optional flags]
-
-Optional flags:
-  -h, --help    Show this help message and exit.
-"""
 
 def load_ts_fsm(lc_dir):
     """Loads time series from fsm; returns dict keyed to filename"""

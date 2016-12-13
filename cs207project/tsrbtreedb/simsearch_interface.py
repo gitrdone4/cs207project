@@ -8,14 +8,13 @@ from cs207project.tsrbtreedb.makelcs import clear_dir
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR,tsid_to_fn,tsfn_to_id
 
-def rebuild_if_needed(lc_dir,db_dir):
+def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
     """
     Helper that checks if needed time series files & vantage point databases already exists
     recreates them if they don't.
     """
     if (simsearch.need_to_rebuild(lc_dir,db_dir)):
-        simsearch.rebuild_lcs_dbs(lc_dir,db_dir,n_vps= 20, n_lcs = 1000)
-
+        simsearch.rebuild_lcs_dbs(lc_dir,db_dir, n_vps=n_vps, n_lcs=n_lcs)
 
 def add_ts_wfm(ts,fsm):
     """
@@ -84,13 +83,11 @@ def simsearch_by_id(id,n=5):
     fsm = FileStorageManager(LIGHT_CURVES_DIR)
     try:
         input_ts = simsearch.load_ts(tsid_to_fn(id),fsm)
-    except IOError as IOErr:
-        print("IOErr",IOErr)
+    except IOError:
         raise ValueError("No time series with that id")
     else:
         closest_vp = simsearch.find_closest_vp(simsearch.load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
         return simsearch.search_vpdb_for_n(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR,n)[0]
-
 
 def simsearch_by_ts(ts,n=5):
     """
@@ -133,13 +130,13 @@ def simsearch_by_ts(ts,n=5):
 
     return (n_closest_dict,tsid,is_new)
 
-def rebuild_vp_indexs():
+def rebuild_vp_indexs(n=20):
     """
     Rebuilds vantage point "databases" based on time series that have been
     saved to disk. May take some time(up to 30 seconds in my experience)
 
     """
-    simsearch.create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+    simsearch.create_vpdbs(n,LIGHT_CURVES_DIR,DB_DIR)
 
 if __name__ == '__main__':
     print(simsearch_by_id(2000,n=5))
