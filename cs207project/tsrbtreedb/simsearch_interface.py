@@ -89,7 +89,6 @@ def simsearch_by_id(id,n=5):
         closest_vp = simsearch.find_closest_vp(simsearch.load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
         return simsearch.search_vpdb_for_n(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR,n)[0]
 
-
 def simsearch_by_ts(ts,n=5):
     """
     Args:
@@ -131,13 +130,13 @@ def simsearch_by_ts(ts,n=5):
 
     return (n_closest_dict,tsid,is_new)
 
-def rebuild_vp_indexs():
+def rebuild_vp_indexs(n=20):
     """
     Rebuilds vantage point "databases" based on time series that have been
     saved to disk. May take some time(up to 30 seconds in my experience)
 
     """
-    simsearch.create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+    simsearch.create_vpdbs(n,LIGHT_CURVES_DIR,DB_DIR)
 
 if __name__ == '__main__':
     print(simsearch_by_id(2000,n=5))

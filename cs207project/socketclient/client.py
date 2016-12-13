@@ -7,7 +7,7 @@ import time
 import os
 import numpy as np
 import random
-from serialization import serialize, Deserializer
+from cs207project.socketclient.serialization import serialize, Deserializer
 from socket import socket, AF_INET, SOCK_STREAM
 
 from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
