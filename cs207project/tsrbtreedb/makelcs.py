@@ -1,6 +1,14 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
+"""
+Make Light Curves
+
+Code for generating simulated light curve time series data files.
+Can be used independently or called by simsearch.
+
+"""
+
 import sys
 import os
 import random
@@ -13,20 +21,6 @@ from cs207project.storagemanager.filestoragemanager import FileStorageManager
 # Global variables
 
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR
-
-HELP_MESSAGE = \
-"""
-Make Light Curves
-
-A python command line utility for generating simulated light curve time series data files.
-Can be used independently or called by simsearch. 
-
-Usage: ./makelcs 100 [optional flags]
-
-Optional flags:
-  -d, --delete  Delete existing light curves and exit.
-  -h, --help    Show this help message and exit.
-"""
 
 def tsmaker(mean, scale, jitter, length = 100):
     """

@@ -1,9 +1,7 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys
 import os
-import numpy as np
 import random
 
 from pytest import raises
@@ -16,8 +14,6 @@ import cs207project.tsrbtreedb.simsearch as simsearch
 import cs207project.tsrbtreedb.simsearchutil as simsearchutil
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.tsrbtreedb.unbalancedDB as unbalancedDB
-
-
 from cs207project.tsrbtreedb.settings import TEMP_DIR, LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR
 
 def test_value_and_file_asserts():
@@ -49,7 +45,6 @@ def test_makelcs():
     lc_dict = genvpdbs.load_ts_fsm(lc_temp_dir)
     assert(len(lc_dict) == 100)
 
-
 def test_genvpdbs():
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
     db_temp_dir = TEMP_DIR + DB_DIR
@@ -65,7 +60,6 @@ def test_genvpdbs():
     assert(len(vp_dict) == 10)
 
     clear_dir(TEMP_DIR,recreate=False)
-
 
 def test_simsearch():
     lc_temp_dir = TEMP_DIR + LIGHT_CURVES_DIR
@@ -199,4 +193,3 @@ def test_db_2():
 def test_clear():
     """Clear test dir for tests"""
     clear_dir(TEMP_DIR,recreate=False)
-

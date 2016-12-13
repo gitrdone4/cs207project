@@ -3,6 +3,7 @@
 
 """
 simsearch.py contains the main functions for creating, adding, and searching a light curve databases.
+
 """
 
 import os
@@ -30,7 +31,6 @@ def load_nparray(filepath):
         raise IOError("Unable to load np array %s" % filepath)
     else:
         return nparray
-
 
 def load_ts(ts_id, fsm):
     """Helper to load previously generated ts file from disk vis fsm"""
