@@ -43,4 +43,3 @@ o
             'level': self.level
         }
 
-

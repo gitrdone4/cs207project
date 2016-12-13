@@ -9,18 +9,44 @@
 from flask import make_response, jsonify, request, url_for
 from cs207project.timeseries import arraytimeseries
 import cs207project.socketclient.client as cl
+from cs207project.handy_helpers import *
 from app import app, db, models
 from helper_functions import *
-from flask_api import status
+import json
 
 # API ENDPOINTS
 @app.route('/')
-def render_index():
+def front_page():
+    """
+    Renders instructions in case the user tried
+    to access the "front page" of the API
+
+    TODO: render API docs instead?
+    """
+    
+    # this is not an error in the strict
+    # sense of the word, just instructions
+    endpoints = [
+        '/timeseries/ GET',
+        '/timeseries/ POST',
+        '/timeseries/id GET',
+        '/simquery/?the_id=id GET',
+        '/simquery/ POST'
+    ]
+    
+    intro_msg = \
+    """Welcome! Please pick valid endpoint."""
+    
+    msg_to_send = {
+            'message': intro_msg,
+            'available_endpoints': endpoints
+        }
+
     return make_response(
-            jsonify({'message': 'Select an endpoint!'}), 400
+            jsonify(msg_to_send), 200
         )
 
-@app.route('/timeseries/', methods=['GET'])
+@app.route('/timeseries/', methods=['GET', 'POST'])
 def get_metadata():
     """
     Description
@@ -45,7 +71,8 @@ def get_metadata():
 
     Case 2: POST
     ------------
-    Takes JSON as input
+    Takes JSON as input, adds it to time series DB
+    and returns it as JSON.
     
     Returns
     -------
@@ -59,17 +86,31 @@ def get_metadata():
         filter_string = get_filter_expression(request.args)
 
         # filter and execute query
-        metadata = models.TSMetadata\
-                    .query\
-                    .filter(filter_string)\
-                    .all()
+        metadata = fetch_metadata(filter_string)
 
         # create response from query result, jsonify and return
         response = [ts.to_dict() for ts in metadata]
     
     elif request.method == 'POST':
 
-        pass
+        # step 1: get json
+        response = dict(request.data)
+        valid_json_fields = ['id','time', 'value']
+
+        if not set(response.keys()) == set(valid_json_fields):
+            error_message = \
+            'Error! Bad Request: Payload can only contain fields {}'\
+            .format(valid_json_fields)
+
+            return bad_request(error_message)
+
+        # step 2: json to arraytimeseries
+        #ats = ArrayTimeSeries.from_dict(response)
+
+        # step 3: add timeseries to db
+
+        # step 4: return the timeseries 
+        # (no need for new request, can do locally)
 
     return make_response(jsonify(response), 200)
 
@@ -92,7 +133,7 @@ def get_ts_and_metadata(tsid=None):
     -------
     HTTP Response with requested time series (meta)data.
 
-    Reponse is of the format:
+    Response is of the format:
     {
         'id': tsid,
         'metadata': {...}
@@ -106,13 +147,11 @@ def get_ts_and_metadata(tsid=None):
     # get actual ts from socket
     try:
         actual_ts = cl.get_ts_with_id(tsid)
-    except Exception as e:
-        return not_found(e)
+    except:
+        return not_found('Time series with id {} not found in DB!'.format(tsid))
 
     # get metadata
-    metadata = models.TSMetadata\
-                .query\
-                .filter(models.TSMetadata.id == tsid)
+    metadata = fetch_metadata('ts_metadata_id = {}'.format(tsid))
 
     # create response from query result, jsonify and return
     response = {
@@ -123,13 +162,57 @@ def get_ts_and_metadata(tsid=None):
 
     return make_response(jsonify(response), 200)
 
-@app.route('/timeseries/', methods=['POST'])
-def add_ts_and_fetch():
-    pass
+@app.route('/simquery/', methods=['GET', 'POST'])
+def get_similar():
+    """
+    Description
+    ------------
+    Fetches IDs for five most similar time series
+    for the one specified by `tsid`.
 
-@app.route('/simquery', methods=['GET', 'POST'])
-def blargh():
-    pass
+    Parameters
+    ----------
+    tsid: int
+
+    Returns
+    -------
+    JSON of IDs of the five time series closest to
+    the one specified by `tsid`.
+
+    Notes
+    -----
+    TODO: generalize to accept query string 
+    so that no. of returned ids could change?
+    """
+
+    if request.method == 'GET':
+
+        # get ts id from query string
+        try:
+            tsid = int(request.args['id'])
+        except KeyError:
+            error_message = \
+            "Error! Bad Request: query string can only have field 'id'!"
+            return bad_request(error_message)
+        except ValueError:
+            error_message = \
+            "Error! Bad Request: values for 'id' must be integers!"
+            return bad_request(error_message)
+
+        # get nearest
+        vptdb_output = cl.get_n_nearest_ts_for_tsid(tsid)
+        nn_dist, nn_ids = bisect_tuples(vptdb_output.items())
+        response = [
+            {
+                'id': int(idx),
+                'distance': float(dist)
+            } for idx, dist in zip(nn_ids, nn_dist)
+        ]
+
+        return make_response(jsonify(response), 200)
+
+    elif request.method == 'POST':
+        pass    
 
 
 # API ERROR HANDLING
@@ -138,19 +221,20 @@ def not_found(err):
     """
     Blanket HTTP Error Code 404
     """
-    resp = {
+    response = {
         'error_code': 404,
-        'message': str(err)
+        'error_message': str(err)
     }
-    return make_response(resp), 404
+    
+    return make_response(jsonify(response), 404)
 
 @app.errorhandler(400)
 def bad_request(err):
     """
     Blanket HTTP Error Code 400
     """
-    resp = {
+    response = {
         'error_code': 400,
-        'message': err
+        'error_message': str(err)
     }
-    return make_response(jsonify(resp), 400)
+    return make_response(jsonify(response), 400)

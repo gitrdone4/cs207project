@@ -2,7 +2,8 @@
 # functions to make certain flask tasks easier.
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
-from flask import render_template, make_response, jsonify, request
+from flask import abort, render_template, make_response, jsonify, request
+from app import models, db
 
 def parse_timeseries_get(arg_name, arg_val):
     """
@@ -31,14 +32,14 @@ def parse_timeseries_get(arg_name, arg_val):
 
     # initialize separator lookup dict
     separators = {
-        'mean_in': '-', 
-        'level_in': ',', 
+        'mean_in': '-',
+        'level_in': ',',
         'level': ','
     }
 
     # validate `arg_name` input
     if arg_name not in separators:
-        raise 
+        abort(500)
 
     # get the right separtor, split and return
     sep = separators[arg_name]
@@ -49,8 +50,8 @@ def get_filter_expression(query_args):
     Description
     -----------
     Parses the query arguments of an HTTP GET request
-    to our Flask app, and constructs a filter 
-    expression (string of SQL) to be used in querying 
+    to our Flask app, and constructs a filter
+    expression (string of SQL) to be used in querying
     the PostgreSQL metadata DB.
 
     Parameters
@@ -65,17 +66,31 @@ def get_filter_expression(query_args):
     def _create_sql_filter(arg):
 
         # first parse the actual string argument
+
+        # nb: note also the conscious design choice
+        # to also support sth like "mean_in=5-4" by
+        # using sorted()
+
         arg_vals = parse_timeseries_get(arg, query_args[arg])
 
         if arg == "level_in":
+            
+            if not all([s.isalpha() for s in arg_vals]):
+                abort(500)
+            
             filter_exp = "ts_metadata_level IN {}".format(arg_vals)
 
         elif arg == "mean_in":
+            
+            if not all([s.isdigit() for s in arg_vals]):
+                abort(500)
+            
             filter_exp = "ts_metadata_mean >= {} AND ts_metadata_mean <= {}"\
-                            .format(*arg_vals)
+                            .format(*sorted(arg_vals))
 
         elif arg == "level":
-            filter_exp = "ts_metadata_level = '{}'".format(*arg_vals)
+            
+            filter_exp = "ts_metadata_level = '{}'".format(*sorted(arg_vals))
 
         # append final result to filters list
         return filter_exp
@@ -83,3 +98,47 @@ def get_filter_expression(query_args):
     filter_string = ' AND '.join([_create_sql_filter(arg) for arg in query_args])
 
     return filter_string
+
+
+def fetch_metadata(sql_filter_exp):
+    """
+    Description
+    -----------
+    Fetches metadata filtered through
+    `sql_filter_exp` from the PostgreSQL
+    metadata database instance.
+
+    Parameters
+    ----------
+    sql_filter_exp: str
+        filter expression in SQL
+
+    Returns
+    -------
+    SQLAlchemy Query
+
+    Notes
+    -----
+    The return value can be iterated over to obtain
+    the metadata itself.
+    """
+    return models.TSMetadata\
+                    .query\
+                    .filter(sql_filter_exp)\
+                    .all()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
