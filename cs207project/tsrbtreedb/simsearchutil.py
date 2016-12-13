@@ -23,7 +23,7 @@ from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
 import cs207project.timeseries.arraytimeseries as ats
 from cs207project.tsrbtreedb.simsearch import need_to_rebuild, rebuild_lcs_dbs, \
-					load_external_ts, find_closest_vp, load_vp_lcs,search_vpdb
+                    load_external_ts, find_closest_vp, load_vp_lcs,search_vpdb
 
 # Global variables
 
@@ -76,7 +76,7 @@ def sim_search(input_fpath, db_dir, lc_dir, plot=False):
     if plot:
         plot_two_ts(input_ts, input_fpath, closest_ts, closest_ts_fn)
 
-if __name__ == "__main__":
+def cmd_line_util():
     """
     Main program loop. Determines which flags were submitted, confirms that lc files and db files
     exist (Recreates them if they don't) before kicking off similarity search.
@@ -124,3 +124,6 @@ if __name__ == "__main__":
             print("Error: no compatible time series or light curve file provided")
             print(USAGE)
             break
+
+if __name__ == "__main__":
+    cmd_line_util()

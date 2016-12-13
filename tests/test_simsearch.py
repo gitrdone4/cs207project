@@ -1,7 +1,6 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
-
 import sys
 import os
 import numpy as np
@@ -14,6 +13,7 @@ import cs207project.tsrbtreedb.makelcs as makelcs
 from cs207project.tsrbtreedb.makelcs import clear_dir, tsmaker, random_ts
 import cs207project.tsrbtreedb.genvpdbs as genvpdbs
 import cs207project.tsrbtreedb.simsearch as simsearch
+import cs207project.tsrbtreedb.simsearchutil as simsearchutil
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.tsrbtreedb.unbalancedDB as unbalancedDB
 
@@ -82,7 +82,7 @@ def test_simsearch():
 
     demo_ts_fn = random.choice(os.listdir('cs207project/tsrbtreedb/' + SAMPLE_DIR))
     demo_fp = 'cs207project/tsrbtreedb/' + SAMPLE_DIR + demo_ts_fn
-    simsearch.sim_search(demo_fp,db_temp_dir,lc_temp_dir,False)
+    simsearchutil.sim_search(demo_fp,db_temp_dir,lc_temp_dir,False)
 
 def test_crosscorr():
 
@@ -195,9 +195,6 @@ def test_db_2():
     assert db.chop(6)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key in database
     assert db.chop(6.1)==[(3, u'three'), (1, u'one'), (6, u'six'), (4, u'four')] # test chop on key out of database
     db.close()
-
-
-
 
 def test_clear():
     """Clear test dir for tests"""
