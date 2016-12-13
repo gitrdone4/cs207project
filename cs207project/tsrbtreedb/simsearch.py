@@ -46,10 +46,11 @@ def load_nparray(filepath):
 
 def load_ts(ts_id,fsm):
     """Helper to load previously generated ts file from disk vis fsm"""
-    if ts_id.startswith("ts_datafile"):
-        return fsm.get(ts_id)
+    ts = fsm.get(ts_id)
+    if ts is not None:
+        return ts
     else:
-        raise ValueError("'%s' does not appear to be a time series file" % ts_id)
+        raise ValueError("time series '%s' does not appear to be in the database" % ts_id)
 
 def load_external_ts(filepath):
     """
@@ -90,7 +91,7 @@ def add_ts_to_vpdbs(ts,ts_fn,db_dir,lc_dir):
         if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
             vp_ts = load_ts(file[:-5],fsm)
             dist_to_vp = kernel_dist(standardize(vp_ts),s_ts)
-            print("Adding " + ts_fn + " to " + (db_dir + file) )
+            # print("Adding " + ts_fn + " to " + (db_dir + file))
             db = connect(db_dir + file)
             db.set(dist_to_vp,ts_fn)
             db.commit()
@@ -165,6 +166,31 @@ def search_vpdb(vp_t,ts,db_dir,lc_dir):
             closest_ts = candidate_ts
 
     return(min_dist,closest_ts_fn,closest_ts)
+
+def ts_already_exists(ts,db_dir,lc_dir):
+    """
+    Searches database to see if time series already exists
+
+    Returns tsid if it finds a matching time series, -1 otherwise
+
+    """
+    s_ts = standardize(ts)
+
+    vp_t = find_closest_vp(load_vp_lcs(db_dir,lc_dir),ts)
+    vp_fn, dist_to_vp = vp_t
+    lc_candidates,fsm = find_lc_candidates(vp_t,ts,db_dir,lc_dir)
+    lc_candidates.append((0,vp_fn))
+    existing_ts_id = -1
+
+    for d_to_vp,ts_fn in lc_candidates:
+        candidate_ts = load_ts(ts_fn,fsm)
+        dist_to_ts = kernel_dist(standardize(candidate_ts),s_ts)
+
+        if dist_to_ts < .00001:
+            existing_ts_id = tsfn_to_id(ts_fn)
+            break
+
+    return existing_ts_id
 
 def search_vpdb_for_n(vp_t,ts,db_dir,lc_dir,n):
     """

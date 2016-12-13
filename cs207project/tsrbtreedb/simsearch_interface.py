@@ -6,7 +6,7 @@ import numpy as np
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 from cs207project.tsrbtreedb.makelcs import clear_dir
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, tsid_to_fn, SAMPLE_DIR
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR,tsid_to_fn,tsfn_to_id
 
 def rebuild_if_needed(lc_dir,db_dir):
     """
@@ -16,25 +16,33 @@ def rebuild_if_needed(lc_dir,db_dir):
     if (simsearch.need_to_rebuild(lc_dir,db_dir)):
         simsearch.rebuild_lcs_dbs(lc_dir,db_dir,n_vps= 20, n_lcs = 1000)
 
-def add_ts(ts,fsm):
+
+def add_ts_wfm(ts,fsm):
     """
     Save new time series to disk, and updates vantage point databases
 
-    Returns newly created ts id.
-
-    Note: does not currently check if ts already exists. (this is done as part of simsearch_by_ts)
+    Returns newly created ts id, or existing id if previously saved.
 
     """
-
-    # first save to disk
     interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
-    tsid = fsm.get_unique_id()
-    fsm.store(tsid,interpolated_ats)
 
-    # then update vantage point indexes
-    simsearch.add_ts_to_vpdbs(interpolated_ats,tsid,DB_DIR,LIGHT_CURVES_DIR)
-    return (tsid)
+    # check if ts already exists in db
+    tsid = simsearch.ts_already_exists(interpolated_ats,DB_DIR,LIGHT_CURVES_DIR)
 
+    if tsid == -1: #Save new ts to disk
+        tsid = fsm.get_unique_id()
+        fsm.store(tsid,interpolated_ats)
+
+        # then update vantage point indexes
+        simsearch.add_ts_to_vpdbs(interpolated_ats,tsid,DB_DIR,LIGHT_CURVES_DIR)
+        tsid = tsfn_to_id(tsid)
+
+    return tsid
+
+def add_ts(ts):
+    """Wrapper for function above for cases where file storage manager object has not already been generated"""
+    fsm = FileStorageManager(LIGHT_CURVES_DIR)
+    return add_ts_wfm(ts,fsm)
 
 def get_by_id(id):
     """
@@ -74,10 +82,14 @@ def simsearch_by_id(id,n=5):
     rebuild_if_needed(LIGHT_CURVES_DIR,DB_DIR)
 
     fsm = FileStorageManager(LIGHT_CURVES_DIR)
-    input_ts = simsearch.load_ts(tsid_to_fn(id),fsm)
-    closest_vp = simsearch.find_closest_vp(simsearch.load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
-
-    return simsearch.search_vpdb_for_n(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR,n)[0]
+    try:
+        input_ts = simsearch.load_ts(tsid_to_fn(id),fsm)
+    except IOError as IOErr:
+        print("IOErr",IOErr)
+        raise ValueError("No time series with that id")
+    else:
+        closest_vp = simsearch.find_closest_vp(simsearch.load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR), input_ts)
+        return simsearch.search_vpdb_for_n(closest_vp,input_ts,DB_DIR,LIGHT_CURVES_DIR,n)[0]
 
 
 def simsearch_by_ts(ts,n=5):
@@ -117,7 +129,7 @@ def simsearch_by_ts(ts,n=5):
 
     if tsid == -1:
         is_new = True
-        tsid = add_ts(ts,fsm)
+        tsid = add_ts_wfm(ts,fsm)
 
     return (n_closest_dict,tsid,is_new)
 
@@ -128,3 +140,6 @@ def rebuild_vp_indexs():
 
     """
     simsearch.create_vpdbs(20,LIGHT_CURVES_DIR,DB_DIR)
+
+if __name__ == '__main__':
+    print(simsearch_by_id(2000,n=5))
