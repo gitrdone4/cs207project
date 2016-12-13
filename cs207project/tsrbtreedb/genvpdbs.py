@@ -10,6 +10,7 @@ import sys
 import os
 import random
 import numpy as np
+from concurrent.futures import ProcessPoolExecutor
 
 from cs207project.rbtree.redblackDB import connect
 from cs207project.tsrbtreedb.crosscorr import kernel_dist, standardize
@@ -42,8 +43,10 @@ def calc_distances(vp_k,timeseries_dict):
             distances.append((k_dist,k))
     return distances
 
-def save_vp_dbs(vp,timeseries_dict, DB_DIR):
+def save_vp_dbs(vp_tuple):
     """ Creates unbalanced binary tree databases and saves them to disk"""
+
+    vp,timeseries_dict, DB_DIR = vp_tuple
     sorted_ds = calc_distances(vp,timeseries_dict)
 
     # ts_datafile_51 -> vp_dbs/ts_datafile_51.dbdb
@@ -58,17 +61,25 @@ def save_vp_dbs(vp,timeseries_dict, DB_DIR):
 
 def create_vpdbs(n,lc_dir,db_dir):
     """
+    Create Vantage point databases in parallel
+
     Executes functions above:
         (1) Creates timeseries_dict from time series files on disk
         (2) Picks 20 vantage points at random
-        (3) Calculates kernel distance between vantage points and generated time series (This can take a while)
-        (4) Saves kernel distance indexes to disk as binary tree databases
+        (3) Using a process poll for parallelization, calculates kernel distance between vantage points and generated time series
+        (4) Saves kernel distance indexes to disk as red-black tree databases
     """
     print("Creating %d vantage point dbs" % n,end="")
     timeseries_dict = load_ts_fsm(lc_dir)
     vantage_points = pick_vantage_points(timeseries_dict,n)
     clear_dir(db_dir)
-    for vp in vantage_points:
-        print('.', end="")
-        save_vp_dbs(vp,timeseries_dict,db_dir)
-    print("Done.")
+
+    # This is in elegant, but needed to use the map function below where
+    # we can effectually only pass one augment to the worker process
+    vp_tuples = [(vp,timeseries_dict,db_dir) for vp in vantage_points]
+
+    # build vantage point dbs in parallel (up to the number of processes on your machine)
+    with ProcessPoolExecutor() as pool:
+        results = pool.map(save_vp_dbs,vp_tuples)
+
+    print("....................Done.")

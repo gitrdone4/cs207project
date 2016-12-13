@@ -3,6 +3,7 @@ import os
 import random
 import threading
 import collections
+import time
 from pytest import raises
 
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR, TEMP_DIR
@@ -19,6 +20,7 @@ def test_setup_temp_dir():
     """Clear existing temp dir and change working dir to be inside it"""
     clear_dir(TEMP_DIR)
     os.chdir(TEMP_DIR)
+
 
 def test_rebuild_if_needed():
     # Make small db with 250 light curves
@@ -70,6 +72,7 @@ def test_add_ts():
     assert(kernel_dist(standardize(ts_as_saved), standardize(new_ts)) < .00001)
 
     # Confirm that we get the same id back when we attempt to add it a second time
+
     assert(add_ts(new_ts) == new_tsid)
 
 def test_socket_server():
