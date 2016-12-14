@@ -7,6 +7,7 @@ import time
 import numpy as np
 from pytest import raises
 
+
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR, TEMP_DIR, PORT
 from cs207project.tsrbtreedb.makelcs import clear_dir, tsmaker, random_ts
 from cs207project.tsrbtreedb.simsearch_interface import simsearch_by_id,rebuild_if_needed, get_by_id,add_ts,simsearch_by_ts
@@ -22,7 +23,6 @@ def test_setup_temp_dir():
     """Clear existing temp dir and change working dir to be inside it"""
     clear_dir(TEMP_DIR)
     os.chdir(TEMP_DIR)
-
 
 def test_rebuild_if_needed():
     # Make small db with 250 light curves
@@ -115,19 +115,37 @@ def test_save_ts_to_db():
     echo_ts = s_client.get_ts_with_id(new_tsid)
     assert(kernel_dist(standardize(echo_ts), standardize(new_ts)) < .00001)
 
-def test_save_ts_to_db2():
+def test_save_ts_to_db_two():
     new_ts = ArrayTimeSeries(values=[0,1, 2, 3,10], times=[0.,.2,.3,.5,1])
     #new_ts = ArrayTimeSeries(values=[ 1.90015224,4.11290636,2.45059022,2.45251473,-4.1988066], times=[ 0.,0.2,0.4,0.6,0.8])
     #new_ts = (tsmaker(0.5, 0.1, random.uniform(0,10),5))
-    print(type(new_ts))
-    print("values",new_ts.values())
-    print("times",new_ts.times())
-    #assert(1==2)
+
     new_tsid = s_client.save_ts_to_db(new_ts)
     echo_ts = s_client.get_ts_with_id(new_tsid)
     interpolated_ats = new_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     assert(kernel_dist(standardize(echo_ts), standardize(interpolated_ats)) < .00001)
 
+def test_socket_server_error_handeling():
+
+    with raises(ValueError):
+        n_closest_dict = s_client.get_n_nearest_ts_for_tsid(-999999,5)
+
+    with raises(ValueError):
+        s_client.get_ts_with_id(-9999999)
+
+    fake_ats =  lambda x:x
+    fake_ats.values = lambda a=None:[1,2,3]
+    fake_ats.times = lambda b=None:[1,2,1]
+
+    with raises(ValueError):
+        s_client.save_ts_to_db(fake_ats)
+
+    with raises(ValueError):
+        s_client.get_n_nearest_ts_for_ts(fake_ats,5)
+
+    json_prep = {"type":"Non existent message type"}
+    s = s_client.open_socket(json_prep)
+    assert(s['error_type'] == 'ValueError')
 
 def test_shutdown_socket_server():
     """Shutdown socket server"""

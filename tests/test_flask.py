@@ -5,14 +5,14 @@
 # unit tests for flask interface.
 
 # imports
-from flask import render_template, make_response, jsonify, request
-from cs207project.flask.helper_functions import *
-from cs207project.flask.app import app, db, models
+# from flask import render_template, make_response, jsonify, request
+# from cs207project.flask.helper_functions import *
+# from cs207project.flask.app import app, db, models
 
 # test suite
 """
 Tests that should be run:
-- basic endpoint connectivity: 
+- basic endpoint connectivity:
 	- /timeseries/ GET
 		- /timeseries/ works and returns metadata
 		- /timeseries/level_in returns subset of levels
@@ -24,5 +24,5 @@ Tests that should be run:
 		- /timeseries/mean_in: input not in sorted order
 	- /timeseries/ POST
 
-- 
+-
 """

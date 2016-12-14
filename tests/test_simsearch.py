@@ -3,8 +3,11 @@
 
 import os
 import random
+import sys
 
 from pytest import raises
+#from mock import patch
+from unittest.mock import patch
 
 from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize, ccor
 import cs207project.tsrbtreedb.makelcs as makelcs
@@ -77,6 +80,25 @@ def test_simsearch():
     demo_ts_fn = random.choice(os.listdir('cs207project/tsrbtreedb/' + SAMPLE_DIR))
     demo_fp = 'cs207project/tsrbtreedb/' + SAMPLE_DIR + demo_ts_fn
     simsearchutil.sim_search(demo_fp,db_temp_dir,lc_temp_dir,False)
+
+
+def test_cmd_line_util():
+    os.chdir('cs207project/tsrbtreedb')
+
+    _ = simsearchutil.cmd_line_util()
+
+    old_sys_argv = sys.argv
+    sys.argv = old_sys_argv + ["-r", "-d"]
+    _ = simsearchutil.cmd_line_util()
+
+    old_sys_argv = sys.argv
+    sys.argv = old_sys_argv + ["-h"]
+    _ = simsearchutil.cmd_line_util()
+
+    clear_dir(LIGHT_CURVES_DIR,recreate=False)
+    clear_dir(DB_DIR,recreate=False)
+    os.chdir(os.pardir)
+    os.chdir(os.pardir)
 
 def test_crosscorr():
 
