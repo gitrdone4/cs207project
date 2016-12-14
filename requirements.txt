@@ -4,6 +4,5 @@ scipy
 portalocker
 statistics
 flask
-Flask-API
+flask-sqlalchemy
 markdown
-
