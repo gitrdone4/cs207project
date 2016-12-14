@@ -16,6 +16,7 @@ sudo apt-get install python3
 sudo apt-get install python3-setuptools
 sudo python3 setup.py install
 sudo pip3 install scipy
+sudo apt-get install python3-portalocker
 
 
 
