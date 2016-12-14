@@ -52,8 +52,8 @@ class ArrayTimeSeries(SizedContainerTimeSeriesInterface):
         # are (mostly) abstract things...
         self.__class__.is_sequence(times)
         self.__class__.is_sequence(values)
-        self._times = np.array(list(times))
-        self._values = np.array(list(values))
+        self._times = np.asfarray(list(times))
+        self._values = np.asfarray(list(values))
 
         if len(self._times) != len(self._values):
             raise ValueError("Time and input data of incompatible dimensions")

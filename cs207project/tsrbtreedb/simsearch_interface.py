@@ -18,13 +18,8 @@ def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
         simsearch.rebuild_lcs_dbs(lc_dir,db_dir, n_vps=n_vps, n_lcs=n_lcs)
 
 def sanitize_ats(ats):
-    float_vals = [float(v) for v in ats.values()]
-    float_times = [float(t) for t in ats.times()]
-    float_ats = ArrayTimeSeries(values=float_vals, times=float_times)
-    interpolated_ats = float_ats.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    interpolated_ats = ats.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
-
-
 
 def add_ts_wfm(ts,fsm):
     """

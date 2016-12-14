@@ -7,15 +7,15 @@ import time
 import numpy as np
 from pytest import raises
 
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR, TEMP_DIR
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR, TEMP_DIR, PORT
 from cs207project.tsrbtreedb.makelcs import clear_dir, tsmaker, random_ts
 from cs207project.tsrbtreedb.simsearch_interface import simsearch_by_id,rebuild_if_needed, get_by_id,add_ts,simsearch_by_ts
 from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize, ccor
 from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 
 from cs207project.socketclient.serialization import serialize, Deserializer
-from socketserver import BaseRequestHandler, TCPServer,ThreadingTCPServer
-from cs207project.tsrbtreedb.socket_server import EchoHandler
+from socketserver import BaseRequestHandler,ThreadingTCPServer
+from cs207project.tsrbtreedb.socket_server import SocketServer
 from cs207project.socketclient import client as s_client
 
 def test_setup_temp_dir():
@@ -80,7 +80,7 @@ def test_add_ts():
 def test_socket_server():
     # startup server on separate thread
     global serv
-    serv = ThreadingTCPServer(('', 20001), EchoHandler)
+    serv = ThreadingTCPServer(('', PORT), SocketServer)
     server_thread = threading.Thread(target=serv.serve_forever)
     server_thread.start()
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-simsearch.py contains the main functions for creating, adding, and searching a light curve databases.
+simsearch.py contains the main functions for creating, adding, and searching the light curve databases.
 
 """
 

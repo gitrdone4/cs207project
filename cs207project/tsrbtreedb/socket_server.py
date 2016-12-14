@@ -6,9 +6,15 @@ from socketserver import BaseRequestHandler, TCPServer
 from cs207project.socketclient.serialization import serialize, Deserializer
 import cs207project.timeseries.arraytimeseries as ats
 from cs207project.tsrbtreedb.simsearch_interface import simsearch_by_id, simsearch_by_ts, rebuild_vp_indexs, get_by_id, add_ts,rebuild_if_needed
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, PORT
 
-class EchoHandler(BaseRequestHandler):
+class SocketServer(BaseRequestHandler):
+    """
+    Class SocketServer
+
+    A socket class for sending and reciving time series data over a socket connection
+
+    """
     def handle(self):
         print('Got connection from', self.client_address)
         while True:
@@ -23,7 +29,6 @@ class EchoHandler(BaseRequestHandler):
                 msg_dict = ds.deserialize()
 
             # Step 2. take different actions depending on message type
-            # print(msg_dict)
 
             # Message type: get n_nearest ts for time series id
             if msg_dict["type"]=="with_id":
@@ -82,5 +87,5 @@ class EchoHandler(BaseRequestHandler):
 
 if __name__ == '__main__':
     rebuild_if_needed(LIGHT_CURVES_DIR, DB_DIR)
-    serv = TCPServer(('', 20001), EchoHandler)
+    serv = TCPServer(('', PORT), SocketServer)
     serv.serve_forever()
