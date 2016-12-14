@@ -7,7 +7,7 @@ sudo rm /etc/nginx/sites-enabled/*
 sudo rm /etc/nginx/sites-available/app_server_nginx.conf
 sudo rm /etc/nginx/sites-available/api_server_nginx.conf
 
-sudo cp ~/cs207Project/conf/app_server_nginx.conf /etc/nginx/sites-available/
+sudo cp ~/cs207project/conf/app_server_nginx.conf /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/app_server_nginx.conf /etc/nginx/sites-enabled/app_server_nginx.conf
 
 sudo service nginx restart
@@ -30,9 +30,9 @@ printf "\nMoving Repos Assets to www...\n"
 sudo rm -r /home/www
 sudo mkdir /home/www
 
-sudo rm /home/www/cs207Project -r
+sudo rm /home/www/cs207project -r
 # Need to import the whole project
-sudo cp ~/cs207Project /home/www/ -r
+sudo cp ~/cs207project /home/www/ -r
 
 printf "\nStarting Application Servers...\n"
 
