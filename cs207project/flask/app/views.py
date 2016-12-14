@@ -10,8 +10,8 @@ from flask import make_response, jsonify, request, url_for
 from cs207project.timeseries import arraytimeseries as arrts
 import cs207project.socketclient.client as cl
 from cs207project.handy_helpers import *
-from app import app, db, models
-from helper_functions import *
+from cs207project.flask.app import app, db, models
+from cs207project.flask.helper_functions import *
 import json
 
 # ARGUMENT VALIDATION
@@ -27,7 +27,7 @@ def validate(args, route, request_type):
     args: dict-like
         key-value pairs for query string arguments.
         alternatively json payload as dict
-    
+
     route: str
         route we are trying to access.
         e.g. '/timeseries/'
@@ -40,13 +40,13 @@ def validate(args, route, request_type):
     valid_json_fields = ['id','time', 'value']
 
     if route == '/timeseries':
-        
+
         if request_type == 'GET':
             pass
 
         else: # request_type == 'POST'
             pass
-    
+
     elif route == '/timeseries/id':
         pass
 
@@ -64,10 +64,8 @@ def front_page():
     """
     Renders instructions in case the user tried
     to access the "front page" of the API
-
-    TODO: render API docs instead?
     """
-    
+
     # this is not an error in the strict
     # sense of the word, just instructions
     endpoints = [
@@ -77,10 +75,10 @@ def front_page():
         '/simquery/?the_id=id GET',
         '/simquery/ POST'
     ]
-    
+
     intro_msg = \
     """Welcome! Please pick valid endpoint."""
-    
+
     msg_to_send = {
             'message': intro_msg,
             'available_endpoints': endpoints
@@ -99,7 +97,7 @@ def get_metadata():
 
     Parameters
     ----------
-    
+
     Case 1: GET (query string parameters)
     ------------
     mean_in: string
@@ -119,7 +117,7 @@ def get_metadata():
     and returns it as JSON. Note that the id is generated
     by our simsearch database, and not the user, so as to
     avoid error handling with already existing ids.
-    
+
     Returns
     -------
     HTTP Response with requested time series (meta)data.
@@ -136,13 +134,13 @@ def get_metadata():
 
         # create response from query result, jsonify and return
         response = [ts.to_dict() for ts in metadata]
-    
+
     elif request.method == 'POST':
 
         # step 1: get json, decode with ascii and make a dict
         response_txt = request.data.decode('ascii')
         response = json.loads(response_txt)
-        
+
         # step 2: json to arraytimeseries
         new_ts = arrts.ArrayTimeSeries.from_dict(response)
 
@@ -233,11 +231,6 @@ def get_similar():
     -------
     JSON of IDs of the five time series closest to
     the one specified by `tsid`.
-
-    Notes
-    -----
-    TODO: generalize to accept query string 
-    so that no. of returned ids could change?
     """
 
     if request.method == 'GET':

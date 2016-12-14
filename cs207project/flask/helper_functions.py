@@ -3,7 +3,7 @@
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
 from flask import abort, render_template, make_response, jsonify, request
-from app import models, db, views
+from cs207project.flask.app import models, db, views
 
 def parse_timeseries_get(arg_name, arg_val):
     """

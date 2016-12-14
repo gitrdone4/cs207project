@@ -1,7 +1,7 @@
 # models.py
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
-from app import db
+from cs207project.flask.app import db
 
 class TSMetadata(db.Model):
     """
