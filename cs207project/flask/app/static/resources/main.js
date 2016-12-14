@@ -89,7 +89,7 @@ $(document).ready(function() {
         }
     });
         $.ajax({
-        url: '/simquery/',
+        url: '/simquery',
         data: {
           "the_id": id
         },
@@ -392,7 +392,7 @@ $('#btn-get-by-id').click(function(e) {
       }
   });
       $.ajax({
-      url: '/simquery/',
+      url: '/simquery',
       data: {
         "the_id": id
       },
@@ -423,7 +423,7 @@ $('.btn-get-similar-ts').click(function(e) {
       }
   });
       $.ajax({
-      url: '/simquery/',
+      url: '/simquery',
       data: { 
         "the_id": id
       },
