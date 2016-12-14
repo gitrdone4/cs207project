@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Harvard CS207 Time Series Analysis">
+    <meta name="author" content="Nathaniel Burbank &bull; Nicholas Ruta &bull; Jonne Saleva &bull; Rohan Thavarajah">
+    <!-- <link rel="icon" href="../../favicon.ico"> -->
+
+    <title>Time Series Analysis</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static',filename='resources/bootstrap-3.3.7-dist/css/bootstrap.css')}}" rel="stylesheet" type="text/css">
+
+    <!-- Layout & Flot CSS -->
+    <link href="{{ url_for('static',filename='resources/styles.css')}}" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <img class="header-logo" src="{{url_for('static',filename='resources/iacs_logo.png')}}" alt="Harvard IACS CS207">
+
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+
+        <h1>Time Series Analysis</h1>
+
+        <img class="jumbotron-logo" src="{{url_for('static',filename='resources/time_series_logo.png')}}" alt="Harvard IACS CS207">
+
+        <p>Search the database to find similar time series to a "given" time series.</p>
+
+        <p>You can provide an id or upload a data file.</p>
+
+        <form id="main-form">
+          <div class="row">
+            <div class="col-xs-6">
+              <label for="exampleInputFile">Time Series ID#</label>
+              <input type="text" id="id-input" class="form-control" placeholder="" style="width:90px">
+              <br>
+              <button type="submit" id="btn-get-by-id" class="btn btn-primary">Get Time Series &raquo;</button>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+              <label for="exampleInputFile">Time Series Data File</label>
+              <input type="file" class="form-control-file" id="input-file" aria-describedby="fileHelp">
+              <small id="fileHelp" class="form-text text-muted">Upload a time series data file.</small>
+            </div>
+              <button type="submit" id="btn-get-by-file" class="btn btn-primary">Get Time Series &raquo;</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <section id="main-content" style="display: none;">
+        <div class="row">
+          <div class="col-sm-3" style="padding:15px 0 0 70px">
+            <ul class="list-group" style="width:250px">
+              <li class="list-group-item" id="primary-id">ID - <span></span></li>
+              <li class="list-group-item" id="primary-std">STD - <span></span></li>
+              <li class="list-group-item" id="primary-mean">MEAN - <span></span></li>
+              <li class="list-group-item" id="primary-blarg">BLARG - <span></span></li>
+              <li class="list-group-item" id="primary-level">LEVEL - <span></span></li>
+            </ul>
+          </div>
+          <div class="col-sm-8" >
+            <div class="primary-container">
+              <div id="placeholder" class="primary-placeholder"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+              <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                  Similar Time Series #1
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-sm-4 secondary-panel">
+                    <ul class="list-group" style="width:250px">
+                      <li class="list-group-item" id="secondary1-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary1-std">STD - <span></span></li>
+                      <li class="list-group-item" id="secondary1-mean">MEAN - <span></span></li>
+                      <li class="list-group-item" id="secondary1-blarg">BLARG - <span></span></li>
+                      <li class="list-group-item" id="secondary1-level">LEVEL - <span></span></li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts">Get Time Series &raquo;</button>
+                  </div>
+                  <div class="col-sm-8" >
+                      <div class="secondary-container">
+                        <div id="s1_placeholder" class="secondary-placeholder"></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTwo">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  Similar Time Series #2
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-sm-4 secondary-panel">
+                    <ul class="list-group" style="width:250px">
+                      <li class="list-group-item" id="secondary2-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary2-std">STD - <span></span></li>
+                      <li class="list-group-item" id="secondary2-mean">MEAN - <span></span></li>
+                      <li class="list-group-item" id="secondary2-blarg">BLARG - <span></span></li>
+                      <li class="list-group-item" id="secondary2-level">LEVEL - <span></span></li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts">Get Time Series &raquo;</button>
+                  </div>
+                  <div class="col-sm-8" >
+                      <div class="secondary-container">
+                        <div id="s2_placeholder" class="secondary-placeholder"></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Similar Time Series #3
+                </a>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+              <div class="panel-body">
+                THIS IS 3
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingFour">
+                <h4 class="panel-title">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                    Similar Time Series #4
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                <div class="panel-body">
+                  HERE IS 4
+                </div>
+              </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingFive">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                  Similar Time Series #5
+                </a>
+              </h4>
+            </div>
+            <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+              <div class="panel-body">
+                I PUT STUFF FOR 5
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div> <!-- /container -->
+    <footer>
+      <h5 style="color:maroon;text-align:center;">Team GitRdone4 &mdash; Nathaniel Burbank &bull; Nicholas Ruta &bull; Jonne Saleva &bull; Rohan Thavarajah</h5>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="{{url_for('static',filename='resources/main.js')}}"></script>
+    <!-- <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script> -->
+    <script src="{{url_for('static',filename='resources/bootstrap-3.3.7-dist/js/bootstrap.min.js')}}"></script>
+
+    <!-- Import Flot library -->
+    <script language="javascript" type="text/javascript" src="{{url_for('static',filename='resources/flot/jquery.flot.min.js')}}"></script>
+  </body>
+</html>
