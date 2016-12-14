@@ -1,6 +1,6 @@
 # GitRdone4 Time Series
 
-A flexible collection of python classs for manipulating and analyzing time series data.
+A flexible collection of python classes for searching and analyzing time series data.
 
 [![Build Status](https://travis-ci.org/gitrdone4/cs207project.svg?branch=master)](https://travis-ci.org/gitrdone4/cs207project)
 
@@ -20,7 +20,15 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 
 Just run `python setup.py test`
 
-### Additional Features
+### Internal Modules
+
+- Timeseries: class implementations for TimeSeries,Array Time Series, and  Stream Time Series
+- RBTree: RedBlack Tree database for saving sorted key-value pairs to disk
+- Storagemanager: Class for managing ids and storing time series to disk
+- tsrbtreedb: Module for searching through time series based on similarity. Provides a command line and socket server interface for performing similarity searches.
+- socketclient: Socket Client for sending and retrieving time series data over a network connection from simsearch socket server.
+
+### Additional Time Series Class Features
 
 1. Supports adding, subtracting, multiplying, and other manipulations on fixed-length data sets.
 2. Support manipulation of time-series streams (i.e., data sets that are ongoing, and don't have fixed storage)
@@ -30,7 +38,11 @@ Just run `python setup.py test`
 ### Required Python Modules
 
 - [NumPy](http://www.numpy.org)
-- [pytest](http://doc.pytest.org/en/latest/)
+- [Pytest](http://doc.pytest.org/en/latest/)
+- [Flask](http://flask.pocoo.org)
+- [Flask-sqlalchemy](Flask-sqlalchemy)
+- [Portalocker](https://pypi.python.org/pypi/portalocker)
+- [SciPy](https://www.scipy.org)
 
 ### Developers:
 - Jonne Saleva
