@@ -1,13 +1,25 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
-import cs207project.tsrbtreedb.simsearch as simsearch
+"""
+Simsearch Socket Server Interface
+
+Sim Search interface contains the main functions that the socket server calls to access
+and save info to the database on disk
+
+Main functions:
+    get_by_id                   Retrieve existing time series by id
+    add_ts                      Save new time series to database
+    simsearch_by_id             Find nearest n time series for submitted time series
+    simsearch_by_ts             Find nearest n time series for  existing id
+    rebuild_vp_indexs           Rebuilds vantage point databases, based on existing time series saved to disk
+
+"""
+
 import numpy as np
+import cs207project.tsrbtreedb.simsearch as simsearch
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
-from cs207project.tsrbtreedb.makelcs import clear_dir
-from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
-from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR,tsid_to_fn,tsfn_to_id
+from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH,tsid_to_fn,tsfn_to_id
 
 def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
     """
@@ -18,6 +30,7 @@ def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
         simsearch.rebuild_lcs_dbs(lc_dir,db_dir, n_vps=n_vps, n_lcs=n_lcs)
 
 def sanitize_ats(ats):
+    """ Helper to ensure that external time series are reshaped to be the correct length"""
     interpolated_ats = ats.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
 
@@ -42,6 +55,9 @@ def add_ts_wfm(ts,fsm):
         tsid = tsfn_to_id(tsid)
 
     return tsid
+
+
+### Main Interface Functions ###
 
 def add_ts(ts):
     """Wrapper for function above for cases where file storage manager object has not already been generated"""
@@ -143,5 +159,3 @@ def rebuild_vp_indexs(n=20):
     """
     simsearch.create_vpdbs(n,LIGHT_CURVES_DIR,DB_DIR)
 
-if __name__ == '__main__':
-    print(simsearch_by_id(2000,n=5))

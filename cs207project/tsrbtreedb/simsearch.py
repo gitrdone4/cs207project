@@ -2,7 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-simsearch.py contains the main functions for creating, adding, and searching the light curve databases.
+simsearch.py
+
+Contains the main functions for creating, adding, and searching the light curve databases.
+
+Main functions:
+    - load_external_ts          Loads space delimited time series text file from disk to be searched on.
+    - rebuild_lcs_dbs           Regenerate light curves and rebuild vp indexes
+    - search_vpdb_for_n         Uses parallel process to search for n most similar light curves
+    - add_ts_to_vpdbs           Adds single new time series to vp indexes
 
 """
 
@@ -10,7 +18,6 @@ import os
 import heapq
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
-
 from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
 from cs207project.tsrbtreedb.makelcs import make_lcs_wfm
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
@@ -22,7 +29,7 @@ import cs207project.timeseries.arraytimeseries as ats
 
 from cs207project.tsrbtreedb.settings import TS_LENGTH, tsfn_to_id, tsid_to_fn
 
-# Helper functions
+### Helper functions ###
 
 def load_nparray(filepath):
     """Helper to load space delimited nparray from disk"""
@@ -45,6 +52,51 @@ def load_ts_wo_fm(ts_id,lc_dir):
     """Wraps load_ts above for functions that don't already have a file manager object"""
     fsm = FileStorageManager(lc_dir)
     return load_ts(ts_id,fsm)
+
+
+def load_vp_lcs(db_dir, lc_dir):
+    """
+    Based on names of vantage point db files loads and returns time series curves
+    of identified vantage points from disk
+    """
+    vp_dict={}
+    fsm = FileStorageManager(lc_dir)
+
+    for file in os.listdir(db_dir):
+        if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
+            lc_id = file[:-5]
+            vp_dict[lc_id] = load_ts(lc_id, fsm)
+
+    return vp_dict
+
+def find_closest_vp(vps_dict, ts):
+    """
+    Calculates distances from time series to all vantage points.
+    Returns tuple with filename of closest vantage point and distance to that vantage point.
+    """
+    s_ts = standardize(ts)
+    vp_distances = sorted([(kernel_dist(s_ts, standardize(vps_dict[vp])),vp) for vp in vps_dict])
+    dist_to_vp, vp_fn = vp_distances[0]
+    return (vp_fn,dist_to_vp)
+
+def find_lc_candidates(vp_t, db_dir, lc_dir):
+    """
+    Identifies light curves in selected vantage db that are up to 2x the distance
+    that the time series is from the vantage point
+
+    Returns tuple with list of light curve candidates and file storage manager object
+    """
+
+    fsm = FileStorageManager(lc_dir)
+
+    vp_fn, dist_to_vp = vp_t
+
+    db = connect(db_dir + vp_fn + ".dbdb")
+    lc_candidates = db.chop(2 * dist_to_vp)
+    db.close()
+
+    return (lc_candidates,fsm)
+
 
 def load_external_ts(filepath):
     """
@@ -71,16 +123,6 @@ def load_external_ts(filepath):
     interpolated_ats = full_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     return interpolated_ats
 
-def ts_already_exists(ts, db_dir, lc_dir):
-    """
-    Helper that search ts database to see if time series already exists
-
-    Returns tsid (e.g., 456) if it finds a matching time series, -1 otherwise
-    """
-    vp_t = find_closest_vp(load_vp_lcs(db_dir,lc_dir),ts)
-    _ ,existing_ts_id = search_vpdb_for_n(vp_t, ts, db_dir, lc_dir, 5)
-
-    return existing_ts_id
 
 def need_to_rebuild(lc_dir, db_dir):
     """Helper to determine whether required lc files and database files already exist or need to be generated"""
@@ -112,13 +154,15 @@ def need_to_rebuild(lc_dir, db_dir):
     return False
 
 def rebuild_lcs_dbs(lc_dir, db_dir, n_vps=20, n_lcs=1000):
-    """Calls functions to regenerate light curves and rebuild vp indexes"""
+    """Regenerate light curves and rebuild vp indexes"""
     print("\nRebuilding simulated light curves and vantage point index files....\n(This may take up to 30 seconds)")
     make_lcs_wfm(n_lcs, lc_dir)
     create_vpdbs(n_vps,lc_dir,db_dir)
     print("Indexes rebuilt.\n")
 
-# Main functions for similarity search
+#####################################################
+###    Main functions for similarity searching    ###
+#####################################################
 
 def search_vpdb_for_n(vp_t, ts, db_dir, lc_dir, n):
     """
@@ -174,12 +218,48 @@ def calc_distance(lc_candidate_data):
     return(dist_to_ts,tsfn_to_id(ts_fn))
 
 
+def search_vpdb(vp_t, ts, db_dir, lc_dir):
+    """
+    Searches for most *single* most similar light curve based on pre-computed distances in vpdb
+
+    Used by command line utility (not by Rest API)
+
+    Args:
+        vp_t: tuple containing vantage point filename and distance of time series to vantage point
+        ts: time series to search on.
+    Returns:
+        Tuple: Distance to closest light curve, filename of closest light curve, ats object for closest light curve
+
+    """
+    n_smallest_d,_ = search_vpdb_for_n(vp_t, ts, db_dir, lc_dir, 1)
+    min_dist,closest_tsid = [(k,n_smallest_d[k]) for k in n_smallest_d][0]
+
+    closest_ts_fn = tsid_to_fn(closest_tsid)
+    closest_ts = load_ts_wo_fm(closest_ts_fn,lc_dir)
+    return(min_dist,closest_ts_fn + '.npy',closest_ts)
+
+
+def ts_already_exists(ts, db_dir, lc_dir):
+    """
+    Helper that search ts database to see if time series already exists
+
+    Returns tsid (e.g., 456) if it finds a matching time series, -1 otherwise
+    """
+    vp_t = find_closest_vp(load_vp_lcs(db_dir,lc_dir),ts)
+    _ ,existing_ts_id = search_vpdb_for_n(vp_t, ts, db_dir, lc_dir, 5)
+
+    return existing_ts_id
+
+#####################################################
+### Functions for adding a new ts to the database ###
+#####################################################
+
 def add_ts_to_vpdbs(ts, ts_fn, db_dir, lc_dir):
     """
     Based on names of vantage point db files, adds single new time series to vp indexes
     (Does not re-pick vantage points)
 
-    Uses ProcessPoolExecutor to run in parallel.
+    Uses ProcessPoolExecutor to run processes in parallel.
     """
 
     fsm = FileStorageManager(lc_dir)
@@ -206,70 +286,6 @@ def add_ts_to_vpdb(data_tuple):
     db.set(dist_to_vp,ts_fn)
     db.commit()
     db.close()
-
-
-def load_vp_lcs(db_dir, lc_dir):
-    """
-    Based on names of vantage point db files loads and returns time series curves
-    of identified vantage points from disk
-    """
-    vp_dict={}
-    fsm = FileStorageManager(lc_dir)
-
-    for file in os.listdir(db_dir):
-        if file.startswith("ts_datafile_") and file.endswith(".dbdb"):
-            lc_id = file[:-5]
-            vp_dict[lc_id] = load_ts(lc_id, fsm)
-
-    return vp_dict
-
-def find_closest_vp(vps_dict, ts):
-    """
-    Calculates distances from time series to all vantage points.
-    Returns tuple with filename of closest vantage point and distance to that vantage point.
-    """
-    s_ts = standardize(ts)
-    vp_distances = sorted([(kernel_dist(s_ts, standardize(vps_dict[vp])),vp) for vp in vps_dict])
-    dist_to_vp, vp_fn = vp_distances[0]
-    return (vp_fn,dist_to_vp)
-
-def find_lc_candidates(vp_t, db_dir, lc_dir):
-    """
-    Identifies light curves in selected vantage db that are up to 2x the distance
-    that the time series is from the vantage point
-
-    Returns tuple with list of light curve candidates and file storage manager object
-    """
-
-    fsm = FileStorageManager(lc_dir)
-
-    vp_fn, dist_to_vp = vp_t
-
-    db = connect(db_dir + vp_fn + ".dbdb")
-    lc_candidates = db.chop(2 * dist_to_vp)
-    db.close()
-
-    return (lc_candidates,fsm)
-
-def search_vpdb(vp_t, ts, db_dir, lc_dir):
-    """
-    Searches for most *single* most similar light curve based on pre-computed distances in vpdb
-
-    Used by command line utility (not by Rest API)
-
-    Args:
-        vp_t: tuple containing vantage point filename and distance of time series to vantage point
-        ts: time series to search on.
-    Returns:
-        Tuple: Distance to closest light curve, filename of closest light curve, ats object for closest light curve
-
-    """
-    n_smallest_d,_ = search_vpdb_for_n(vp_t, ts, db_dir, lc_dir, 1)
-    min_dist,closest_tsid = [(k,n_smallest_d[k]) for k in n_smallest_d][0]
-
-    closest_ts_fn = tsid_to_fn(closest_tsid)
-    closest_ts = load_ts_wo_fm(closest_ts_fn,lc_dir)
-    return(min_dist,closest_ts_fn + '.npy',closest_ts)
 
 if __name__ == "__main__":
     """Activate command line util in simsearchutil if run directly"""
