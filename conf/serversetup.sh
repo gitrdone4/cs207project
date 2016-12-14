@@ -49,7 +49,7 @@ sudo python3 run.py & disown
 #cd /home/www/CS207Project/CS207Project/MS3/api-server/ && nohup python3 flaskr.py & disown
 #cd /home/www/CS207Project/CS207Project/MS3/app-server/ && nohup python3 run.py & disown
 
-sudo apt-get install python3-portalocker
+
 
 sudo mkdir /home/www/DB
 
