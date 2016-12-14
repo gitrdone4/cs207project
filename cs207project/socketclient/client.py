@@ -1,26 +1,47 @@
-# CLIENT
+#!/usr/local/bin/python3
+# -*- coding: utf-8 -*-
+
+"""
+Socket Server Client
+
+This module contains the functions for formating socket requests  and sending them to the socket server.
+
+Main functions
+    get_ts_with_id              Retrieve existing time series by id
+    save_ts_to_db               Save new time series to database
+    get_n_nearest_ts_for_ts     Find nearest n time series for submitted time series
+    get_n_nearest_ts_for_tsid   Find nearest n time series for  existing id
+    open_socket                 Performs socket server magic
+
+"""
 
 import sys
 import json
 import collections
 import time
-import os
 import numpy as np
-import random
+
 from cs207project.socketclient.serialization import serialize, Deserializer
 from socket import socket, AF_INET, SOCK_STREAM
 
-from cs207project.tsrbtreedb.crosscorr import standardize, kernel_dist
-from cs207project.tsrbtreedb.makelcs import make_lcs_wfm
-from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
-from cs207project.rbtree.redblackDB import connect
-from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.timeseries.arraytimeseries as ats
-import cs207project.tsrbtreedb.simsearch as simsearch
-from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
-from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
+from cs207project.tsrbtreedb.simsearch import load_external_ts
+from cs207project.tsrbtreedb.settings import PORT,SOCKET_SERVER_IP
 
-def open_socket(json_prep,ip = 'localhost',port = 20001):
+def open_socket(json_prep,ip=SOCKET_SERVER_IP,port =PORT,timeout=15):
+    """
+    Open Socket -- where the socket server magic happens!
+
+    Args:
+        json_prep: Specially formated dict
+        ip: Ip address of socket server
+        port: Port of socket server
+        timeout: time in seconds client should wait before timing out
+
+    Returns:
+        Specially formated reponse_dict from socket server
+
+    """
     s = socket(AF_INET, SOCK_STREAM)
     s.connect((ip,port))
 
@@ -40,21 +61,15 @@ def open_socket(json_prep,ip = 'localhost',port = 20001):
     ds = Deserializer()
     ds.append(msg)
 
-    timeout = 0
-    while not ds.ready() and timeout < 10:
-        timeout += 1
+    # What until ds is ready, or timeout
+    waittime = 0
+    while not ds.ready() and waittime  < timeout:
+        waittime += 1
         time.sleep(1)
 
-    proximity_dict = ds.deserialize()
-    return proximity_dict
+    reponse_dict = ds.deserialize()
+    return reponse_dict
 
-
-def sanitize_ats(ats):
-    """Help that ensures all ats objects are encoded with floats only"""
-    float_vals = [float(v) for v in ats.values()]
-    float_times = [float(t) for t in ats.times()]
-    float_ats = ArrayTimeSeries(values=float_vals, times=float_times)
-    return float_ats
 
 def get_ts_with_id(tsid):
     """
@@ -79,15 +94,19 @@ def save_ts_to_db(ats):
     """
     Saves submitted ats object to database.
 
-    Returns assigned time series id.
+    Args:
+        ats: array time series object ()
+    Returns:
+        tsid: the assigned time series id.
+    Raises:
+        ValueError if there's a problem saving the time series.
+
+    If time series has already been saved, will return existing id.
 
     Note: get_n_nearest_ts_for_ts (below) will *also* save the time
     Submitted time series to the database if it's new.
 
     """
-
-    # Casts all times and values to floats before sending over socket
-    ats = sanitize_ats(ats)
 
     json_prep = {"type":"save_ts_to_db","ts":list(zip(ats.times(),ats.values()))}
     s = open_socket(json_prep)
@@ -102,14 +121,14 @@ def get_n_nearest_ts_for_tsid(tsid, n=5):
     """
     Returns ordered dict of n nearest time series for preexisting id
 
-    Args
+    Args:
         tsid: int id of preexisting time series (e.g., 456)
         n: number of time series ids to be returned
 
     Returns:
         Ordered dict of nearest n time series, with distance values as keys and time series ids as values
     Raises:
-        Value error if time series id does not exist
+        Value error if time series id does not exist in database
 
     """
     json_prep = {"type":"with_id","id":tsid,'n':n}
@@ -151,10 +170,11 @@ def get_n_nearest_ts_for_ts(ats, n=5):
         return s
 
 if __name__ == "__main__":
-
-# conditional execution based on if the user passes an id or filepath
-# if user gives an int assume they have given us an id they expect to find in the database
-# if user gives us a string assume that it is a filepath
+    """
+    conditional execution based on if the user passes an id or filepath
+    if user gives an int assume they have given us an id they expect to find in the database
+    if user gives us a string assume that it is a filepath
+    """
 
     user_input = sys.argv[1]
     # 1 prep message for json conversion
@@ -162,7 +182,7 @@ if __name__ == "__main__":
         #print(get_n_nearest_ts_for_tsid(user_input, n=2))
         print(get_ts_with_id(user_input))
     elif isinstance(user_input, str):
-        full_ts = simsearch.load_external_ts(user_input)
+        full_ts = load_external_ts(user_input)
         #print(get_n_nearest_ts_for_ts(full_ts, n=2))
         print(save_ts_to_db(full_ts))
     else:
