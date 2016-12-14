@@ -7,12 +7,56 @@
 # and the socket-fronted Red-Black Tree database
 
 from flask import make_response, jsonify, request, url_for
-from cs207project.timeseries import arraytimeseries
+from cs207project.timeseries import arraytimeseries as arrts
 import cs207project.socketclient.client as cl
 from cs207project.handy_helpers import *
 from app import app, db, models
 from helper_functions import *
 import json
+
+# ARGUMENT VALIDATION
+def validate(args, route, request_type):
+    """
+    Description
+    -----------
+    Validates query string or JSON payload
+    depending on the route and request type.
+
+    Parameters
+    ----------
+    args: dict-like
+        key-value pairs for query string arguments.
+        alternatively json payload as dict
+    
+    route: str
+        route we are trying to access.
+        e.g. '/timeseries/'
+
+    request_type: str
+        type of request we are trying to perform.
+        must be 'GET' or 'POST'
+    """
+
+    valid_json_fields = ['id','time', 'value']
+
+    if route == '/timeseries':
+        
+        if request_type == 'GET':
+            pass
+
+        else: # request_type == 'POST'
+            pass
+    
+    elif route == '/timeseries/id':
+        pass
+
+    elif route == '/simquery':
+
+        if request_type == 'GET':
+            pass
+
+        else: # request_type == 'POST'
+            pass
 
 # API ENDPOINTS
 @app.route('/')
@@ -72,7 +116,9 @@ def get_metadata():
     Case 2: POST
     ------------
     Takes JSON as input, adds it to time series DB
-    and returns it as JSON.
+    and returns it as JSON. Note that the id is generated
+    by our simsearch database, and not the user, so as to
+    avoid error handling with already existing ids.
     
     Returns
     -------
@@ -93,24 +139,19 @@ def get_metadata():
     
     elif request.method == 'POST':
 
-        # step 1: get json
-        response = dict(request.data)
-        valid_json_fields = ['id','time', 'value']
-
-        if not set(response.keys()) == set(valid_json_fields):
-            error_message = \
-            'Error! Bad Request: Payload can only contain fields {}'\
-            .format(valid_json_fields)
-
-            return bad_request(error_message)
-
+        # step 1: get json, decode with ascii and make a dict
+        response_txt = request.data.decode('ascii')
+        response = json.loads(response_txt)
+        
         # step 2: json to arraytimeseries
-        #ats = ArrayTimeSeries.from_dict(response)
+        new_ts = arrts.ArrayTimeSeries.from_dict(response)
 
         # step 3: add timeseries to db
+        new_tsid = cl.save_ts_to_db(new_ts)
 
         # step 4: return the timeseries 
         # (no need for new request, can do locally)
+        return cl.get_ts_with_id(new_tsid)
 
     return make_response(jsonify(response), 200)
 
@@ -167,12 +208,26 @@ def get_similar():
     """
     Description
     ------------
+
+    GET
+    ---
     Fetches IDs for five most similar time series
     for the one specified by `tsid`.
 
+    POST
+    ----
+    Fetches IDs for five most similar time series
+    for the one specified in the JSON payload   
+
     Parameters
     ----------
+    GET
+    ---
     tsid: int
+
+    POST
+    ----
+    payload: json
 
     Returns
     -------
@@ -188,16 +243,7 @@ def get_similar():
     if request.method == 'GET':
 
         # get ts id from query string
-        try:
-            tsid = int(request.args['id'])
-        except KeyError:
-            error_message = \
-            "Error! Bad Request: query string can only have field 'id'!"
-            return bad_request(error_message)
-        except ValueError:
-            error_message = \
-            "Error! Bad Request: values for 'id' must be integers!"
-            return bad_request(error_message)
+        tsid = int(request.args['the_id'])
 
         # get nearest
         vptdb_output = cl.get_n_nearest_ts_for_tsid(tsid)

@@ -3,7 +3,7 @@
 # (c) Jonne Saleva, Nathaniel Burbank, Nicholas Ruta, Rohan Thavarajah
 
 from flask import abort, render_template, make_response, jsonify, request
-from app import models, db
+from app import models, db, views
 
 def parse_timeseries_get(arg_name, arg_val):
     """
@@ -37,10 +37,6 @@ def parse_timeseries_get(arg_name, arg_val):
         'level': ','
     }
 
-    # validate `arg_name` input
-    if arg_name not in separators:
-        abort(500)
-
     # get the right separtor, split and return
     sep = separators[arg_name]
     return tuple(arg_val.split(sep))
@@ -67,30 +63,17 @@ def get_filter_expression(query_args):
 
         # first parse the actual string argument
 
-        # nb: note also the conscious design choice
-        # to also support sth like "mean_in=5-4" by
-        # using sorted()
-
         arg_vals = parse_timeseries_get(arg, query_args[arg])
 
         if arg == "level_in":
-            
-            if not all([s.isalpha() for s in arg_vals]):
-                abort(500)
-            
             filter_exp = "ts_metadata_level IN {}".format(arg_vals)
 
         elif arg == "mean_in":
-            
-            if not all([s.isdigit() for s in arg_vals]):
-                abort(500)
-            
             filter_exp = "ts_metadata_mean >= {} AND ts_metadata_mean <= {}"\
-                            .format(*sorted(arg_vals))
+                            .format(*arg_vals)
 
         elif arg == "level":
-            
-            filter_exp = "ts_metadata_level = '{}'".format(*sorted(arg_vals))
+            filter_exp = "ts_metadata_level = '{}'".format(*arg_vals)
 
         # append final result to filters list
         return filter_exp

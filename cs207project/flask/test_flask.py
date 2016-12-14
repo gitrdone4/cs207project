@@ -18,10 +18,11 @@ Tests that should be run:
 	- /timeseries/ GET
 		- /timeseries/ works and returns metadata
 		- /timeseries/level_in returns subset of levels
-		- /timeseries/level_in fails gracefully if given nonexistent level (incl composite case)
-		- /timeseries/level_in fails gracefully if given no input (invalid url string)
-		- /timeseries/level_in: non-letter inputs
-		- /timeseries/mean_in: non-numeric inputs
+		- /timeseries/level_in returns subset of levels
+		- /timeseries/level_in if given nonexistent level (incl composite case)
+		- /timeseries/level_in if given no input (invalid url string)
+		- /timeseries/level_in: non-letter inputs, wrong separator
+		- /timeseries/mean_in: non-numeric inputs, wrong separator
 		- /timeseries/mean_in: input not in sorted order
 	- /timeseries/ POST
 

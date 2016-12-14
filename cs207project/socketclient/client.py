@@ -17,7 +17,6 @@ from cs207project.rbtree.redblackDB import connect
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.timeseries.arraytimeseries as ats
 import cs207project.tsrbtreedb.simsearch as simsearch
-
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
 
 def open_socket(json_prep,ip = 'localhost',port = 20001):
@@ -55,7 +54,7 @@ def get_ts_with_id(tsid):
     Raise value error if time series id does not exist in database
     """
 
-    json_prep = {"type":"get_by_id","tsid":tsid}
+    json_prep = {"type":"get_by_id","ts":tsid}
     s = open_socket(json_prep)
 
     if 'error_type' in s:
@@ -79,6 +78,9 @@ def save_ts_to_db(ats):
     """
 
     json_prep = {"type":"save_ts_to_db","ts":list(zip(ats.times(),ats.values()))}
+    print('\n\n\n')
+    print(json_prep['ts'])
+    print('\n\n\n')
     s = open_socket(json_prep)
 
     if 'error_type' in s:
@@ -138,8 +140,6 @@ def get_n_nearest_ts_for_ts(ats, n=5):
     else:
         s['n_closest_dict'] = collections.OrderedDict(sorted(s['n_closest_dict'].items()))
         return s
-
-
 
 if __name__ == "__main__":
 

@@ -332,6 +332,27 @@ class SizedContainerTimeSeriesInterface(TimeSeriesInterface):
             'value': [v for v in self._values]
         }
 
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Description
+        -----------
+        Constructor to create a time series of a fixed
+        size based on a dictionary of data `d`.
+
+        Parameters
+        ----------
+        d: dict
+            must contain keys ['time', 'value']
+        """
+
+        # validate
+        valid_key_cond = 'time' in d and 'value' in d
+        if not valid_key_cond:
+            raise KeyError("Input dictionary must have keys `time` and `value`!")
+
+        return cls(times=d['time'], values=d['value'])
+
 
     ##############################################################################
     ## GLOBAL HELPER METHODS FOR ALL CONTAINER TIME SERIES.
