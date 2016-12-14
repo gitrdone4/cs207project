@@ -25,7 +25,6 @@ printf "\nMoving Repos Assets to www...\n"
 #     level level NOT NULL 
 # );"
 
-
 # Recreate /home/www
 sudo rm -r /home/www
 sudo mkdir /home/www
@@ -36,8 +35,6 @@ sudo cp ~/cs207project /home/www/ -r
 
 printf "\nStarting Application Servers...\n"
 
-
-
 cd ~/cs207project/cs207project/tsrbtreedb
 sudo python3 socket_server.py & disown
 #echo "Socket Server Started"
@@ -46,13 +43,8 @@ cd ~/cs207project/cs207project/flask
 
 sudo python3 run.py & disown
 #echo "REST API Server Started"
-#cd /home/www/CS207Project/CS207Project/MS3/api-server/ && nohup python3 flaskr.py & disown
-#cd /home/www/CS207Project/CS207Project/MS3/app-server/ && nohup python3 run.py & disown
-
-
 
 sudo mkdir /home/www/DB
 
 # Permissions needed to be given, if not write/delete of files cannot be done
 sudo chmod 777 -R /home/www
-
