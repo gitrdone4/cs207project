@@ -12,9 +12,27 @@ Final group project for Harvard's CS 207 course, [Systems Development for Comput
 
 Time series are two-dimensional (or higher) arrays of numeric data, where ordered time-values are bound to specific data points that represent specific outcomes, measurements, or other values associated with specific times.  While time series data can be stored using traditional arrays or tables, the classes included in this library make working with these types of data sets in python easier by enforcing the core properties of a time series at a class level. For example, in a time series no two times can be repeated. And every represented value needs a time associated with it. By creating and manipulating data-sets using these classes, these properties are enforced at all times.
 
+### Instructions for Running the Project in an EC2 Instance
+1. Create an Ubuntu 16.04 instance on Amazon EC2.
+2. Make sure the security group allows HTTP access on port 80.
+3. Connect via ssh:
+```
+$ chmod 0400 pair.sem
+$ sudo ssh -i "pair.sem" ubuntu@insert_public_ip
+```
+4. Run the following commands to provision the system:
+```
+git clone https://github.com/gitrdone4/cs207project.git
+cd ~/cs207project/conf
+bash cs207_bash.sh
+press q when nginx server pauses runtime with message stating that the process has started
+bash serversetup.sh
+You should now be able to hit the home page in a browser!
+```
+
 ### How to install
 1. Clone repo
-2. Run `python setup.py install`
+2. Run `python setup.py install` from the root directory 'cs207project'
 
 ### Running tests
 
