@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="Harvard CS207 Time Series Analysis">
     <meta name="author" content="Nathaniel Burbank &bull; Nicholas Ruta &bull; Jonne Saleva &bull; Rohan Thavarajah">
-    <!-- <link rel="icon" href="../../favicon.ico"> -->
 
     <title>Time Series Analysis</title>
 
@@ -87,13 +86,13 @@
                 <div class="row">
                   <div class="col-sm-4 secondary-panel">
                     <ul class="list-group" style="width:250px">
-                      <li class="list-group-item" id="secondary1-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary1-id">ID - <span id="hello" class="id"></span></li>
                       <li class="list-group-item" id="secondary1-std">STD - <span></span></li>
                       <li class="list-group-item" id="secondary1-mean">MEAN - <span></span></li>
                       <li class="list-group-item" id="secondary1-blarg">BLARG - <span></span></li>
                       <li class="list-group-item" id="secondary1-level">LEVEL - <span></span></li>
                     </ul>
-                    <button type="submit" class="btn btn-primary btn-get-similar-ts">Get Time Series &raquo;</button>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts btn1">Get Time Series &raquo;</button>
                   </div>
                   <div class="col-sm-8" >
                       <div class="secondary-container">
@@ -118,13 +117,13 @@
                 <div class="row">
                   <div class="col-sm-4 secondary-panel">
                     <ul class="list-group" style="width:250px">
-                      <li class="list-group-item" id="secondary2-id">ID - <span></span></li>
+                      <li class="list-group-item id" id="secondary2-id">ID - <span class="id"></span></li>
                       <li class="list-group-item" id="secondary2-std">STD - <span></span></li>
                       <li class="list-group-item" id="secondary2-mean">MEAN - <span></span></li>
                       <li class="list-group-item" id="secondary2-blarg">BLARG - <span></span></li>
                       <li class="list-group-item" id="secondary2-level">LEVEL - <span></span></li>
                     </ul>
-                    <button type="submit" class="btn btn-primary btn-get-similar-ts">Get Time Series &raquo;</button>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts btn2">Get Time Series &raquo;</button>
                   </div>
                   <div class="col-sm-8" >
                       <div class="secondary-container">
@@ -145,7 +144,23 @@
             </div>
             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
               <div class="panel-body">
-                THIS IS 3
+                <div class="row">
+                  <div class="col-sm-4 secondary-panel">
+                    <ul class="list-group" style="width:250px">
+                      <li class="list-group-item id" id="secondary3-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary3-std">STD - <span></span></li>
+                      <li class="list-group-item" id="secondary3-mean">MEAN - <span></span></li>
+                      <li class="list-group-item" id="secondary3-blarg">BLARG - <span></span></li>
+                      <li class="list-group-item" id="secondary3-level">LEVEL - <span></span></li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts btn3">Get Time Series &raquo;</button>
+                  </div>
+                  <div class="col-sm-8" >
+                      <div class="secondary-container">
+                        <div id="s3_placeholder" class="secondary-placeholder"></div>
+                      </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -159,7 +174,23 @@
               </div>
               <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
                 <div class="panel-body">
-                  HERE IS 4
+                  <div class="row">
+                  <div class="col-sm-4 secondary-panel">
+                    <ul class="list-group" style="width:250px">
+                      <li class="list-group-item id" id="secondary4-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary4-std">STD - <span></span></li>
+                      <li class="list-group-item" id="secondary4-mean">MEAN - <span></span></li>
+                      <li class="list-group-item" id="secondary4-blarg">BLARG - <span></span></li>
+                      <li class="list-group-item" id="secondary4-level">LEVEL - <span></span></li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts btn4">Get Time Series &raquo;</button>
+                  </div>
+                  <div class="col-sm-8" >
+                      <div class="secondary-container">
+                        <div id="s4_placeholder" class="secondary-placeholder"></div>
+                      </div>
+                  </div>
+                </div>
                 </div>
               </div>
           </div>
@@ -173,7 +204,23 @@
             </div>
             <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
               <div class="panel-body">
-                I PUT STUFF FOR 5
+                <div class="row">
+                  <div class="col-sm-4 secondary-panel">
+                    <ul class="list-group" style="width:250px">
+                      <li class="list-group-item id" id="secondary5-id">ID - <span></span></li>
+                      <li class="list-group-item" id="secondary5-std">STD - <span></span></li>
+                      <li class="list-group-item" id="secondary5-mean">MEAN - <span></span></li>
+                      <li class="list-group-item" id="secondary5-blarg">BLARG - <span></span></li>
+                      <li class="list-group-item" id="secondary5-level">LEVEL - <span></span></li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary btn-get-similar-ts btn5">Get Time Series &raquo;</button>
+                  </div>
+                  <div class="col-sm-8" >
+                      <div class="secondary-container">
+                        <div id="s5_placeholder" class="secondary-placeholder"></div>
+                      </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
