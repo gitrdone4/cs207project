@@ -14,18 +14,7 @@ sudo service nginx restart
 
 printf "\nMoving Repos Assets to www...\n"
 
-# Reinitialize PSQL db
-# psql -c "DROP TABLE timeseries;"
-# psql -c "CREATE TYPE level AS ENUM ('A', 'B', 'C', 'D', 'E', 'F');"
-# psql -c "CREATE TABLE timeseries (
-#     tid VARCHAR(32) PRIMARY KEY,
-#     mean float(16) NOT NULL,
-#     std float(16) NOT NULL,
-#     blarg float(16) NOT NULL,
-#     level level NOT NULL 
-# );"
-
-# Recreate /home/www
+# Recreate  /home/www
 sudo rm -r /home/www
 sudo mkdir /home/www
 
@@ -36,12 +25,12 @@ sudo cp ~/cs207project /home/www/ -r
 printf "\nStarting Application Servers...\n"
 
 cd ~/cs207project/cs207project/tsrbtreedb
-sudo python3 socket_server.py & disown
+sudo nohup python3 socket_server.py &
 #echo "Socket Server Started"
 
 cd ~/cs207project/cs207project/flask
 
-sudo python3 run.py & disown
+sudo  nohup python3 run.py &
 #echo "REST API Server Started"
 
 sudo mkdir /home/www/DB
