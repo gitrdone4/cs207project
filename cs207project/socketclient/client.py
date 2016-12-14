@@ -50,11 +50,10 @@ def open_socket(json_prep,ip = 'localhost',port = 20001):
 
 
 def sanitize_ats(ats):
+    """Help that ensures all ats objects are encoded with floats only"""
     float_vals = [float(v) for v in ats.values()]
     float_times = [float(t) for t in ats.times()]
     float_ats = ArrayTimeSeries(values=float_vals, times=float_times)
-    #interpolated_ats = float_ats.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
-    #return interpolated_ats
     return float_ats
 
 def get_ts_with_id(tsid):
@@ -87,11 +86,10 @@ def save_ts_to_db(ats):
 
     """
 
+    # Casts all times and values to floats before sending over socket
     ats = sanitize_ats(ats)
+
     json_prep = {"type":"save_ts_to_db","ts":list(zip(ats.times(),ats.values()))}
-    print('\n\n\n')
-    print(json_prep['ts'])
-    print('\n\n\n')
     s = open_socket(json_prep)
 
     if 'error_type' in s:
