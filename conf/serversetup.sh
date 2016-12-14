@@ -14,7 +14,7 @@ sudo service nginx restart
 
 printf "\nMoving Repos Assets to www...\n"
 
-# Recreate /home/www
+# Recreate  /home/www
 sudo rm -r /home/www
 sudo mkdir /home/www
 
