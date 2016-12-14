@@ -5,6 +5,7 @@
 from string import ascii_uppercase
 import pandas as pd
 import numpy as np
+import sqlite3
 import os
 import re
 
@@ -22,7 +23,7 @@ def get_metadata(fname):
     Parameters
     ----------
     fname: str
-        string of .txt file
+        string of .npy file
 
     Returns
     -------
@@ -31,14 +32,14 @@ def get_metadata(fname):
     """
 
     # validate `fname`
-    if not fname.endswith('.txt'):
+    if not fname.endswith('.npy'):
         error_msg = 'Make sure you are inputting a .txt file!'
         raise ValueError(error_msg)
 
     # load dataset and calculate stats
-    ts_out = pd.read_csv('light_curves/'+fname, sep=' ')
+    ts_out = pd.DataFrame(np.load('light_curves/'+fname)).transpose()
     ts_out.columns = ['_', 'value']
-    _id = int(re.sub('(ts-|\.txt)', '' ,fname))
+    _id = int(re.sub('(ts_datafile_|\.npy)', '' ,fname))
     mean = ts_out.value.mean()
     std = ts_out.value.std()
     blarg = np.random.uniform()
@@ -51,7 +52,7 @@ def get_metadata(fname):
 def main():
 
     # get names of text files
-    fnames = [s for s in os.listdir('../light_curves/') if s.endswith('.txt')]
+    fnames = [s for s in os.listdir('light_curves/') if s.endswith('.npy')]
 
     # construct metadata array
     metadata_arr = pd.DataFrame([get_metadata(f) for f in fnames])
@@ -59,7 +60,7 @@ def main():
     metadata_arr.sort_values('id', inplace=True)
 
     # write csv file
-    metadata_arr.to_csv('ts_metadata.txt', sep=' ', index=False)
-
+    with sqlite3.connect('ts_metadata.db') as conn:
+        metadata_arr.to_sql('ts_metadata', conn, if_exists='replace', index=False)
 if __name__ == '__main__':
     main()

@@ -10,8 +10,8 @@ from flask import make_response, jsonify, request, url_for, render_template
 from cs207project.timeseries import arraytimeseries as arrts
 import cs207project.socketclient.client as cl
 from cs207project.handy_helpers import *
-from cs207project.flask.app import app, db, models
-from cs207project.flask.helper_functions import *
+from app import app, db, models
+from helper_functions import *
 import json
 
 # ARGUMENT VALIDATION
@@ -68,7 +68,7 @@ def front_page():
 
     return render_template('index.html')
 
-@app.route('/timeseries/', methods=['GET', 'POST'])
+@app.route('/timeseries', methods=['GET', 'POST'])
 def get_metadata():
     """
     Description
@@ -118,18 +118,22 @@ def get_metadata():
     elif request.method == 'POST':
 
         # step 1: get json, decode with ascii and make a dict
-        response_txt = request.data.decode('ascii')
-        response = json.loads(response_txt)
+        payload = request.get_json()   
 
         # step 2: json to arraytimeseries
-        new_ts = arrts.ArrayTimeSeries.from_dict(response)
+        new_ts = arrts.ArrayTimeSeries.from_dict(payload)
 
-        # step 3: add timeseries to db
+        # step 3: add timeseries to simsearch db
         new_tsid = cl.save_ts_to_db(new_ts)
 
-        # step 4: return the timeseries 
-        # (no need for new request, can do locally)
-        return cl.get_ts_with_id(new_tsid)
+        # step 4: calculate metadata and add to
+        # the metadata database
+
+        response = {
+            'id': new_tsid,
+            'time_series': new_ts.to_dict()
+        }
+
 
     return make_response(jsonify(response), 200)
 
@@ -181,7 +185,7 @@ def get_ts_and_metadata(tsid=None):
 
     return make_response(jsonify(response), 200)
 
-@app.route('/simquery/', methods=['GET', 'POST'])
+@app.route('/simquery', methods=['GET', 'POST'])
 def get_similar():
     """
     Description
@@ -231,8 +235,17 @@ def get_similar():
         return make_response(jsonify(response), 200)
 
     elif request.method == 'POST':
-        pass    
 
+        # step 1: get json, decode with ascii and make a dict
+        payload = request.get_json()   
+
+        # step 2: json to arraytimeseries
+        new_ts = arrts.ArrayTimeSeries.from_dict(payload)
+
+        # step 3: add timeseries to db
+        response = cl.get_n_nearest_ts_for_ts(new_ts)
+
+        return make_response(jsonify(response), 200)
 
 # API ERROR HANDLING
 @app.errorhandler(404)
