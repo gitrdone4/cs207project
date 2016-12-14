@@ -28,6 +28,8 @@ bash cs207_bash.sh
 press q when nginx server pauses runtime with message stating that the process has started
 bash serversetup.sh
 You should now be able to hit the home page in a browser!
+
+To test the file upload for a time series, upload the file cs207project/file_upload_ts.js
 ```
 
 ### How to install
