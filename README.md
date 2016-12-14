@@ -29,7 +29,7 @@ press q when nginx server pauses runtime with message stating that the process h
 bash serversetup.sh
 You should now be able to hit the home page in a browser!
 
-If you would like to the site in a previously set up instance, visit here - http://54.175.17.217/
+If you would like to see the site in a previously set up instance, visit [http://54.175.17.217/](http://54.175.17.217/)
 
 To test the file upload for a time series, upload the file cs207project/file_upload_ts.js
 ```
