@@ -30,9 +30,9 @@ printf "\nMoving Repos Assets to www...\n"
 sudo rm -r /home/www
 sudo mkdir /home/www
 
-sudo rm /home/www/CS207Project -r
+sudo rm /home/www/cs207Project -r
 # Need to import the whole project
-sudo cp ~/CS207Project /home/www/ -r
+sudo cp ~/cs207Project /home/www/ -r
 
 printf "\nStarting Application Servers...\n"
 
@@ -49,8 +49,7 @@ sudo python3 run.py & disown
 #cd /home/www/CS207Project/CS207Project/MS3/api-server/ && nohup python3 flaskr.py & disown
 #cd /home/www/CS207Project/CS207Project/MS3/app-server/ && nohup python3 run.py & disown
 
-
-cd /home/www/CS207Project/CS207Project/MS2/portalocker && sudo python3 setup.py install && cd -
+sudo apt-get install python3-portalocker
 
 sudo mkdir /home/www/DB
 
