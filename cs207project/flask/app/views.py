@@ -6,7 +6,7 @@
 # with the PostgreSQL metadata database, the Storage Manager,
 # and the socket-fronted Red-Black Tree database
 
-from flask import make_response, jsonify, request, url_for, render_templa
+from flask import make_response, jsonify, request, url_for, render_template
 from cs207project.timeseries import arraytimeseries as arrts
 import cs207project.socketclient.client as cl
 from cs207project.handy_helpers import *
