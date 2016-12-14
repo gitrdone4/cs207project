@@ -2,8 +2,6 @@
 clear
 echo "Setting up..."
 
-git clone https://github.com/gitrdone4/cs207project.git
-
 sudo apt-get update
 
 wget http://s3.amazonaws.com/cs207-bucket/cs207_aws_ec2_stack.sh
