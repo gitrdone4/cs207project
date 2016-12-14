@@ -18,7 +18,7 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 3. Connect via ssh:
 ```
 $ chmod 0400 pair.sem
-$ sudo ssh -i "pair.sem" ubuntu@insert_public_ip
+$ sudo ssh -i "pair.pem" ubuntu@insert_public_ip
 ```
 4. Run the following commands to provision the system:
 ```
