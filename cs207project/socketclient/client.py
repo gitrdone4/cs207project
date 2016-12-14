@@ -17,6 +17,7 @@ from cs207project.rbtree.redblackDB import connect
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 import cs207project.timeseries.arraytimeseries as ats
 import cs207project.tsrbtreedb.simsearch as simsearch
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, SAMPLE_DIR, TS_LENGTH
 
 def open_socket(json_prep,ip = 'localhost',port = 20001):
@@ -46,6 +47,14 @@ def open_socket(json_prep,ip = 'localhost',port = 20001):
 
     proximity_dict = ds.deserialize()
     return proximity_dict
+
+
+def sanitize_ats(ats):
+    """Help that ensures all ats objects are encoded with floats only"""
+    float_vals = [float(v) for v in ats.values()]
+    float_times = [float(t) for t in ats.times()]
+    float_ats = ArrayTimeSeries(values=float_vals, times=float_times)
+    return float_ats
 
 def get_ts_with_id(tsid):
     """
@@ -77,10 +86,10 @@ def save_ts_to_db(ats):
 
     """
 
+    # Casts all times and values to floats before sending over socket
+    ats = sanitize_ats(ats)
+
     json_prep = {"type":"save_ts_to_db","ts":list(zip(ats.times(),ats.values()))}
-    print('\n\n\n')
-    print(json_prep['ts'])
-    print('\n\n\n')
     s = open_socket(json_prep)
 
     if 'error_type' in s:
