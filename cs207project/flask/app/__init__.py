@@ -5,4 +5,4 @@ app = Flask(__name__)
 app.config.from_object('cs207project.flask.config')
 db = SQLAlchemy(app)
 
-from app import views, models
+from cs207project.flask.app import views, models
