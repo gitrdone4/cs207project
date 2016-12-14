@@ -9,9 +9,11 @@ import numpy.fft as nfft
 from scipy.stats import norm
 
 import cs207project.timeseries.arraytimeseries as ats
+from cs207project.tsrbtreedb.settings import TS_LENGTH
 
 def standardize(ts):
     """standardize timeseries ts by its mean and std deviation"""
+    #interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
     stand_vals = (ts.values() - ts.mean())/ts.std()
     return ats.ArrayTimeSeries(times=ts.times(), values=stand_vals)
 

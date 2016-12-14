@@ -6,6 +6,7 @@ import numpy as np
 from cs207project.storagemanager.filestoragemanager import FileStorageManager
 from cs207project.tsrbtreedb.makelcs import clear_dir
 from cs207project.tsrbtreedb.genvpdbs import create_vpdbs
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR,tsid_to_fn,tsfn_to_id
 
 def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
@@ -16,6 +17,15 @@ def rebuild_if_needed(lc_dir,db_dir,n_vps=20,n_lcs=1000):
     if (simsearch.need_to_rebuild(lc_dir,db_dir)):
         simsearch.rebuild_lcs_dbs(lc_dir,db_dir, n_vps=n_vps, n_lcs=n_lcs)
 
+def sanitize_ats(ats):
+    float_vals = [float(v) for v in ats.values()]
+    float_times = [float(t) for t in ats.times()]
+    float_ats = ArrayTimeSeries(values=float_vals, times=float_times)
+    interpolated_ats = float_ats.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    return interpolated_ats
+
+
+
 def add_ts_wfm(ts,fsm):
     """
     Save new time series to disk, and updates vantage point databases
@@ -23,7 +33,7 @@ def add_ts_wfm(ts,fsm):
     Returns newly created ts id, or existing id if previously saved.
 
     """
-    interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    interpolated_ats = sanitize_ats(ts)
 
     # check if ts already exists in db
     tsid = simsearch.ts_already_exists(interpolated_ats,DB_DIR,LIGHT_CURVES_DIR)
@@ -120,13 +130,13 @@ def simsearch_by_ts(ts,n=5):
 
     is_new = False
     fsm = FileStorageManager(LIGHT_CURVES_DIR)
-    interpolated_ats = ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    interpolated_ats = sanitize_ats(ts)
     closest_vp = simsearch.find_closest_vp(simsearch.load_vp_lcs(DB_DIR,LIGHT_CURVES_DIR),interpolated_ats)
     n_closest_dict, tsid = simsearch.search_vpdb_for_n(closest_vp,interpolated_ats,DB_DIR,LIGHT_CURVES_DIR,n)
 
     if tsid == -1:
         is_new = True
-        tsid = add_ts_wfm(ts,fsm)
+        tsid = add_ts_wfm(interpolated_ats,fsm)
 
     return (n_closest_dict,tsid,is_new)
 

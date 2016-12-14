@@ -4,12 +4,14 @@ import random
 import threading
 import collections
 import time
+import numpy as np
 from pytest import raises
 
 from cs207project.tsrbtreedb.settings import LIGHT_CURVES_DIR, DB_DIR, TS_LENGTH, SAMPLE_DIR, TEMP_DIR
 from cs207project.tsrbtreedb.makelcs import clear_dir, tsmaker, random_ts
 from cs207project.tsrbtreedb.simsearch_interface import simsearch_by_id,rebuild_if_needed, get_by_id,add_ts,simsearch_by_ts
 from cs207project.tsrbtreedb.crosscorr import kernel_corr, kernel_dist, standardize, ccor
+from cs207project.timeseries.arraytimeseries import ArrayTimeSeries
 
 from cs207project.socketclient.serialization import serialize, Deserializer
 from socketserver import BaseRequestHandler, TCPServer,ThreadingTCPServer
@@ -112,6 +114,20 @@ def test_save_ts_to_db():
     new_tsid = s_client.save_ts_to_db(new_ts)
     echo_ts = s_client.get_ts_with_id(new_tsid)
     assert(kernel_dist(standardize(echo_ts), standardize(new_ts)) < .00001)
+
+def test_save_ts_to_db2():
+    new_ts = ArrayTimeSeries(values=[0,1, 2, 3,10], times=[0.,.2,.3,.5,1])
+    #new_ts = ArrayTimeSeries(values=[ 1.90015224,4.11290636,2.45059022,2.45251473,-4.1988066], times=[ 0.,0.2,0.4,0.6,0.8])
+    #new_ts = (tsmaker(0.5, 0.1, random.uniform(0,10),5))
+    print(type(new_ts))
+    print("values",new_ts.values())
+    print("times",new_ts.times())
+    #assert(1==2)
+    new_tsid = s_client.save_ts_to_db(new_ts)
+    echo_ts = s_client.get_ts_with_id(new_tsid)
+    interpolated_ats = new_ts.interpolate(np.arange(0.0, 1.0, (1.0 /TS_LENGTH)))
+    assert(kernel_dist(standardize(echo_ts), standardize(interpolated_ats)) < .00001)
+
 
 def test_shutdown_socket_server():
     """Shutdown socket server"""
