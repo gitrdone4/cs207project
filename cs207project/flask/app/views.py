@@ -6,7 +6,7 @@
 # with the PostgreSQL metadata database, the Storage Manager,
 # and the socket-fronted Red-Black Tree database
 
-from flask import make_response, jsonify, request, url_for
+from flask import make_response, jsonify, request, url_for, render_templa
 from cs207project.timeseries import arraytimeseries as arrts
 import cs207project.socketclient.client as cl
 from cs207project.handy_helpers import *
@@ -44,7 +44,7 @@ def validate(args, route, request_type):
         if request_type == 'GET':
             pass
 
-        else: # request_type == 'POST'
+        elif request_type == 'POST':
             pass
 
     elif route == '/timeseries/id':
@@ -55,7 +55,7 @@ def validate(args, route, request_type):
         if request_type == 'GET':
             pass
 
-        else: # request_type == 'POST'
+        elif request_type == 'POST':
             pass
 
 # API ENDPOINTS
@@ -66,27 +66,7 @@ def front_page():
     to access the "front page" of the API
     """
 
-    # this is not an error in the strict
-    # sense of the word, just instructions
-    endpoints = [
-        '/timeseries/ GET',
-        '/timeseries/ POST',
-        '/timeseries/id GET',
-        '/simquery/?the_id=id GET',
-        '/simquery/ POST'
-    ]
-
-    intro_msg = \
-    """Welcome! Please pick valid endpoint."""
-
-    msg_to_send = {
-            'message': intro_msg,
-            'available_endpoints': endpoints
-        }
-
-    return make_response(
-            jsonify(msg_to_send), 200
-        )
+    return render_template('index.html')
 
 @app.route('/timeseries/', methods=['GET', 'POST'])
 def get_metadata():
