@@ -52,7 +52,7 @@ class EchoHandler(BaseRequestHandler):
 
             # Message type: get time series from database for given id
             elif msg_dict["type"]=="get_by_id":
-                tsid = msg_dict["tsid"]
+                tsid = msg_dict["ts"]
                 try:
                     full_ts = get_by_id(tsid)
                     payload = {'tsid':tsid, "ts":list(zip(full_ts.times(),full_ts.values()))}

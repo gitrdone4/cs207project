@@ -3,3 +3,6 @@ numpy
 scipy
 portalocker
 statistics
+flask
+flask-sqlalchemy
+markdown
