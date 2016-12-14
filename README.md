@@ -14,7 +14,7 @@ Time series are two-dimensional (or higher) arrays of numeric data, where ordere
 
 ### Instructions for Running the Project in an EC2 Instance
 1. Create an Ubuntu 16.04 instance on Amazon EC2.
-2. Make sure the security group allows HTTP access on port 80.
+2. During instance creation, select the security group option to allow HTTP access on port 80.
 3. Connect via ssh:
 ```
 $ chmod 0400 pair.sem
