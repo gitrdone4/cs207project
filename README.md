@@ -12,6 +12,8 @@ Final group project for Harvard's CS 207 course, [Systems Development for Comput
 
 Time series are two-dimensional (or higher) arrays of numeric data, where ordered time-values are bound to specific data points that represent specific outcomes, measurements, or other values associated with specific times.  While time series data can be stored using traditional arrays or tables, the classes included in this library make working with these types of data sets in python easier by enforcing the core properties of a time series at a class level. For example, in a time series no two times can be repeated. And every represented value needs a time associated with it. By creating and manipulating data-sets using these classes, these properties are enforced at all times.
 
+The UI that we have provided displays one larger primary chart of the id in question. Additionally, it provides 5 charts that compare the most similar time series, provided by the /simquery rest endpoint, and allows for each one to become the primary chart on the page.
+
 ### Instructions for Running the Project in an EC2 Instance
 1. Create an Ubuntu 16.04 instance on Amazon EC2.
 2. During instance creation, select the security group option to allow HTTP access on port 80.
@@ -23,10 +25,14 @@ $ sudo ssh -i "pair.pem" ubuntu@insert_public_ip
 4. Run the following commands to provision the system:
 ```
 git clone https://github.com/gitrdone4/cs207project.git
+
 cd ~/cs207project/conf
+
 bash cs207_bash.sh
 press q when nginx server pauses runtime with message stating that the process has started
+
 bash serversetup.sh
+
 You should now be able to hit the home page in a browser!
 
 If you would like to see the site in a previously set up instance, visit http://54.175.17.217/
@@ -34,7 +40,7 @@ If you would like to see the site in a previously set up instance, visit http://
 To test the file upload for a time series, upload the file cs207project/file_upload_ts.js
 ```
 
-### How to install
+### How to install our cs207project libraries
 1. Clone repo
 2. Run `python setup.py install` from the root directory 'cs207project'
 
